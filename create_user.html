@@ -39,7 +39,7 @@
       color: #555;
     }
 
-    input[type="text"], input[type="password"] {
+    input[type="text"], input[type="password"], select {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
@@ -87,6 +87,7 @@
     function validateForm() {
       const employeeName = document.getElementById("employee-name").value.trim();
       const phoneNumber = document.getElementById("phone-number").value.trim();
+      const zone = document.getElementById("zone").value.trim();
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
 
@@ -99,6 +100,12 @@
       // Validate Phone Number
       if (!/^\d{10}$/.test(phoneNumber)) {
         alert("Phone Number must contain exactly 10 digits.");
+        return false;
+      }
+
+      // Validate Zone
+      if (zone === "") {
+        alert("Please select a zone.");
         return false;
       }
 
@@ -122,6 +129,20 @@
       <label for="phone-number">Phone Number:</label>
       <input type="text" id="phone-number" name="phone_number" placeholder="Enter your phone number" required>
 
+      <label for="zone">Zone:</label>
+      <select id="zone" name="zone" required>
+        <option value="">-- Select Zone --</option>
+        <option value="NCR">NCR</option>
+        <option value="SCR">SCR</option>
+        <option value="SR">SR</option>
+        <option value="NR">NR</option>
+        <option value="WR">WR</option>
+        <option value="ER">ER</option>
+        <option value="NER">NER</option>
+        <option value="ECR">ECR</option>
+        <option value="SECR">SECR</option>
+      </select>
+
       <label for="username">Username:</label>
       <input type="text" id="username" name="username" placeholder="Enter your username" required>
 
@@ -140,5 +161,3 @@
   </div>
 </body>
 </html>
-
-

@@ -1,9 +1,9 @@
 <?php
 // Database connection details
 $servername = "localhost";
-$username = "root"; // Replace with your database username
-$password = "Hbl@1234"; // Replace with your database password
-$dbname = "maintainance"; // Replace with your database name
+$username = "root";
+$password = "Hbl@1234";
+$dbname = "maintainance";
 
 // Create a connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -17,9 +17,10 @@ if ($conn->connect_error) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Sanitize and validate input
     $employee_name = trim($_POST["employee_name"]);
-    $phone_number = trim($_POST["phone_number"]);
-    $username = trim($_POST["username"]);
-    $password = trim($_POST["password"]);
+    $phone_number  = trim($_POST["phone_number"]);
+    $zone          = trim($_POST["zone"]);
+    $username      = trim($_POST["username"]);
+    $password      = trim($_POST["password"]);
 
     $errors = [];
 
@@ -31,6 +32,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate Phone Number
     if (!preg_match("/^\d{10}$/", $phone_number)) {
         $errors[] = "Phone Number must contain exactly 10 digits.";
+    }
+
+    // Validate Zone and Station
+    if (empty($zone)) {
+        $errors[] = "Zone selection is required.";
     }
 
     // Validate Username and Password
@@ -49,28 +55,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         echo "</ul>";
     } else {
-        // Prepare an SQL statement to insert the user data
-        $stmt = $conn->prepare("INSERT INTO users (employee_name, phone_number, username, password) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $employee_name, $phone_number, $username, $password);
+        // Optional: Check if username already exists
+        $check = $conn->prepare("SELECT id FROM users WHERE username = ?");
+        $check->bind_param("s", $username);
+        $check->execute();
+        $check->store_result();
 
-        // Execute the statement and check for errors
-        if ($stmt->execute()) {
-            echo "<h3>Account created successfully!</h3>";
-            echo "<p><a href='login.html'>Click here to login</a></p>";
+        if ($check->num_rows > 0) {
+            echo "<h3>Username already exists. Please choose another.</h3>";
+            $check->close();
         } else {
-            echo "Error: " . $stmt->error;
-        }
+            $check->close();
 
-        // Close the statement
-        $stmt->close();
+            // Insert the user data into database
+            $stmt = $conn->prepare("INSERT INTO users (employee_name, phone_number, zone, username, password) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssss", $employee_name, $phone_number, $zone, $username, $password);
+
+            if ($stmt->execute()) {
+                echo "<h3>Account created successfully!</h3>";
+                echo "<p><a href='login.html'>Click here to login</a></p>";
+            } else {
+                echo "Error: " . $stmt->error;
+            }
+
+            $stmt->close();
+        }
     }
 }
 
-// Close the database connection
 $conn->close();
 ?>
-
-
-
-
-
