@@ -17,7 +17,7 @@ try {
         }
 
         // Fetch user details (No hashing, direct comparison)
-        $stmt = $pdo->prepare("SELECT username, employee_name, password, role FROM users WHERE username = :username");
+        $stmt = $pdo->prepare("SELECT username, employee_name, password, role,Zone FROM users WHERE username = :username");
         $stmt->execute(['username' => $username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -27,13 +27,15 @@ try {
             $_SESSION['username'] = $user['username'];
             $_SESSION['employee_name'] = $user['employee_name'];
             $_SESSION['role'] = $user['role'];  // ✅ Store role in session
+            $_SESSION['Zone']=$user['Zone'];
 
             echo json_encode([
                 'success' => true, 
                 'message' => 'Login successful!', 
                 'user_id' => $_SESSION['user_id'],
                 'role' => $_SESSION['role'],
-                'employee_name' => $user['employee_name']  // Added employee_name here.
+                'employee_name' => $user['employee_name'],  // Added employee_name here.
+                'zone'=>$_SESSION['Zone']
             ]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Invalid username or password.']);

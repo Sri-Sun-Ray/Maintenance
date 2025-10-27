@@ -143,13 +143,6 @@
 
 <script>
 function createNewReport(){
-  const storedUserId = localStorage.getItem("user_id");
-  const storedEmployeeName = localStorage.getItem("employee_name");
-  const zone = localStorage.getItem("zone");
-  sessionStorage.clear(); localStorage.clear();
-  if(storedUserId) localStorage.setItem("user_id", storedUserId);
-  if(storedEmployeeName) localStorage.setItem("employee_name", storedEmployeeName);
-  if(zone) localStorage.setItem("zone", zone);
   window.location.href = 'STCAS_create.html#0.0';
 }
 
@@ -169,34 +162,6 @@ function daysSinceLastReport() {
   return Math.floor((now - last) / (1000 * 60 * 60 * 24));
 }
 
-function autoCheckReports() {
-  const days = daysSinceLastReport();
-  const last = getLastReportDate();
-  const today = new Date();
-  let message = "";
-
-  if (!last) {
-    message = "ℹ️ No reports found yet.\nPlease create your first QA Audit Report.";
-  } else if (days >= 30) {
-    const target = new Date(last);
-    target.setMonth(target.getMonth() + 1);
-    message = `🔴 Monthly report pending!\nLast report: ${last.toDateString()}\nTarget date: ${target.toDateString()}`;
-  } else if (days >= 7) {
-    const target = new Date(last);
-    target.setDate(target.getDate() + 7);
-    message = `🟠 Weekly report pending!\nLast report: ${last.toDateString()}\nTarget date: ${target.toDateString()}`;
-  } else {
-    message = `✅ Reports are up to date.\nLast report: ${last.toDateString()}`;
-  }
-
-  const box = document.getElementById("reminderBox");
-  box.style.display = "block";
-  box.textContent = message;
-}
-
-window.onload = function() {
-  autoCheckReports();
-};
 </script>
 
 </body>

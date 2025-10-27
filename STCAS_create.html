@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Maintanance Checklist Dashboard</title>
+  <title>Maintenance Checklist Dashboard</title>
   <style>
     * {
       box-sizing: border-box;
@@ -157,16 +157,21 @@
   <div class="container">
     <h1>Monthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)</h1>
 
-   
-
-      <!-- Station Selection -->
+    <!-- Zone and Station Inputs -->
+    <div class="input-section">
       <div class="input-box">
-        <label for="station">Station Name:</label>
-        <select id="station">
-          <option value="">Select Station</option>
-        </select>
+        <label for="zone">Zone:</label>
+        <input type="text" id="zone" value="" readonly />
       </div>
 
+      <div class="input-box">
+        <label for="Station">Station:</label>
+        <input type="text" id="station" value="" readonly />
+      </div>
+    </div>
+
+    <!-- RIU Number and Equipment No -->
+    <div class="input-section">
       <div class="input-box">
         <label for="riuNo">RIU No:</label>
         <input type="text" id="riuNo" placeholder="Enter RIU Number" />
@@ -266,67 +271,6 @@
     </div>
   </div>
 
-  <script>
-    // Dynamic station mapping
-    const stationData = {
-      cr: ["Bhuawal", "Kalyan"],
-      ncr: ["Jhansi D", "Jhansi E"]
-    };
-
-    // Update stations when zone changes
-    function updateStations() {
-    const zone = localStorage.getItem("zone"); // get zone from localStorage
-    const stationSelect = document.getElementById("station");
-
-    // Clear old options
-    stationSelect.innerHTML = '<option value="">Select Station</option>';
-
-    // If zone exists and data available, add stations
-    if (zone && stationData[zone]) {
-      stationData[zone].forEach(station => {
-        const option = document.createElement("option");
-        option.value = station;
-        option.textContent = station;
-        stationSelect.appendChild(option);
-      });
-    } else {
-      console.warn("No station data found for zone:", zone);
-    }
-  }
-  window.addEventListener("DOMContentLoaded", updateStations);
-
-    function saveNumbers() {
-      const zone = localStorage.getItem("zone").trim();
-      const station = document.getElementById("station").value.trim();
-      const riu = document.getElementById("riuNo").value.trim();
-      const equip = document.getElementById("equipNo").value.trim();
-
-      if (zone && station && riu && equip) {
-        document.getElementById("scheduleButtons").classList.remove("hidden");
-        alert(`✅ Saved successfully!\nZone: ${zone}\nStation: ${station}\nRIU No: ${riu}\nEquipment No: ${equip}`);
-      } else {
-        alert("⚠️ Please fill all fields (Zone, Station, RIU No, Equipment No).");
-      }
-    }
-
-    function showDaily() {
-      document.getElementById("tablesSection").classList.remove("hidden");
-      document.getElementById("dailyTable").style.display = "table";
-      document.getElementById("monthlyTable").style.display = "none";
-    }
-
-    function showMonthly() {
-      document.getElementById("tablesSection").classList.remove("hidden");
-      document.getElementById("dailyTable").style.display = "none";
-      document.getElementById("monthlyTable").style.display = "table";
-    }
-
-    function generateReport() {
-      alert("📄 Report generated successfully!");
-    }
-
-    localStorage.setItem("last_report_date", new Date().toISOString());
-
-  </script>
+  <script src="STCAS_create.js"></script>
 </body>
 </html>
