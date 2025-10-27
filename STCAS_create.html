@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maintanance Checklist Dashboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #e9efff, #f7f9fc);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1100px;
+      background: #fff;
+      margin-top: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+      padding: 30px 40px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e293b;
+      margin-bottom: 25px;
+      font-size: 26px;
+      letter-spacing: 0.5px;
+    }
+
+    .input-section {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .input-box {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    label {
+      display: block;
+      color: #334155;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    input:focus, select:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #fff;
+    }
+
+    .btn-save {
+      background-color: #007bff;
+    }
+
+    .btn-save:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-schedule {
+      background-color: #16a34a;
+      margin-right: 10px;
+    }
+
+    .btn-schedule:hover {
+      background-color: #0e9c41;
+    }
+
+    .buttons {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+      display: none;
+    }
+
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+    }
+
+    td input {
+      width: 95%;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    .footer {
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
+      margin-top: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Monthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)</h1>
+
+   
+
+      <!-- Station Selection -->
+      <div class="input-box">
+        <label for="station">Station Name:</label>
+        <select id="station">
+          <option value="">Select Station</option>
+        </select>
+      </div>
+
+      <div class="input-box">
+        <label for="riuNo">RIU No:</label>
+        <input type="text" id="riuNo" placeholder="Enter RIU Number" />
+      </div>
+
+      <div class="input-box">
+        <label for="equipNo">RIU Equipment No:</label>
+        <input type="text" id="equipNo" placeholder="Enter Equipment Number" />
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn btn-save" onclick="saveNumbers()">Save</button>
+    </div>
+
+    <div class="buttons hidden" id="scheduleButtons">
+      <button class="btn btn-schedule" id="dailyBtn" onclick="showDaily()">Daily Schedule Check</button>
+      <button class="btn btn-schedule" id="monthlyBtn" onclick="showMonthly()">Monthly Schedule Check</button>
+    </div>
+
+    <div id="tablesSection" class="hidden">
+      <!-- Daily Table -->
+      <table id="dailyTable">
+        <thead>
+          <tr>
+            <th>Sl No</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Action Taken / Range</th>
+            <th>Observation</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>NMS</td>
+            <td>Ensure EI network is healthy and RIU communication is stable</td>
+            <td>Check RIU is working and communicating with STCAS</td>
+            <td><input type="text" placeholder="Observation"></td>
+            <td><input type="text" placeholder="Remarks"></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>NMS</td>
+            <td>Backup Events & Fault data logs of RIU</td>
+            <td>Store log files & upload to Google Drive</td>
+            <td><input type="text" placeholder="Observation"></td>
+            <td><input type="text" placeholder="Remarks"></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>NMS</td>
+            <td>Ensure RIU inputs operate properly</td>
+            <td>Check all RIU field inputs (Signals, Points, Track circuits)</td>
+            <td><input type="text" placeholder="Observation"></td>
+            <td><input type="text" placeholder="Remarks"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Monthly Table -->
+      <table id="monthlyTable">
+        <thead>
+          <tr>
+            <th>Sl No</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Action Taken / Range</th>
+            <th>Observation</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>4</td>
+            <td>Power Supply (LC Gate/Junction)</td>
+            <td>Check voltage at 230V AC input to both chargers</td>
+            <td>Expected: 220 - 260V AC</td>
+            <td><input type="text" placeholder="Observation"></td>
+            <td><input type="text" placeholder="Remarks"></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Cabins / IB Location</td>
+            <td>Verify A/C input supply operation</td>
+            <td>Ensure monitoring relays ON when A/C power ON</td>
+            <td><input type="text" placeholder="Observation"></td>
+            <td><input type="text" placeholder="Remarks"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="buttons">
+        <button class="btn btn-save" onclick="generateReport()">Generate Report</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dynamic station mapping
+    const stationData = {
+      cr: ["Bhuawal", "Kalyan"],
+      ncr: ["Jhansi D", "Jhansi E"]
+    };
+
+    // Update stations when zone changes
+    function updateStations() {
+    const zone = localStorage.getItem("zone"); // get zone from localStorage
+    const stationSelect = document.getElementById("station");
+
+    // Clear old options
+    stationSelect.innerHTML = '<option value="">Select Station</option>';
+
+    // If zone exists and data available, add stations
+    if (zone && stationData[zone]) {
+      stationData[zone].forEach(station => {
+        const option = document.createElement("option");
+        option.value = station;
+        option.textContent = station;
+        stationSelect.appendChild(option);
+      });
+    } else {
+      console.warn("No station data found for zone:", zone);
+    }
+  }
+  window.addEventListener("DOMContentLoaded", updateStations);
+
+    function saveNumbers() {
+      const zone = localStorage.getItem("zone").trim();
+      const station = document.getElementById("station").value.trim();
+      const riu = document.getElementById("riuNo").value.trim();
+      const equip = document.getElementById("equipNo").value.trim();
+
+      if (zone && station && riu && equip) {
+        document.getElementById("scheduleButtons").classList.remove("hidden");
+        alert(`✅ Saved successfully!\nZone: ${zone}\nStation: ${station}\nRIU No: ${riu}\nEquipment No: ${equip}`);
+      } else {
+        alert("⚠️ Please fill all fields (Zone, Station, RIU No, Equipment No).");
+      }
+    }
+
+    function showDaily() {
+      document.getElementById("tablesSection").classList.remove("hidden");
+      document.getElementById("dailyTable").style.display = "table";
+      document.getElementById("monthlyTable").style.display = "none";
+    }
+
+    function showMonthly() {
+      document.getElementById("tablesSection").classList.remove("hidden");
+      document.getElementById("dailyTable").style.display = "none";
+      document.getElementById("monthlyTable").style.display = "table";
+    }
+
+    function generateReport() {
+      alert("📄 Report generated successfully!");
+    }
+
+    localStorage.setItem("last_report_date", new Date().toISOString());
+
+  </script>
+</body>
+</html>
