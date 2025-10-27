@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors[] = "Phone Number must contain exactly 10 digits.";
     }
 
-    // Validate Zone and Station
+    // Validate Zone
     if (empty($zone)) {
         $errors[] = "Zone selection is required.";
     }
@@ -67,9 +67,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $check->close();
 
-            // Insert the user data into database
-            $stmt = $conn->prepare("INSERT INTO users (employee_name, phone_number, zone, username, password) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssssss", $employee_name, $phone_number, $zone, $username, $password);
+            // ✅ Corrected insert query (matches your table exactly)
+            $stmt = $conn->prepare("INSERT INTO users (employee_name, phone_number, Zone, username, password) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssss", $employee_name, $phone_number, $zone, $username, $password);
 
             if ($stmt->execute()) {
                 echo "<h3>Account created successfully!</h3>";
