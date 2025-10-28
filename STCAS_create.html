@@ -188,13 +188,12 @@
     </div>
 
     <div class="buttons hidden" id="scheduleButtons">
-      <button class="btn btn-schedule" id="dailyBtn" onclick="showDaily()">Daily Schedule Check</button>
       <button class="btn btn-schedule" id="monthlyBtn" onclick="showMonthly()">Monthly Schedule Check</button>
     </div>
 
     <div id="tablesSection" class="hidden">
       <!-- Daily Table -->
-      <table id="dailyTable">
+      <table id="monthlyTable">
         <thead>
           <tr>
             <th>Sl No</th>
@@ -230,22 +229,6 @@
             <td><input type="text" placeholder="Observation"></td>
             <td><input type="text" placeholder="Remarks"></td>
           </tr>
-        </tbody>
-      </table>
-
-     <!-- Monthly Table -->
-<table id="monthlyTable">
-  <thead>
-    <tr>
-      <th>Sl No</th>
-      <th>Location</th>
-      <th>Description</th>
-      <th>Action Taken / Range</th>
-      <th>Observation</th>
-      <th>Remarks</th>
-    </tr>
-  </thead>
-  <tbody>
     <tr>
       <td>4</td>
       <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
@@ -589,7 +572,7 @@
 </table>
 
       <div class="buttons">
-        <button class="btn btn-save" onclick="generateReport()">Generate Report</button>
+        <button class="btn btn-save" onclick="SaveReport()">Save Report</button>
       </div>
     </div>
   </div>
