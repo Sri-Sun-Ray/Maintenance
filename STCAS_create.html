@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Maintenance Checklist Dashboard</title>
+  <title>Monthly Maintenance - HBL STCAS</title>
   <style>
     * {
       box-sizing: border-box;
@@ -11,140 +11,223 @@
     }
 
     body {
-      background: linear-gradient(135deg, #e9efff, #f7f9fc);
       margin: 0;
-      padding: 0;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      height: 100vh;
+      background: #f4f7fb;
     }
 
-    .container {
-      width: 90%;
-      max-width: 1100px;
-      background: #fff;
-      margin-top: 40px;
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
-      padding: 30px 40px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #1e293b;
-      margin-bottom: 25px;
-      font-size: 26px;
-      letter-spacing: 0.5px;
-    }
-
-    .input-section {
+    /* Top Bar (Logo + Header beside each other) */
+    .top-bar {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .input-box {
-      flex: 1;
-      min-width: 220px;
-    }
-
-    label {
-      display: block;
-      color: #334155;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      font-size: 15px;
-      transition: 0.3s;
-    }
-
-    input:focus, select:focus {
-      border-color: #007bff;
-      outline: none;
-      box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
-    }
-
-    .btn {
+      background: white;
+      border-bottom: 2px solid #e0e6ef;
       padding: 10px 20px;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .top-bar-left img {
+      height: 45px;
+    }
+
+    .top-bar-left h1 {
+      font-size: 20px;
+      color: #003366;
+      margin: 0;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+
+    .info-tags {
+      display: flex;
+      gap: 15px;
+      font-size: 14px;
+    }
+
+    .info-tags div {
+      background: #e6eefb;
+      padding: 5px 12px;
+      border-radius: 5px;
+      color: #003366;
+      font-weight: 500;
+    }
+
+    .logout-btn {
+      background: #ff4d4d;
+      color: white;
       border: none;
-      border-radius: 8px;
-      font-size: 15px;
+      padding: 6px 14px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      color: #fff;
+      font-size: 14px;
+      transition: background 0.3s;
     }
 
-    .btn-save {
-      background-color: #007bff;
+    .logout-btn:hover {
+      background: #e60000;
     }
 
-    .btn-save:hover {
-      background-color: #0056b3;
+    /* Layout: Sidebar + Main */
+    .layout {
+      display: flex;
+      flex: 1;
     }
 
-    .btn-schedule {
-      background-color: #16a34a;
-      margin-right: 10px;
+    /* Sidebar */
+    .sidebar {
+      width: 230px;
+      background: #f0f3f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      padding: 25px 15px;
+      border-right: 2px solid #e0e6ef;
     }
 
-    .btn-schedule:hover {
-      background-color: #0e9c41;
-    }
-
-    .buttons {
+    .sidebar h2 {
       text-align: center;
-      margin: 20px 0;
+      font-size: 18px;
+      margin-bottom: 40px;
+      color: #003366;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #003366;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      background: #e6eefb;
+      text-align: center;
+      transition: background 0.3s;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background: #d1e2ff;
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      padding-bottom: 30px;
+      overflow-y: auto;
+    }
+
+    /* RIU Info Section */
+    .riu-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 25px;
+      background: white;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      padding: 12px 20px;
+      margin: 20px auto;
+      border-radius: 8px;
+      width: 90%;
+    }
+
+    .riu-info label {
+      font-weight: 600;
+      color: #003366;
+      margin-right: 6px;
+    }
+
+    .riu-info input {
+      padding: 5px 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      width: 130px;
+    }
+
+    .riu-info button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .riu-info button:hover {
+      background: #004c99;
+    }
+
+    /* Checklist */
+    .checklist {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      margin: 0 auto 40px;
+      padding: 20px;
+      width: 90%;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 25px;
-      display: none;
     }
 
     th, td {
-      border: 1px solid #e2e8f0;
+      border: 1px solid #ccc;
       padding: 10px;
       text-align: left;
       font-size: 14px;
     }
 
     th {
-      background-color: #007bff;
-      color: white;
-      text-align: center;
-    }
-
-    td input {
-      width: 95%;
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid #cbd5e1;
+      background: #0066cc;
+      color: #fff;
     }
 
     tr:nth-child(even) {
-      background-color: #f8fafc;
+      background: #f9f9f9;
     }
 
-    tr:hover {
-      background-color: #f1f5f9;
+    input[type="text"] {
+      width: 95%;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
     }
 
-    .footer {
+    .buttons {
       text-align: center;
-      color: #64748b;
-      font-size: 13px;
-      margin-top: 20px;
+      margin: 15px 0;
+    }
+
+    .buttons button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+
+    .buttons button:hover {
+      background: #004c99;
     }
 
     .hidden {
@@ -154,46 +237,88 @@
 </head>
 
 <body>
-  <div class="container">
-    <h1>Monthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)</h1>
+<!-- Top Bar (Logo + Header + Logout) -->
+<div style="
+  background-color: #fff;
+  padding: 20px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid #ccc;
+  position: relative;
+  height: 120px; /* Increased header height */
+">
 
-    <!-- Zone and Station Inputs -->
-    <div class="input-section">
-      <div class="input-box">
+  <!-- Left: Logo -->
+  <img src="hbl logo.jpg" alt="HBL Logo"
+       style="position: absolute; left: 30px; height: 90px; width: auto; object-fit: contain;">
+
+  <!-- Center: Heading -->
+  <h1 style="
+    font-size: 26px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin: 0;
+    line-height: 1.2;
+  ">
+    Monthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)
+  </h1>
+
+  <!-- Right: Logout Button -->
+  <button style="
+    position: absolute;
+    right: 30px;
+    padding: 10px 20px;
+    background-color: #c62828;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+  ">
+    Logout
+  </button>
+</div>
+</body>
+
+
+  <!-- Sidebar + Main layout -->
+  <div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>HBL STCAS</h2>
+      <a href="#" class="active">Monthly Maintenance</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+      <!-- RIU Info Section -->
+      <div class="riu-info">
         <label for="zone">Zone:</label>
-        <input type="text" id="zone" value="" readonly />
-      </div>
+        <input type="text" id="zone" value="CR" readonly>
 
-      <div class="input-box">
-        <label for="Station">Station:</label>
-        <input type="text" id="station" value="" readonly />
-      </div>
-    </div>
+        <label for="station">Station:</label>
+        <input type="text" id="station" value="Kalyan" readonly>
 
-    <!-- RIU Number and Equipment No -->
-    <div class="input-section">
-      <div class="input-box">
         <label for="riuNo">RIU No:</label>
-        <input type="text" id="riuNo" placeholder="Enter RIU Number" />
+        <input type="text" id="riuNo" placeholder="Enter RIU Number">
+
+        <label for="equipNo">Equipment No:</label>
+        <input type="text" id="equipNo" placeholder="Enter Equipment Number">
+
+        <button onclick="saveNumbers()">Save</button>
       </div>
 
-      <div class="input-box">
-        <label for="equipNo">RIU Equipment No:</label>
-        <input type="text" id="equipNo" placeholder="Enter Equipment Number" />
+      <!-- Buttons -->
+      <div class="buttons hidden" id="scheduleButtons">
+        <button id="monthlyBtn" onclick="showMonthly()">Monthly Schedule Check</button>
       </div>
-    </div>
 
-    <div class="buttons">
-      <button class="btn btn-save" onclick="saveNumbers()">Save</button>
-    </div>
-
-    <div class="buttons hidden" id="scheduleButtons">
-      <button class="btn btn-schedule" id="monthlyBtn" onclick="showMonthly()">Monthly Schedule Check</button>
-    </div>
-
-    <div id="tablesSection" class="hidden">
-      <!-- Daily Table -->
-      <table id="monthlyTable">
+      <!-- Checklist Table -->
+      <div class="checklist hidden" id="tablesSection">
+        <table id="monthlyTable">
         <thead>
           <tr>
             <th>Sl No</th>
@@ -208,8 +333,8 @@
           <tr>
             <td>1</td>
             <td>NMS</td>
-            <td>Ensure E1 network is always healthy and Maintained RIU Communication is healthy in NMS network</td>
-            <td>Ensure the Maintained RIU is working condition and communicating to STCAS unit</td>
+            <td>Ensure E1 network is always healthy and RIU communication is stable.</td>
+            <td>Verify communication with STCAS unit.</td>
             <td><input type="text" placeholder="Observation"></td>
             <td><input type="text" placeholder="Remarks"></td>
           </tr>
@@ -385,6 +510,8 @@
     <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
     <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
     <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
+    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
+    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
   </td>
 
   <!-- Remarks column -->
@@ -398,6 +525,9 @@
     <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
     <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
     <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
+    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
+    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
+    
   </td>
 </tr>
 <tr>
