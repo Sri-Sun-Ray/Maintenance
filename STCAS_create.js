@@ -19,6 +19,8 @@ function saveNumbers() {
       equip: equip
     };
 
+    const getDetailsBtn = document.querySelector('.btn-get');
+
     fetch('save_data.php', {
       method: 'POST',
       headers: {
@@ -30,9 +32,17 @@ function saveNumbers() {
     .then(responseData => {
       if (responseData.success) {
         alert("✅ Data saved successfully!");
-        document.getElementById("scheduleButtons").classList.remove("hidden");
       } else {
         alert("❌ Error saving data.");
+      }
+      if(responseData.key==='exist')
+      { 
+         console.log('success');
+         getDetailsBtn.style.display = 'inline-block';
+      }
+      else
+      {
+        console.log('failure');
       }
     })
     .catch(error => {
@@ -151,4 +161,59 @@ function generateReport() {
   alert("📄 Report generated successfully!");
 }
 
-localStorage.setItem("last_report_date", new Date().toISOString());
+function getDetails() {
+  // Get Zone, Station, RIU No, and Equipment No
+  const zone = document.getElementById("zone").value.trim();
+  const station = document.getElementById("station").value.trim();
+  const riuNo = document.getElementById("riuNo").value.trim();
+  const equipNo = document.getElementById("equipNo").value.trim();
+
+  if (zone && station && riuNo && equipNo) {
+    fetch('get_observations.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        zone: zone,
+        station: station,
+        riu_no: riuNo,
+        equip_no: equipNo
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const tbody = document.querySelector("#monthlyTable tbody");
+        tbody.innerHTML = ""; // Clear existing rows
+
+        data.observations.forEach((obs, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${obs.sl_no}</td>
+            <td>${obs.location}</td>
+            <td>${obs.description}</td>
+            <td>${obs.action_taken_range}</td>
+            <td><input type="text" value="${obs.observation || ''}" /></td>
+            <td><input type="text" value="${obs.remarks || ''}" /></td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        alert("✅ Details loaded successfully!");
+      } else {
+        alert("⚠️ No data found for this RIU entry.");
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      alert("❌ Failed to load details.");
+    });
+  } else {
+    alert("⚠️ Please fill all the fields (Zone, Station, RIU No, Equipment No).");
+  }
+}
+function logout(){
+  window.location.href="login.html";
+}
+

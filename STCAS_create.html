@@ -4,236 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Monthly Maintenance - HBL STCAS</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: "Segoe UI", Roboto, sans-serif;
-    }
-
-    body {
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background: #f4f7fb;
-    }
-
-    /* Top Bar (Logo + Header beside each other) */
-    .top-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: white;
-      border-bottom: 2px solid #e0e6ef;
-      padding: 10px 20px;
-    }
-
-    .top-bar-left {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .top-bar-left img {
-      height: 45px;
-    }
-
-    .top-bar-left h1 {
-      font-size: 20px;
-      color: #003366;
-      margin: 0;
-    }
-
-    .top-bar-right {
-      display: flex;
-      align-items: center;
-      gap: 25px;
-    }
-
-    .info-tags {
-      display: flex;
-      gap: 15px;
-      font-size: 14px;
-    }
-
-    .info-tags div {
-      background: #e6eefb;
-      padding: 5px 12px;
-      border-radius: 5px;
-      color: #003366;
-      font-weight: 500;
-    }
-
-    .logout-btn {
-      background: #ff4d4d;
-      color: white;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s;
-    }
-
-    .logout-btn:hover {
-      background: #e60000;
-    }
-
-    /* Layout: Sidebar + Main */
-    .layout {
-      display: flex;
-      flex: 1;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 230px;
-      background: #f0f3f9;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      padding: 25px 15px;
-      border-right: 2px solid #e0e6ef;
-    }
-
-    .sidebar h2 {
-      text-align: center;
-      font-size: 18px;
-      margin-bottom: 40px;
-      color: #003366;
-    }
-
-    .sidebar a {
-      text-decoration: none;
-      color: #003366;
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      background: #e6eefb;
-      text-align: center;
-      transition: background 0.3s;
-      font-weight: 500;
-    }
-
-    .sidebar a:hover,
-    .sidebar a.active {
-      background: #d1e2ff;
-    }
-
-    /* Main content */
-    .main {
-      flex: 1;
-      padding-bottom: 30px;
-      overflow-y: auto;
-    }
-
-    /* RIU Info Section */
-    .riu-info {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 25px;
-      background: white;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-      padding: 12px 20px;
-      margin: 20px auto;
-      border-radius: 8px;
-      width: 90%;
-    }
-
-    .riu-info label {
-      font-weight: 600;
-      color: #003366;
-      margin-right: 6px;
-    }
-
-    .riu-info input {
-      padding: 5px 8px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-      width: 130px;
-    }
-
-    .riu-info button {
-      background: #0066cc;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s;
-    }
-
-    .riu-info button:hover {
-      background: #004c99;
-    }
-
-    /* Checklist */
-    .checklist {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-      margin: 0 auto 40px;
-      padding: 20px;
-      width: 90%;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-      font-size: 14px;
-    }
-
-    th {
-      background: #0066cc;
-      color: #fff;
-    }
-
-    tr:nth-child(even) {
-      background: #f9f9f9;
-    }
-
-    input[type="text"] {
-      width: 95%;
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-
-    .buttons {
-      text-align: center;
-      margin: 15px 0;
-    }
-
-    .buttons button {
-      background: #0066cc;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      margin: 5px;
-      transition: background 0.3s;
-    }
-
-    .buttons button:hover {
-      background: #004c99;
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
+  <link  href="STCAS_create.css" rel="stylesheet"/>
 </head>
 
 <body>
@@ -277,7 +48,7 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
-  ">
+  " onclick="logout()">
     Logout
   </button>
 </div>
@@ -308,12 +79,7 @@
         <label for="equipNo">Equipment No:</label>
         <input type="text" id="equipNo" placeholder="Enter Equipment Number">
 
-        <button onclick="saveNumbers()">Save</button>
-      </div>
-
-      <!-- Buttons -->
-      <div class="buttons hidden" id="scheduleButtons">
-        <button id="monthlyBtn" onclick="showMonthly()">Monthly Schedule Check</button>
+        <button onclick="saveNumbers(); showMonthly();">Save</button>
       </div>
 
       <!-- Checklist Table -->
@@ -362,6 +128,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>5</td> <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
       <td>Check the working of the A/C input supply monitoring relay for both the channels of A/C 230 V supply input to RIU</td>
@@ -369,42 +136,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
-    <!-- Row 6 -->
-    <tr>
-      <td style="width: 3%; text-align:center;">6</td>
-      <td style="width: 22%;">Power Supply (LC Gate / Junction Cabins / IB Location Box / IB Hut or IB Room)</td>
-      <td style="width: 25%;">Ensure Charger / DC–DC Modules indication should Glow.</td>
-
-      <!-- Action Taken / Range column -->
-      <td style="width: 35%; padding: 0;">
-        <div style="border-bottom: 1px solid #000; padding: 4px;">LED Indications should glow.</div>
-        <div style="border-bottom: 1px solid #000; padding: 4px;">BATTERY CHARGER I/P ON</div>
-        <div style="border-bottom: 1px solid #000; padding: 4px;">BATTERY CHARGER O/P ON</div>
-      </td>
-
-      <!-- Observation column with BC1 and BC2 in separate rows -->
-      <td style="width: 35%; padding: 0;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-          <tr>
-            <td style="border-right: 1px solid #000; text-align: center;">BC1</td>
-            <td style="text-align: center;">BC2</td>
-          </tr>
-          <tr>
-            <td style="text-align: center; border-bottom: 1px solid #000;"></td>
-            <td style="text-align: center; border-bottom: 1px solid #000;"></td>
-          </tr>
-          <tr>
-            <td style="text-align: center; border-bottom: 1px solid #000;"></td>
-            <td style="text-align: center; border-bottom: 1px solid #000;"></td>
-          </tr>
-        </table>
-      </td>
-
-      <!-- Remarks column -->
-      <td style="width: 15%;"><input type="text" placeholder="Remarks"></td>
-    </tr>
-
-    <!-- Row 7 -->
+    
     <tr>
       <td>7</td>
       <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
@@ -422,6 +154,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
      <tr>
       <td>9</td>
       <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
@@ -430,6 +163,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>10</td>
       <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
@@ -438,6 +172,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>11</td>
       <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
@@ -446,6 +181,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>12</td>
       <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
@@ -454,6 +190,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>13</td>
       <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
@@ -462,6 +199,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>14</td>
       <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
@@ -470,6 +208,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>15</td>
       <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
@@ -478,122 +217,8 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
-   <tr>
-  <td>16</td>
-  <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
-  <td>Clean the RIU Equipment. Check the communication status of the RIU COM1 & RIU COM2 Modules</td>
 
-  <!-- Action Taken / Range column -->
-  <td style="width: 35%; padding: 0;">
-    <div style="border-bottom:1px solid #000;">To be free from dust</div>
-    <div style="border-bottom:1px solid #000;">LEDs should be Glow/Blink</div>
-    <div style="border-bottom:1px solid #000;">PWR LED</div>
-    <div style="border-bottom:1px solid #000;">MHLT LED</div>
-    <div style="border-bottom:1px solid #000;">WHLT LED</div>
-    <div style="border-bottom:1px solid #000;">DATA1 LED</div>
-    <div style="border-bottom:1px solid #000;">DATA2 LED</div>
-    <div style="border-bottom:1px solid #000;">CH1/LINK1 LED</div>
-    <div style="border-bottom:1px solid #000;">CH2/LINK2 LED</div>
-    <div style="border-bottom:1px solid #000;">BMS LED</div>
-    <div style="border-bottom:1px solid #000;">CNS LED</div>
-    <div style="border-bottom:1px solid #000;">BHLT LED</div>
-  </td>
-
-  <!-- Observation column -->
-  <td style="width: 35%; padding: 0;">
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-  </td>
-
-  <!-- Remarks column -->
-  <td style="width: 15%; padding: 0;">
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    
-  </td>
-</tr>
-<tr>
-      <td>17</td>
-      <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
-      <td>Check all Health Status LEDs, i.eRIU – FSC Module</td>
-
-      <td style="width: 35%; padding: 0;">
-    <div style="border-bottom:1px solid #000;">LEDs should be Glow/Blink</div>
-    <div style="border-bottom:1px solid #000;">PWR LED</div>
-    <div style="border-bottom:1px solid #000;">SCS LED</div>
-    <div style="border-bottom:1px solid #000;">WHLT LED</div>
-    <div style="border-bottom:1px solid #000;">ADC LED</div>
-    <div style="border-bottom:1px solid #000;">MHLT LED</div>
-  </td>
-      <!-- Observation column -->
-  <td style="width: 35%; padding: 0;">
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-  </td>
-
-  <!-- Remarks column -->
-  <td style="width: 15%; padding: 0;">
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-  </td>
-    </tr>
-
-    <tr>
-      <tr>
-      <td>18</td>
-      <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
-      <td>Check the Power Supply Module -RIU</td>
-
-      <td style="width: 35%; padding: 0;">
-    <div style="border-bottom:1px solid #000;">LEDs should be Glow/Blink</div>
-    <div style="border-bottom:1px solid #000;">PWR LED</div>
-    <div style="border-bottom:1px solid #000;">CAN LED</div>
-    <div style="border-bottom:1px solid #000;">ISO LED</div>
-  </td>
-      <!-- Observation column -->
-  <td style="width: 35%; padding: 0;">
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Observation"></div>
-
-  </td>
-
-  <!-- Remarks column -->
-  <td style="width: 15%; padding: 0;">
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-    <div style="border-bottom:1px solid #000;"><input type="text" placeholder="Remarks"></div>
-  </td>
-    </tr>
-<tr>
+     
   <tr>
       <td>19</td>
       <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
@@ -602,6 +227,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>20</td>
       <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
@@ -610,6 +236,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>21</td>
       <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
@@ -620,6 +247,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>22</td>
       <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
@@ -647,6 +275,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>25</td>
       <td>Communication Module</td>
@@ -656,6 +285,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>26</td>
       <td>Communication Module</td>
@@ -664,6 +294,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>27</td>
       <td>Communication Module</td>
@@ -672,6 +303,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>28</td>
       <td>Earthing & SPD</td>
@@ -680,6 +312,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
      <tr>
       <td>29</td>
       <td>Earthing & SPD</td>
@@ -688,6 +321,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
+
     <tr>
       <td>30</td>
       <td>Earthing & SPD</td>
@@ -703,6 +337,7 @@
 
       <div class="buttons">
         <button class="btn btn-save" onclick="SaveReport()">Save Report</button>
+        <button class="btn btn-get" onclick="getDetails()" style="display:none;">Get Details</button>
       </div>
     </div>
   </div>

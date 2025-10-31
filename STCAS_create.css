@@ -1,0 +1,228 @@
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: #f4f7fb;
+    }
+
+    /* Top Bar (Logo + Header beside each other) */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      border-bottom: 2px solid #e0e6ef;
+      padding: 10px 20px;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .top-bar-left img {
+      height: 45px;
+    }
+
+    .top-bar-left h1 {
+      font-size: 20px;
+      color: #003366;
+      margin: 0;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+
+    .info-tags {
+      display: flex;
+      gap: 15px;
+      font-size: 14px;
+    }
+
+    .info-tags div {
+      background: #e6eefb;
+      padding: 5px 12px;
+      border-radius: 5px;
+      color: #003366;
+      font-weight: 500;
+    }
+
+    .logout-btn {
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #e60000;
+    }
+
+    /* Layout: Sidebar + Main */
+    .layout {
+      display: flex;
+      flex: 1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 230px;
+      background: #f0f3f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      padding: 25px 15px;
+      border-right: 2px solid #e0e6ef;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 40px;
+      color: #003366;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #003366;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      background: #e6eefb;
+      text-align: center;
+      transition: background 0.3s;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background: #d1e2ff;
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      padding-bottom: 30px;
+      overflow-y: auto;
+    }
+
+    /* RIU Info Section */
+    .riu-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 25px;
+      background: white;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      padding: 12px 20px;
+      margin: 20px auto;
+      border-radius: 8px;
+      width: 90%;
+    }
+
+    .riu-info label {
+      font-weight: 600;
+      color: #003366;
+      margin-right: 6px;
+    }
+
+    .riu-info input {
+      padding: 5px 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      width: 130px;
+    }
+
+    .riu-info button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .riu-info button:hover {
+      background: #004c99;
+    }
+
+    /* Checklist */
+    .checklist {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      margin: 0 auto 40px;
+      padding: 20px;
+      width: 90%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #0066cc;
+      color: #fff;
+    }
+
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    input[type="text"] {
+      width: 95%;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .buttons {
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    .buttons button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+
+    .buttons button:hover {
+      background: #004c99;
+    }
+
+    .hidden {
+      display: none;
+    }
