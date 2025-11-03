@@ -1,0 +1,156 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: #f5f7fa;
+  color: #333;
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2e7dff;
+  color: #fff;
+  padding: 15px 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo img {
+  height: 45px;
+}
+
+.title h2 {
+  font-weight: 600;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+/* Filters Section */
+.filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 25px 30px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.filter-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.zone-info {
+  font-weight: 500;
+}
+
+.stations label {
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+/* New Button */
+.btn-new {
+  background-color: #2e7dff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-new:hover {
+  background-color: #1b5fd6;
+}
+
+/* Table Section */
+.table-section {
+  margin: 0 30px 40px 30px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: #2e7dff;
+  color: #fff;
+}
+
+th, td {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f2f6ff;
+}
+
+/* Action Buttons */
+.action-btn {
+  border: none;
+  border-radius: 5px;
+  padding: 6px 10px;
+  margin-right: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #fff;
+}
+
+.btn-view { background-color: #28a745; }
+.btn-edit { background-color: #ffc107; color: #222; }
+.btn-download { background-color: #17a2b8; }
+
+.action-btn:hover {
+  opacity: 0.8;
+}
+
+.logout-btn {
+  background-color: #e63946;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #d62828;
+  transform: scale(1.05);
+}

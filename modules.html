@@ -64,14 +64,14 @@
       word-wrap: break-word;
     }
 
-    .card span {
-      display: block;
-      font-size: 1.1em;
-      color: #0078d7;
-      text-align: center;
-      word-wrap: break-word;
-      line-height: 1.4em;
-    }
+  .card span {
+    display: block;
+    font-size: 1.1em; /* increased from 0.9em */
+    color: #0078d7;
+    text-align: center;
+    word-wrap: break-word;
+    line-height: 1.4em;
+  }
 
     .card:hover {
       transform: translateY(-5px) scale(1.08);
@@ -120,23 +120,23 @@
 <body>
   <header>Modules</header>
 
-  <div class="dashboard">
-    <a href="#" class="card disabled">
-      <span>STCAS maintenance checklist</span>
-    </a>
-    <a href="dashboard.html" class="card">
-      <span>RIU maintenance checklist</span>
-    </a>
-    <a href="#" class="card disabled">
-      <span>FIE maintenance checklist</span>
-    </a>
-    <a href="#" class="card disabled">
-      <span>LTCAS maintenance checklist</span>
-    </a>
-    <a href="Manuals" class="card">
-      <span>Manuals</span>
-    </a>
-  </div>
+<div class="dashboard">
+  <a href="dashboard.html" class="card">
+    <span>STCAS maintenance checklist</span>
+  </a>
+  <a href="dashboard.html" class="card">
+    <span>RIU maintenance checklist</span>
+  </a>
+  <a href="FIE_index.html" class="card">
+    <span>FIE maintenane checklist</span>
+  </a>
+  <a href="LTCAS_index.html" class="card">
+    <span>LTCAS maintenance checklist.</span>
+  </a>
+  <a href="Manuals" class="card">
+    <span>Manuals</span>
+  </a>
+</div>
 
   <footer>© 2025 Maintenance Dashboard | All Rights Reserved</footer>
 </body>
