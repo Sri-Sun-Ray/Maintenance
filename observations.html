@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Generated Report - STCAS Observations</title>
+    <style>
+        body {
+            font-family: Segoe UI, Roboto, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .08)
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 12px;
+            color: #1e293b;
+            text-align: center
+        }
+
+        .meta-table,
+        .obs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0
+        }
+
+        .meta-table td {
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc
+        }
+
+        .meta-table td.label {
+            font-weight: 700;
+            width: 180px;
+            color: #334155
+        }
+
+        .obs-table th,
+        .obs-table td {
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 13px
+        }
+
+        .obs-table th {
+            background: #0b69d0;
+            color: #fff;
+            text-align: left
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 12px
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #fff;
+            background: #007bff
+        }
+
+        .btn.print {
+            background: #16a34a
+        }
+
+        .note {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 8px;
+            text-align: center
+        }
+
+        .empty {
+            padding: 18px;
+            text-align: center;
+            color: #444
+        }
+    </style>
+
+    <!-- include jsPDF & autoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body>
+    <div class="container" id="app">
+        <h1>Monthly Maintenance Report — STCAS (Generated)</h1>
+
+        <div id="metaArea"></div>
+        <div id="obsArea"></div>
+
+        <div class="controls">
+            <button class="btn" id="backBtn">Back</button>
+            <button class="btn print" id="createPdfBtn">Create PDF</button>
+            <button id="viewReportsBtn" class="btn" style="display:none;background:#6c5ce7;margin-left:10px;"
+                disabled>View Reports</button>
+        </div>
+
+        <div class="note">If data is missing, go back to the create page and Save the RIU details first.</div>
+    </div>
+
+    <script>
+        (function () {
+            // Read metadata from sessionStorage (no prompts)
+            const zone = sessionStorage.getItem('zone') || '';
+            const station = sessionStorage.getItem('station') || '';
+            const riu_no = sessionStorage.getItem('riuNo') || '';
+            const equip_no = sessionStorage.getItem('equipNo') || '';
+
+            const metaArea = document.getElementById('metaArea');
+            const obsArea = document.getElementById('obsArea');
+            const createBtn = document.getElementById('createPdfBtn');
+            const viewBtn = document.getElementById('viewReportsBtn');
+
+            function escapeHtml(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+            function renderMeta(info) {
+                metaArea.innerHTML = `
+      <table class="meta-table">
+        <tr><td class="label">Zone</td><td>${escapeHtml(info.zone || '--')}</td></tr>
+        <tr><td class="label">Station</td><td>${escapeHtml(info.station || '--')}</td></tr>
+        <tr><td class="label">RIU No</td><td>${escapeHtml(info.riu_no || '--')}</td></tr>
+        <tr><td class="label">RIU Equip No</td><td>${escapeHtml(info.riu_equip_no || '--')}</td></tr>
+      </table>
+    `;
+            }
+
+            function renderObservations(observations) {
+                if (!observations || observations.length === 0) {
+                    obsArea.innerHTML = '<div class="empty">No observations found for this RIU entry.</div>';
+                    return;
+                }
+                let rows = observations.map(obs => `
+      <tr>
+        <td>${escapeHtml(obs.sl_no)}</td>
+        <td>${escapeHtml(obs.location)}</td>
+        <td>${escapeHtml(obs.description)}</td>
+        <td>${escapeHtml(obs.action_taken_range)}</td>
+        <td>${escapeHtml(obs.observation || '')}</td>
+        <td>${escapeHtml(obs.remarks || '')}</td>
+      </tr>
+    `).join('');
+                obsArea.innerHTML = `
+      <table class="obs-table">
+        <thead>
+          <tr>
+            <th style="width:6%">Sl No</th>
+            <th style="width:18%">Location</th>
+            <th style="width:36%">Description</th>
+            <th style="width:18%">Action Taken / Range</th>
+            <th style="width:11%">Observation</th>
+            <th style="width:11%">Remarks</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+            }
+
+            function showError(msg) {
+                metaArea.innerHTML = `<div class="empty">${escapeHtml(msg)}</div>`;
+                obsArea.innerHTML = '';
+            }
+
+            if (!zone || !station || !riu_no || !equip_no) {
+                showError('RIU metadata is missing from session. Please go back to the create page and Save the RIU details first.');
+                createBtn.disabled = true;
+            } else {
+                fetch('get_observations.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ zone: zone, station: station, riu_no: riu_no, equip_no: equip_no })
+                })
+                    .then(r => r.json())
+                    .then(json => {
+                        if (json.riu_info) renderMeta(json.riu_info);
+                        else renderMeta({ zone, station, riu_no, riu_equip_no: equip_no });
+
+                        renderObservations(json.observations || []);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showError('Failed to load data. Check network and server.');
+                        createBtn.disabled = true;
+                    });
+            }
+
+            document.getElementById('backBtn').addEventListener('click', function () { history.back(); });
+            createBtn.addEventListener('click', createPDF);
+            viewBtn.addEventListener('click', function () { window.location.href = 'viewReports.php'; });
+
+            async function createPDF() {
+                if (!zone || !station || !riu_no) {
+                    alert('RIU metadata missing. Please go back and save RIU details.');
+                    return;
+                }
+
+                createBtn.disabled = true;
+                createBtn.innerText = 'Creating...';
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+
+                // ✅ Define header drawing function
+                function drawHeader(doc, pageNum, pageCount) {
+                    const headerY = 50;
+                    const boxH = 30;
+                    const startX = 40;
+                    const widths = [90, 110, 230, 70, 60];
+
+                    const headers = [
+                        `Page ${pageNum} of ${pageCount}`,
+                        'Effective from\n21.01.2021',
+                        'Document Title:\nMonthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)',
+                        'SIF-0552',
+                        'Version 1.0'
+                    ];
+
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(9);
+
+                    let x = startX;
+                    headers.forEach((text, idx) => {
+                        doc.rect(x, headerY, widths[idx], boxH);
+                        const splitText = doc.splitTextToSize(text, widths[idx] - 6);
+                        const lineHeight = 10;
+                        const totalTextHeight = splitText.length * lineHeight;
+                        const textY = headerY + (boxH - totalTextHeight) / 2 + 7;
+                        doc.text(splitText, x + 3, textY);
+                        x += widths[idx];
+                    });
+                }
+
+                // ✅ COVER PAGE
+                drawHeader(doc, 1, 1);
+
+                doc.setFont('times', 'bold');
+                doc.setFontSize(14);
+                doc.text('SIGNAL DIRECTORATE', 200, 140);
+                doc.text('RESEARCH DESIGNS AND STANDARDS ORGANISATION', 80, 160);
+                doc.text('MANAK NAGAR, LUCKNOW - 226011', 160, 180);
+
+                doc.setFontSize(12);
+                doc.text('Title: Monthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)', 60, 210);
+
+                // Issue Table
+                doc.autoTable({
+                    startY: 250,
+                    head: [['SN', 'Issue', 'Version', 'Reason of Amendment']],
+                    body: [['1', 'First', '1.0', 'First Issue']],
+                    styles: { halign: 'center', valign: 'middle' },
+                    headStyles: { fillColor: [200, 200, 200] },
+                    tableWidth: 520,
+                    margin: { left: 40 },
+                });
+
+                doc.addPage();
+
+                // ✅ SECOND PAGE
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.text('Monthly Maintenance Report — STCAS', 40, 40);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.text(`Zone: ${zone}`, 40, 64);
+                doc.text(`Station: ${station}`, 300, 64);
+                doc.text(`RIU No: ${riu_no}`, 40, 80);
+                doc.text(`Equip No: ${equip_no}`, 300, 80);
+
+                // Draw header on page 2 (temporary page count)
+                drawHeader(doc, 2, 2);
+
+                // ✅ Collect observations dynamically from table
+                const obsRows = document.querySelectorAll('.obs-table tbody tr');
+                const observations = [];
+                obsRows.forEach(row => {
+                    const cells = row.children;
+                    observations.push({
+                        sl_no: cells[0]?.innerText || '',
+                        location: cells[1]?.innerText || '',
+                        description: cells[2]?.innerText || '',
+                        action_taken_range: cells[3]?.innerText || '',
+                        observation: cells[4]?.innerText || '',
+                        remarks: cells[5]?.innerText || ''
+                    });
+                });
+
+                // Observation table
+                const head = [['Sl No', 'Location', 'Description', 'Action Taken / Range', 'Observation', 'Remarks']];
+                const body = observations.map(o => [
+                    o.sl_no, o.location, o.description, o.action_taken_range, o.observation, o.remarks
+                ]);
+
+                doc.autoTable({
+                    startY: 100,
+                    head: head,
+                    body: body,
+                    styles: { fontSize: 9, cellPadding: 4 },
+                    headStyles: { fillColor: [11, 105, 208], textColor: 255 },
+                    theme: 'grid',
+                    margin: { left: 40, right: 40 },
+                    didDrawPage: function (data) {
+                        const pageNum = doc.internal.getCurrentPageInfo().pageNumber;
+                        const pageCount = doc.internal.getNumberOfPages();
+                        drawHeader(doc, pageNum, pageCount);
+                    }
+                });
+
+                // ✅ Finally, update headers with total page count
+                const totalPages = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= totalPages; i++) {
+                    doc.setPage(i);
+                    drawHeader(doc, i, totalPages);
+                }
+
+                // ✅ Convert to Base64 and upload
+                const dataUri = doc.output('datauristring');
+                const base64 = dataUri.split(',')[1];
+                const payload = { zone, station, riu_no, equip_no, pdf_base64: base64 };
+
+                const resp = await fetch('generate_pdf.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const json = await resp.json();
+                if (json.success) {
+                    viewBtn.style.display = 'inline-block';
+                    viewBtn.disabled = false;
+                    viewBtn.innerText = 'View Reports (v' + (json.version || '') + ')';
+                    createBtn.innerText = 'Created';
+                    createBtn.disabled = true;
+                    alert('✅ Created PDF successfully (version: ' + (json.version || '') + ').');
+                } else {
+                    alert('❌ Failed to create PDF: ' + (json.message || 'Unknown error'));
+                    createBtn.disabled = false;
+                    createBtn.innerText = 'Create PDF';
+                }
+            }
+
+
+
+        })();
+    </script>
+</body>
+
+</html>

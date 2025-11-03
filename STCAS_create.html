@@ -74,10 +74,22 @@
         <input type="text" id="station" value="Kalyan" readonly>
 
         <label for="riuNo">RIU No:</label>
-        <input type="text" id="riuNo" placeholder="Enter RIU Number">
+        <input type="text"
+               id="riuNo"
+               pattern="^\d{10,15}$"
+               title="Enter a number between 10 to 15 digits"
+               placeholder="Scan RIU Barcode"
+               style="width: 180px; padding: 5px; font-size: 14px;"
+               oninput="if(this.value.length > 15) this.value = this.value.slice(-15);">
 
         <label for="equipNo">Equipment No:</label>
-        <input type="text" id="equipNo" placeholder="Enter Equipment Number">
+        <input type="text"
+               id="equipNo"
+               pattern="^\d{10,15}$"
+               title="Enter a number between 10 to 15 digits"
+               placeholder="Scan Equipment Barcode"
+               style="width: 180px; padding: 5px; font-size: 14px;"
+               oninput="if(this.value.length > 15) this.value = this.value.slice(-15);">
 
         <button onclick="saveNumbers(); showMonthly();">Save</button>
       </div>
@@ -136,7 +148,7 @@
       <td><input type="text" placeholder="Observation"></td>
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
-    
+
     <tr>
       <td>7</td>
       <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
@@ -218,7 +230,7 @@
       <td><input type="text" placeholder="Remarks"></td>
     </tr>
 
-     
+
   <tr>
       <td>19</td>
       <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
@@ -342,8 +354,12 @@
         <button class="btn btn-generate" onclick="window.location.href='observations.html'">Generate Button</button>
       </div>
     </div>
-      
+
   </div>
+
+  <!-- include jsPDF & autoTable so generateReport() can create PDF in browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
   <script src="STCAS_create.js"></script>
 </body>

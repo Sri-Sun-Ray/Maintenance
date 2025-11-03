@@ -12,37 +12,29 @@ function saveNumbers() {
 
   if (zone && station && riu && equip) {
     // Create data object to send in the AJAX request
-    const data = {
-      zone: zone,
-      station: station,
-      riu: riu,
-      equip: equip
-    };
+    const data = { zone: zone, station: station, riu: riu, equip: equip };
 
     const getDetailsBtn = document.querySelector('.btn-get');
 
     fetch('save_data.php', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data) // Convert data to JSON
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
     })
-    .then(response => response.json()) // Parse the JSON response
+    .then(response => response.json())
     .then(responseData => {
       if (responseData.success) {
+        // store metadata in sessionStorage so observations.html can use it (no prompts)
+        sessionStorage.setItem('zone', zone);
+        sessionStorage.setItem('station', station);
+        sessionStorage.setItem('riuNo', riu);
+        sessionStorage.setItem('equipNo', equip);
         alert("✅ Data saved successfully!");
       } else {
         alert("❌ Error saving data.");
       }
-      if(responseData.key==='exist')
-      { 
-         console.log('success');
+      if(responseData.key==='exist') {
          getDetailsBtn.style.display = 'inline-block';
-      }
-      else
-      {
-        console.log('failure');
       }
     })
     .catch(error => {
@@ -146,7 +138,30 @@ function showMonthly() {
 }
 
 function generateReport() {
-  alert("📄 Report generated successfully!");
+  // Prefer sessionStorage; if not present, fall back to current form values
+  const sZone = sessionStorage.getItem('zone');
+  const sStation = sessionStorage.getItem('station');
+  const sRiu = sessionStorage.getItem('riuNo');
+  const sEquip = sessionStorage.getItem('equipNo');
+
+  const zone = sZone || document.getElementById("zone").value.trim();
+  const station = sStation || document.getElementById("station").value.trim();
+  const riuNo = sRiu || document.getElementById("riuNo").value.trim();
+  const equipNo = sEquip || document.getElementById("equipNo").value.trim();
+
+  if (!zone || !station || !riuNo || !equipNo) {
+    alert("⚠️ RIU metadata missing. Please Save the RIU details first.");
+    return;
+  }
+
+  // ensure session has values
+  sessionStorage.setItem('zone', zone);
+  sessionStorage.setItem('station', station);
+  sessionStorage.setItem('riuNo', riuNo);
+  sessionStorage.setItem('equipNo', equipNo);
+
+  // navigate to observations page which will read from sessionStorage
+  window.location.href = 'observations.html';
 }
 
 function getDetails() {

@@ -3,134 +3,141 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title></title>
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  <title>Modules</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  body {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* vertical center */
-    align-items: center;    /* horizontal center */
-    background-color: #f0f2f5; /* subtle professional background */
-  }
-
-  header {
-    text-align: center;
-    color: #333;
-    padding: 25px;
-    font-size: 2.2em; /* increased from 1.8em */
-    font-weight: bold;
-    background-color: #fff;
-    width: 100%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: absolute;
-    top: 0;
-  }
-
-  .dashboard {
-    display: flex;
-    justify-content: center; /* center horizontally */
-    align-items: center;     /* center vertically */
-    gap: 80px;               /* more space between boxes */
-    flex-wrap: wrap;         /* wrap on small screens */
-    margin-top: 120px;       /* space below header */
-  }
-
-  .card {
-    background: #fff;
-    border-radius: 15px;
-    width: 240px;
-    height: 240px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center; /* center text */
-    padding: 20px;
-    font-size: 1.3em; /* increased from 1em */
-    font-weight: bold;
-    color: #0078d7;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    cursor: pointer;
-    word-wrap: break-word;
-  }
-
-  .card span {
-    display: block;
-    font-size: 1.1em; /* increased from 0.9em */
-    color: #0078d7;
-    text-align: center;
-    word-wrap: break-word;
-    line-height: 1.4em;
-  }
-
-  .card:hover {
-    transform: translateY(-5px) scale(1.08);
-    background-color: #0078d7;
-    color: white;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-  }
-
-  footer {
-    text-align: center;
-    color: #555;
-    padding: 20px;
-    font-size: 1em; /* increased from 0.9em */
-    background-color: #fff;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-  }
-
-  @media (max-width: 768px) {
-    .dashboard {
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      height: 100vh;
+      display: flex;
       flex-direction: column;
-      gap: 40px;
-      margin-top: 130px;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f2f5;
+    }
+
+    header {
+      text-align: center;
+      color: #333;
+      padding: 25px;
+      font-size: 2.2em;
+      font-weight: bold;
+      background-color: #fff;
+      width: 100%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      position: absolute;
+      top: 0;
+    }
+
+    .dashboard {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 80px;
+      flex-wrap: wrap;
+      margin-top: 120px;
     }
 
     .card {
-      width: 200px;
-      height: 200px;
-      font-size: 1.2em; /* adjusted for mobile */
+      background: #fff;
+      border-radius: 15px;
+      width: 240px;
+      height: 240px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #0078d7;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      word-wrap: break-word;
     }
-  }
-</style>
 
+    .card span {
+      display: block;
+      font-size: 1.1em;
+      color: #0078d7;
+      text-align: center;
+      word-wrap: break-word;
+      line-height: 1.4em;
+    }
 
+    .card:hover {
+      transform: translateY(-5px) scale(1.08);
+      background-color: #0078d7;
+      color: white;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Disabled card style */
+    .card.disabled {
+      pointer-events: none;
+      opacity: 0.5;
+      background-color: #ddd;
+      color: #777;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    footer {
+      text-align: center;
+      color: #555;
+      padding: 20px;
+      font-size: 1em;
+      background-color: #fff;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        flex-direction: column;
+        gap: 40px;
+        margin-top: 130px;
+      }
+
+      .card {
+        width: 200px;
+        height: 200px;
+        font-size: 1.2em;
+      }
+    }
+  </style>
 </head>
 <body>
   <header>Modules</header>
 
-<div class="dashboard">
-  <a href="dashboard.html" class="card">
-    <span>STCAS maintenance checklist</span>
-  </a>
-  <a href="dashboard.html" class="card">
-    <span>RIU maintenance checklist</span>
-  </a>
-  <a href="FIE_index.html" class="card">
-    <span>FIE maintenane checklist</span>
-  </a>
-  <a href="LTCAS_index.html" class="card">
-    <span>LTCAS maintenance checklist.</span>
-  </a>
-  <a href="Manuals" class="card">
-    <span>Manuals</span>
-  </a>
-</div>
+  <div class="dashboard">
+    <a href="#" class="card disabled">
+      <span>STCAS maintenance checklist</span>
+    </a>
+    <a href="dashboard.html" class="card">
+      <span>RIU maintenance checklist</span>
+    </a>
+    <a href="#" class="card disabled">
+      <span>FIE maintenance checklist</span>
+    </a>
+    <a href="#" class="card disabled">
+      <span>LTCAS maintenance checklist</span>
+    </a>
+    <a href="Manuals" class="card">
+      <span>Manuals</span>
+    </a>
+  </div>
 
-<footer>© 2025 Maintenance Dashboard | All Rights Reserved</footer>
-
+  <footer>© 2025 Maintenance Dashboard | All Rights Reserved</footer>
 </body>
 </html>
