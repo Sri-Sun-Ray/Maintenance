@@ -226,3 +226,10 @@
     .hidden {
       display: none;
     }
+
+    .btn-generate{
+
+      display: flex;
+      justify-content: flex-end;
+      padding: 20px;
+    }

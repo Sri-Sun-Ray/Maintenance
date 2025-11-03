@@ -54,20 +54,8 @@ function saveNumbers() {
   }
 }
 // Function to save the report
-// Function to save the report
 
- document.addEventListener("DOMContentLoaded", function() {
-    // Simulate fetching logged-in username from backend or session
-    const username = localStorage.getItem("loggedUser") || "Admin"; 
-    document.getElementById("userName").textContent = `User: ${username}`;
 
-    // Get current date dynamically
-    const today = new Date();
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    const formattedDate = today.toLocaleDateString('en-GB', options);
-    document.getElementById("dateTag").textContent = `Date: ${formattedDate}`;
-  });
-  
 function SaveReport() {
   // Get the Zone, Station, RIU No, and Equipment No from the form
   const zone = document.getElementById("zone").value.trim();
