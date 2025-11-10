@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIU Maintainance</title>
+  <link rel="stylesheet" href="RIU_create.css">
+</head>
+<body>
+
+    <header class="top-header">
+      <div>
+        <img src="hbl logo.jpg" alt="Logo" class="Logo"></img>
+      </div>
+
+      <div class="title-section">
+        <h1>RIU Maintenance</h1>
+      </div>
+
+      <div class="logout-section">
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <!-- Info Section -->
+    <div class="info-section">
+      <div class="form-group">
+        <label for="zone">Zone:</label>
+        <input type="text" id="zone" placeholder="Enter Zone">
+      </div>
+
+      <div class="form-group">
+        <label for="station">Station:</label>
+        <input type="text" id="station" placeholder="Enter Station">
+      </div>
+
+      <div class="form-group">
+        <label for="riu">RIU:</label>
+        <input type="text" id="riu" placeholder="Enter RIU">
+      </div>
+
+      <div class="form-group">
+        <label for="equipNo">Equipment No:</label>
+        <input type="text" id="equipNo" placeholder="Enter Equipment No">
+      </div>
+
+      <button class="btn btn-save" onclick="saveInfo()">Save</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <h3>Modules</h3>
+        <ul>
+          <li onclick="selectModule('NMS')">NMS</li>
+          <li onclick="selectModule('Power Supply')">Power Supply</li>
+          <li onclick="selectModule('RIU Equipment')">RIU Equipment</li>
+          <li onclick="selectModule('Communication Module')">Communication Module</li>
+          <li onclick="selectModule('Earthing & SPD')">Earthing & SPD</li>
+        </ul>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area" id="contentArea">
+        <p>Select a module from the sidebar to view details.</p>
+      </div>
+    </div>
+
+
+
+    <script src="RIU_create.js"></script>
+</body>
+</html>
