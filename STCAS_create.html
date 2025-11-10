@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monthly Maintenance - HBL STCAS</title>
+  <link  href="STCAS_create.css" rel="stylesheet"/>
+</head>
+
+<body>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+    }
+
+    /* HEADER */
+    .header {
+      background-color: #fff;
+      padding: 10px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 2px solid #ccc;
+      position: relative;
+      height: 100px;
+    }
+
+    .header img {
+      position: absolute;
+      left: 30px;
+      height: 80px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .header-table {
+      font-size: 14px;
+      border-collapse: collapse;
+    }
+
+    .header-table td {
+      padding: 4px 6px;
+      vertical-align: middle;
+      width: 120px;
+    }
+
+    .header-table input,
+    .header-table select {
+      padding: 4px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 13px;
+    }
+
+    .btn-save {
+      background-color: #007bff;
+      color: white;
+      padding: 5px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .btn-save:hover {
+      background-color: #005fcc;
+    }
+
+    .logout-btn {
+      position: absolute;
+      right: 30px;
+      padding: 8px 15px;
+      background-color: #c62828;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* SIDEBAR + MAIN */
+    .layout {
+      display: flex;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #003366;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      height: calc(100vh - 100px);
+    }
+
+    .sidebar button {
+      background-color: transparent;
+      border: none;
+      color: white;
+      text-align: left;
+      padding: 10px;
+      margin: 5px 0;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.2s;
+      font-weight:600;
+    }
+
+    .sidebar button:hover:not(:disabled) {
+      background-color: #0055aa;
+    }
+
+    .sidebar button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .main {
+      flex: 1;
+      padding: 20px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 80%;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    th {
+      background-color: #003366;
+      color: white;
+    }
+
+    input[type="text"] {
+      width: 95%;
+    }
+  </style>
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="hbl logo.jpg" alt="HBL Logo">
+
+    <table class="header-table">
+      <tr>
+        <td><label for="zone">Zone:</label></td>
+        <td>
+          <select id="zone">
+            <option value="">-- Select Zone --</option>
+            <option value="CR">CR</option>
+            <option value="ER">ER</option>
+            <option value="NFR">NFR</option>
+            <option value="SER">SER</option>
+            <option value="ECR">ECR</option>
+            <option value="WCR">WCR</option>
+            <option value="NCR">NCR</option>
+            <option value="NR">NR</option>
+          </select>
+        </td>
+
+        <td><label for="station">Station:</label></td>
+        <td>
+          <select id="station">
+            <option value="">-- Select Station --</option>
+          </select>
+        </td>
+
+        <td><label for="riuNo">RIU No:</label></td>
+        <td><input type="text" id="riuNo" placeholder="RIU Barcode"></td>
+
+        <td><label for="equipNo">Equip No:</label></td>
+        <td><input type="text" id="equipNo" placeholder="Equipment Barcode"></td>
+
+        <td><button id="saveBtn" class="btn-save" onclick="saveNumbers()">Save</button></td>
+      </tr>
+    </table>
+
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <!-- SIDEBAR + MAIN -->
+  <div class="layout">
+    <div class="sidebar">
+      <button id="btn1" onclick="showSection('riuDetails')">RIU Details</button>
+      <button id="btn2" disabled>Power Supply</button>
+      <button id="btn3" disabled>Communication</button>
+      <button id="btn4" disabled>Earthing</button>
+      <button id="btn5" disabled>SPD</button>
+      <button id="btn6" disabled>Final Report</button>
+    </div>
+
+    <div class="main">
+      <div id="riuDetails" class="section">
+        <h3>RIU DETAILS</h3>
+        <!-- ...existing checklist table... -->
+        <table id="monthlyTable">
+          <thead>  
+            <tr>
+              <th>Sl No</th>
+              <th>Description</th>
+              <th>Action Taken / Range</th>
+              <th>Observation</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>NMS</td>
+              <td>Ensure E1 network is always healthy and RIU communication is stable.</td>
+              <td>Verify communication with STCAS unit.</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>NMS</td>
+              <td>Backup the Events & Fault data logs of RIU</td>
+              <td>Store the log files & Downloaded data from Google drive</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>NMS</td>
+              <td>Ensure RIU inputs are operated</td>
+              <td>Check all the RIU field inputs (Signals, Points, Track circuits, etc.,) are operated properly in NMS.</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+            </tr>
+      <tr>
+        <td>4</td>
+        <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>Check the Voltage level at 230 v AC Mains input voltage to both the Battery chargers</td>
+        <td> 220 - 260V AC </td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>5</td> <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>Check the working of the A/C input supply monitoring relay for both the channels of A/C 230 V supply input to RIU</td>
+        <td>Ensure that the A/C supply monitoring relays are in ON condition when A/C power in available.</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>7</td>
+        <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>Check the Power voltages at Equipment End of Ch-A & Ch-B</td>
+        <td>The voltage shall be in the range of 22V to 26.5V</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>8</td>
+        <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>Check the mounting arrangementof Input fuse(If Any)</td>
+        <td>Ensure fuses are fastened securely</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+       <tr>
+        <td>9</td>
+        <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>Check the output Power Supplyvoltage for both Battery charger bank</td>
+        <td>21.6 ~ 28.8V DC to be observed for final O/P Voltage for both battery banks.</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>10</td>
+        <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>Check the connections of the diodes in the charging path from both the battery charger output to batteries.</td>
+        <td>Ensure that the diodesare firmly connected to TB1 and TB2 in channel 1 and TB3 and TB4 in channel 2 respectively.</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>11</td>
+        <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>To check that RIU battery back up is available.</td>
+        <td>Switch OFF MCBs, ensure that RIU works on battery back up.</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>12</td>
+        <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>Clean the Battery Charger and Batteries</td>
+        <td>To be free from dust</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>13</td>
+        <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>Check the voltages at Equipment end of INTERNAL (RIU) Supply</td>
+        <td>21.6V to 28.8V DCto be observed</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>14</td>
+        <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>Check the voltages at Equipment end of EXTERNAL</td>
+        <td>21.6V to 28.8V DCto be observed</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>15</td>
+        <td>Power Supply (LC Gate/Junction Cabins/ IB Location Box/ IB Hut or IB Room)</td>
+        <td>Check the all wago fuse indications</td>
+        <td>Disconnect type fuse wago indications should not glow</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+
+    <tr>
+        <td>19</td>
+        <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
+        <td>Visually examine all the cards are inserted properly and tighten the corresponding screws</td>
+        <td>Ensure the tightness of the cards</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>20</td>
+        <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
+        <td>Visually examine all PS, communication cables are tighten all the connections / Terminations / Wagoterminals</td>
+        <td>Ensure the tightness of the cables connectors</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>21</td>
+        <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
+        <td>Check the RIU Internal and External wirings</td>
+        <td>1. Check the firmness of wiring Connections from FSC module to Rly. FieldInputs.
+          2.Check the firmness ofCommunication cable connections between RIU communication to F M S Unit
+          3.Check the firmness of wiring connections between Battery Charger .</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>22</td>
+        <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
+        <td>Check the output Supply voltage of 24 Volts charger provided for relay input wiring</td>
+        <td>The voltage measured should be approx. 21V - 29V DC.</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>23</td>
+        <td>RIU Equipment (LC Gate/ Junction Cabins/ IB Location Box/ IB Hut or Room)</td>
+        <td>Check voltage from contacts of field input relays at terminals. witred to RIU.</td>
+        <td>The voltage on the terminals when the relay is picked up should be between 20 to 29V DC.</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>24</td>
+        <td>Communication Module</td>
+        <td>Check the Quad/OFC</td>
+        <td>1. Check the firmness of wiring/OFC patch card termination to communication card.
+            2. Ensure OFC routing is properly done with avoiding 90 degree bending</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>25</td>
+        <td>Communication Module</td>
+        <td>Check the Quad/OFC</td>
+        <td>1. Check the firmness of wiring/OFC patch card termination to communication card.
+            2. Ensure OFC routing is properly done with avoiding 90 degree bending</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>26</td>
+        <td>Communication Module</td>
+        <td>Check the communication status</td>
+        <td>Ensure Tx and Rx LED should Glow/Blink</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>27</td>
+        <td>Communication Module</td>
+        <td>Visually examine all the communication cables areConnected properly and Communication card had tightened</td>
+        <td>Ensure the tightness of the patch card and communication module.</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>28</td>
+        <td>Earthing & SPD</td>
+        <td>Clean surface of the Earth electrode/MEEB/SEEB</td>
+        <td>Surface should be kept clean</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+       <tr>
+        <td>29</td>
+        <td>Earthing & SPD</td>
+        <td>Measure the Resistance and fillwater in the Earth Pits to keep low soil resistance</td>
+        <td>Resistance Should be ≤ 2 Ώ</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+      <tr>
+        <td>30</td>
+        <td>Earthing & SPD</td>
+        <td>Check the SPD devices for any signs of physical degradation</td>
+        <td>Check the Indication LED status of SPD. (If SPD indicates FAIL then replace it)</td>
+        <td><input type="text" placeholder="Observation"></td>
+        <td><input type="text" placeholder="Remarks"></td>
+      </tr>
+
+
+    </tbody>
+  </table>
+
+        <div class="buttons">
+          <button class="btn btn-save" onclick="SaveReport()">Save Report</button>
+          <button class="btn btn-get" onclick="getDetails()" style="display:none;">Get Details</button>
+
+          <button class="btn btn-generate" onclick="window.location.href='observations.html'">Generate Button</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- include jsPDF & autoTable so generateReport() can create PDF in browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+  <script src="STCAS_create.js"></script>
+</body>
+</html>
