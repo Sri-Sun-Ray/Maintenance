@@ -31,6 +31,19 @@
         <label>Zone:</label>
         <span id="zoneName">Loading...</span>
       </div>
+      <div class="station">
+        <label>Station:</label>
+        <select id="stationDropdown"></select>
+      </div>
+    </div>
+    <div class="filter-right">
+      <button class="btn-new" onclick="createNewReport()"><i class="fa-solid fa-plus"></i> New Report</button>
+    </div>
+  </section>
+
+  <!-- Stations Filter Section -->
+  <section class="filters stations-filter">
+    <div class="filter-left">
       <div class="stations">
         <label>From Station:</label>
         <select id="fromStation"></select>
@@ -38,9 +51,6 @@
         <label>To Station:</label>
         <select id="toStation"></select>
       </div>
-    </div>
-    <div class="filter-right">
-      <button class="btn-new"><i class="fa-solid fa-plus"></i> New</button>
     </div>
   </section>
 

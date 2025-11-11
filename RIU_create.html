@@ -3,72 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RIU Maintainance</title>
+  <title>RIU Maintenance</title>
   <link rel="stylesheet" href="RIU_create.css">
 </head>
 <body>
 
-    <header class="top-header">
-      <div>
-        <img src="hbl logo.jpg" alt="Logo" class="Logo"></img>
-      </div>
-
-      <div class="title-section">
-        <h1>RIU Maintenance</h1>
-      </div>
-
-      <div class="logout-section">
-        <button id="logoutBtn">Logout</button>
-      </div>
-    </header>
-
-    <!-- Info Section -->
-    <div class="info-section">
-      <div class="form-group">
-        <label for="zone">Zone:</label>
-        <input type="text" id="zone" placeholder="Enter Zone">
-      </div>
-
-      <div class="form-group">
-        <label for="station">Station:</label>
-        <input type="text" id="station" placeholder="Enter Station">
-      </div>
-
-      <div class="form-group">
-        <label for="riu">RIU:</label>
-        <input type="text" id="riu" placeholder="Enter RIU">
-      </div>
-
-      <div class="form-group">
-        <label for="equipNo">Equipment No:</label>
-        <input type="text" id="equipNo" placeholder="Enter Equipment No">
-      </div>
-
-      <button class="btn btn-save" onclick="saveInfo()">Save</button>
+  <!-- Header -->
+  <header class="top-header">
+    <div>
+      <img src="hbl logo.jpg" alt="Logo" class="Logo">
     </div>
 
-    <!-- Main Container -->
-    <div class="main-container">
-      <!-- Sidebar -->
-      <div class="sidebar">
-        <h3>Modules</h3>
-        <ul>
-          <li onclick="selectModule('NMS')">NMS</li>
-          <li onclick="selectModule('Power Supply')">Power Supply</li>
-          <li onclick="selectModule('RIU Equipment')">RIU Equipment</li>
-          <li onclick="selectModule('Communication Module')">Communication Module</li>
-          <li onclick="selectModule('Earthing & SPD')">Earthing & SPD</li>
-        </ul>
-      </div>
-
-      <!-- Content Area -->
-      <div class="content-area" id="contentArea">
-        <p>Select a module from the sidebar to view details.</p>
-      </div>
+    <div class="title-section">
+      <h1>RIU Maintenance</h1>
     </div>
 
+    <div class="logout-section">
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </header>
 
+  <!-- Info Section -->
+  <div class="info-section">
+    <div class="form-group">
+      <label for="zone">Zone:</label>
+      <input type="text" id="zone" placeholder="Enter Zone" readonly>
+    </div>
 
-    <script src="RIU_create.js"></script>
+    <div class="form-group">
+      <label for="station">Station:</label>
+      <input type="text" id="station" placeholder="Enter Station">
+    </div>
+
+    <div class="form-group">
+      <label for="riu">RIU:</label>
+      <input type="text" id="riu" placeholder="Enter RIU">
+    </div>
+
+    <div class="form-group">
+      <label for="equipNo">Equipment No:</label>
+      <input type="text" id="equipNo" placeholder="Enter Equipment No">
+    </div>
+
+    <button class="btn btn-save" onclick="saveInfo()">Save</button>
+  </div>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h3>Modules</h3>
+      <ul>
+        <li onclick="showModule('nms')">NMS</li>
+        <li onclick="showModule('power')">Power Supply</li>
+        <li onclick="showModule('riu')">RIU Equipment</li>
+        <li onclick="showModule('comm')">Communication Module</li>
+        <li onclick="showModule('earthing')">Earthing & SPD</li>
+      </ul>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area" id="contentArea">
+      <p>Select a module from the sidebar to view details.</p>
+
+      <!-- NMS Module -->
+      <div id="nms" class="module-table">
+        <h2>NMS Module</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Description</th>
+              <th>Action Taken / Range</th>
+              <th>Observation</th>
+              <th>Remarks</th>
+              <th>Image</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Check system connectivity</td>
+              <td>Connected</td>
+              <td><input type="text" placeholder="Observation" /></td>
+              <td><input type="text" placeholder="Remarks" /></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Verify device list</td>
+              <td>All devices listed</td>
+              <td><input type="text" placeholder="Observation" /></td>
+              <td><input type="text" placeholder="Remarks" /></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Check alarm configuration</td>
+              <td>Alarms working</td>
+              <td><input type="text" placeholder="Observation" /></td>
+              <td><input type="text" placeholder="Remarks" /></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Power Supply -->
+      <div id="power" class="module-table">
+        <h2>Power Supply Module</h2>
+        <p>Power supply data will go here...</p>
+      </div>
+
+      <!-- RIU Equipment -->
+      <div id="riu" class="module-table">
+        <h2>RIU Equipment Module</h2>
+        <p>RIU data goes here...</p>
+      </div>
+
+      <!-- Communication -->
+      <div id="comm" class="module-table">
+        <h2>Communication Module</h2>
+        <p>Communication data goes here...</p>
+      </div>
+
+      <!-- Earthing & SPD -->
+      <div id="earthing" class="module-table">
+        <h2>Earthing & SPD Module</h2>
+        <p>Earthing data goes here...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="RIU_create.js"></script>
 </body>
 </html>
