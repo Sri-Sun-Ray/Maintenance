@@ -1,10 +1,45 @@
+// Zone and Station mapping
+const zoneStation = {
+  "CR": ["Bhusawal", "Kalyan"],
+  "ER": ["Asansol", "Barddhaman", "Dankuni", "Howarh D", "Howrah E", "Jamalpur"],
+  "NFR": ["Malda"],
+  "SER": ["Tatanagar"],
+  "ECR": ["DDUD", "DDUE", "Gomoh", "Patratu"],
+  "WCR": ["Itarsi", "Tuglakabadh"],
+  "NCR": ["Jhansi D", "Jhansi E"],
+  "NR": ["Lucknow(Alambagh)", "Ludhiana"]
+};
+
 // Load zone from localStorage on page load
 window.addEventListener("DOMContentLoaded", function() {
   const storedZone = localStorage.getItem("zone");
+  const storedStation = localStorage.getItem("selectedStation");
+  
   if (storedZone) {
     document.getElementById("zone").value = storedZone;
+    // Populate station dropdown based on zone
+    populateStationDropdown(storedZone);
+  }
+  
+  if (storedStation) {
+    document.getElementById("station").value = storedStation;
   }
 });
+
+// Populate station dropdown based on zone
+function populateStationDropdown(zone) {
+  const stationSelect = document.getElementById("station");
+  const stations = zoneStation[zone] || [];
+
+  stationSelect.innerHTML = '<option value="">-- Select Station --</option>';
+  
+  stations.forEach(station => {
+    const option = document.createElement("option");
+    option.value = station;
+    option.textContent = station;
+    stationSelect.appendChild(option);
+  });
+}
 
 // === Logout ===
 document.getElementById("logoutBtn").addEventListener("click", () => {
@@ -24,7 +59,138 @@ function saveInfo() {
     return;
   }
 
-  alert(`✅ Data Saved Successfully!\n\nZone: ${zone}\nStation: ${station}\nRIU: ${riu}\nEquipment No: ${equipNo}`);
+  // Store data in localStorage for later use
+  localStorage.setItem("selectedStation", station);
+  localStorage.setItem("riuNo", riu);
+  localStorage.setItem("equipNo", equipNo);
+
+  // Send data to PHP to store in database
+  const data = {
+    zone: zone,
+    station: station,
+    riu_no: riu,
+    equip_no: equipNo
+  };
+
+  fetch("RIU_details.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(result => {
+    if (result.success) {
+      // Store in sessionStorage for module data collection
+      sessionStorage.setItem('zone', zone);
+      sessionStorage.setItem('station', station);
+      sessionStorage.setItem('riuNo', riu);
+      sessionStorage.setItem('equipNo', equipNo);
+      
+      alert(`✅ Data Saved Successfully!`);
+      
+      // Load NMS module data
+      loadModuleData('nms');
+      
+      // Show first module after successful save
+      showModule('nms');
+    } else {
+      alert("❌ Error saving data: " + result.message);
+    }
+  })
+  .catch(error => {
+    console.error("Error:", error);
+    alert("❌ Something went wrong. Please try again.");
+  });
+}
+
+// Load NMS module data when page loads
+window.addEventListener("DOMContentLoaded", function() {
+  const storedZone = localStorage.getItem("zone");
+  const storedStation = localStorage.getItem("selectedStation");
+  
+  if (storedZone) {
+    document.getElementById("zone").value = storedZone;
+    populateStationDropdown(storedZone);
+  }
+  
+  if (storedStation) {
+    document.getElementById("station").value = storedStation;
+  }
+});
+
+// Load module data after RIU info is saved
+function loadModuleData(moduleId) {
+  const zone = sessionStorage.getItem('zone');
+  const station = sessionStorage.getItem('station');
+  const riuNo = sessionStorage.getItem('riuNo');
+  const equipNo = sessionStorage.getItem('equipNo');
+
+  if (!zone || !station || !riuNo || !equipNo) {
+    return;
+  }
+
+  const data = {
+    zone: zone,
+    station: station,
+    riu_no: riuNo,
+    equip_no: equipNo,
+    module: moduleId
+  };
+
+  fetch("get_module_data.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(result => {
+    if (result.success && result.data.length > 0) {
+      populateModuleTable(moduleId, result.data);
+    }
+  })
+  .catch(error => {
+    console.error("Error:", error);
+  });
+}
+
+// Populate module table with existing data
+function populateModuleTable(moduleId, data) {
+	const tableBody = document.getElementById(moduleId + 'TableBody');
+	tableBody.innerHTML = '';
+
+	data.forEach(row => {
+		const tr = document.createElement('tr');
+
+		let imageHtml = '<button onclick="openImageOptions(this)">Add Image</button>';
+		if (row.image_path && row.image_path.trim() !== '') {
+			const src = row.image_path;
+			imageHtml = `
+				<div class="image-box">
+				  <img src="${src}" alt="Uploaded" class="uploaded-image">
+				  <button onclick="removeImage(this)" class="remove-btn">✖</button>
+				</div>
+			`;
+		}
+
+		tr.innerHTML = `
+		  <td>${row.sl_no}</td>
+		  <td>${row.description}</td>
+		  <td>${row.action_taken}</td>
+		  <td><input type="text" value="${row.observation || ''}" placeholder="Observation" /></td>
+		  <td><input type="text" value="${row.remarks || ''}" placeholder="Remarks" /></td>
+		  <td>${imageHtml}</td>
+		`;
+		tableBody.appendChild(tr);
+
+		// store metadata on the td for later upload/update handling
+		const appendedRowTds = tr.querySelectorAll('td');
+		if (appendedRowTds && appendedRowTds.length >= 6) {
+			const imgTd = appendedRowTds[5];
+			imgTd.imageFile = null; // no new File yet
+			imgTd.imageRemoved = false;
+			imgTd.existingImagePath = row.image_path || '';
+		}
+	});
 }
 
 // === Module Switching ===
@@ -75,7 +241,7 @@ function openCameraInCell(button, facingMode) {
   `;
 }
 
-// Upload image from device
+// Upload image from device - UPDATED
 function uploadInCell(button) {
   const td = button.closest("td");
   const input = document.createElement("input");
@@ -88,8 +254,11 @@ function uploadInCell(button) {
 
     const reader = new FileReader();
     reader.onload = (ev) => {
-      // Add the uploaded image to the image box
-      td.innerHTML += `
+      // Store the file object on the td element so we can append it to FormData later
+      td.imageFile = file;
+      
+      // render thumbnail
+      td.innerHTML = `
         <div class="image-box">
           <img src="${ev.target.result}" alt="Uploaded" class="uploaded-image">
           <button onclick="removeImage(this)" class="remove-btn">✖</button>
@@ -108,14 +277,226 @@ function resetImageBox(button) {
   td.innerHTML = `<button onclick="openImageOptions(this)">Add Image</button>`;
 }
 
-// Remove individual image
+// When user removes image (existing or newly uploaded)
 function removeImage(button) {
+  // If button inside .image-box
   const imageBox = button.closest(".image-box");
-  imageBox.remove();
+  if (!imageBox) return;
+
+  const td = imageBox.closest("td");
+  // mark removed flag if it was an existing server image
+  if (td) {
+    td.imageRemoved = true;
+    // clear any staged file
+    td.imageFile = null;
+    td.existingImagePath = td.existingImagePath || '';
+    // replace content with Add Image options button
+    td.innerHTML = `<button onclick="openImageOptions(this)">Add Image</button>`;
+  } else {
+    imageBox.remove();
+  }
 }
 
 // === On Load ===
 window.onload = () => {
   document.querySelectorAll(".module-table").forEach((m) => (m.style.display = "none"));
 };
+
+// helper to parse server response safely
+function parseServerResponseText(response) {
+	// return Promise resolving to parsed JSON or throw with server text
+	return response.text().then((text) => {
+		try {
+			return JSON.parse(text);
+		} catch (err) {
+			console.error("Server returned non-JSON response:", text);
+			// rethrow a descriptive error to be handled by caller
+			throw new Error("Server error: see console for response text");
+		}
+	});
+}
+
+// === Save Module Data ===
+function saveModuleData(moduleId) {
+  const zone = sessionStorage.getItem('zone');
+  const station = sessionStorage.getItem('station');
+  const riuNo = sessionStorage.getItem('riuNo');
+  const equipNo = sessionStorage.getItem('equipNo');
+
+  if (!zone || !station || !riuNo || !equipNo) {
+    alert("Please save RIU details first.");
+    return;
+  }
+
+  const moduleTable = document.getElementById(moduleId);
+  const rows = moduleTable.querySelectorAll('table tbody tr');
+  const formData = new FormData();
+
+  formData.append('zone', zone);
+  formData.append('station', station);
+  formData.append('riu_no', riuNo);
+  formData.append('equip_no', equipNo);
+  formData.append('module', moduleId);
+
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td');
+    const slNo = cells[0].textContent.trim();
+    const description = cells[1].textContent.trim();
+    const actionTaken = cells[2].textContent.trim();
+    const observation = cells[3].querySelector('input')?.value || '';
+    const remarks = cells[4].querySelector('input')?.value || '';
+
+    formData.append(`observations[${rowIndex}][sl_no]`, slNo);
+    formData.append(`observations[${rowIndex}][module]`, moduleId);
+    formData.append(`observations[${rowIndex}][description]`, description);
+    formData.append(`observations[${rowIndex}][action_taken]`, actionTaken);
+    formData.append(`observations[${rowIndex}][observation]`, observation);
+    formData.append(`observations[${rowIndex}][remarks]`, remarks);
+
+    // Append file if user uploaded one (we store it on the td.imageFile)
+    const td = cells[5];
+    if (td && td.imageFile) {
+      // name the file field as observations[rowIndex][image]
+      formData.append(`observations[${rowIndex}][image]`, td.imageFile);
+    }
+  });
+
+  fetch("save_module_data.php", {
+    method: "POST",
+    body: formData
+  })
+  .then(response => parseServerResponseText(response))
+  .then(result => {
+    if (result.success) {
+      alert(`✅ ${moduleId.toUpperCase()} data saved successfully!`);
+    } else {
+      alert("❌ Error: " + (result.message || JSON.stringify(result)));
+    }
+  })
+  .catch(error => {
+    console.error("Error:", error);
+    alert("❌ Something went wrong. Check console for details.");
+  });
+}
+
+// === Update Module Data ===
+function updateModuleData(moduleId) {
+  const zone = sessionStorage.getItem('zone');
+  const station = sessionStorage.getItem('station');
+  const riuNo = sessionStorage.getItem('riuNo');
+  const equipNo = sessionStorage.getItem('equipNo');
+
+  if (!zone || !station || !riuNo || !equipNo) {
+    alert("Please save RIU details first.");
+    return;
+  }
+
+  const moduleTable = document.getElementById(moduleId);
+  const rows = moduleTable.querySelectorAll('table tbody tr');
+  const formData = new FormData();
+
+  formData.append('zone', zone);
+  formData.append('station', station);
+  formData.append('riu_no', riuNo);
+  formData.append('equip_no', equipNo);
+  formData.append('module', moduleId);
+
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td');
+    const slNo = cells[0].textContent.trim();
+    const description = cells[1].textContent.trim();
+    const actionTaken = cells[2].textContent.trim();
+    const observation = cells[3].querySelector('input')?.value || '';
+    const remarks = cells[4].querySelector('input')?.value || '';
+
+    formData.append(`observations[${rowIndex}][sl_no]`, slNo);
+    formData.append(`observations[${rowIndex}][module]`, moduleId);
+    formData.append(`observations[${rowIndex}][description]`, description);
+    formData.append(`observations[${rowIndex}][action_taken]`, actionTaken);
+    formData.append(`observations[${rowIndex}][observation]`, observation);
+    formData.append(`observations[${rowIndex}][remarks]`, remarks);
+
+    const td = cells[5];
+    // send existing image path so server knows what to delete if requested
+    if (td && td.existingImagePath) {
+      formData.append(`observations[${rowIndex}][existing_image_path]`, td.existingImagePath);
+    } else {
+      formData.append(`observations[${rowIndex}][existing_image_path]`, '');
+    }
+
+    // flag removal
+    if (td && td.imageRemoved) {
+      formData.append(`observations[${rowIndex}][remove_image]`, '1');
+    } else {
+      formData.append(`observations[${rowIndex}][remove_image]`, '0');
+    }
+
+    // Append new file if user uploaded a replacement
+    if (td && td.imageFile) {
+      formData.append(`observations[${rowIndex}][image]`, td.imageFile);
+    }
+  });
+
+  fetch("update_module_data.php", {
+    method: "POST",
+    body: formData
+  })
+  .then(response => parseServerResponseText(response))
+  .then(result => {
+    if (result.success) {
+      alert(`✅ ${moduleId.toUpperCase()} data updated successfully!`);
+    } else {
+      alert("❌ Error: " + (result.message || JSON.stringify(result)));
+    }
+  })
+  .catch(error => {
+    console.error("Error:", error);
+    alert("❌ Something went wrong. Check console for details.");
+  });
+}
+
+// === Get Details for Update ===
+function getDetails(moduleId = 'nms') {
+  const zone = document.getElementById("zone").value.trim();
+  const station = document.getElementById("station").value.trim();
+  const riu = document.getElementById("riu").value.trim();
+  const equipNo = document.getElementById("equipNo").value.trim();
+
+  if (!zone || !station || !riu || !equipNo) {
+    alert("Please fill all RIU details first.");
+    return;
+  }
+
+  const data = {
+    zone: zone,
+    station: station,
+    riu_no: riu,
+    equip_no: equipNo
+  };
+
+  fetch("get_riu_details.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(result => {
+    if (result.success) {
+      sessionStorage.setItem('zone', zone);
+      sessionStorage.setItem('station', station);
+      sessionStorage.setItem('riuNo', riu);
+      sessionStorage.setItem('equipNo', equipNo);
+      
+      // Load requested module data (images come from server via get_module_data.php)
+      loadModuleData(moduleId);
+      showModule(moduleId);
+    } else {
+      alert("⚠️ " + result.message);
+    }
+  })
+  .catch(error => {
+    console.error("Error:", error);
+    alert("❌ Failed to load details.");
+  });
+}
 

@@ -15,15 +15,18 @@ function populateStations(zone){
 
   const fromSelect=document.getElementById("fromStation");
   const toSelect=document.getElementById("toStation");
+  const stationDropdown=document.getElementById("stationDropdown")
 
   fromSelect.innerHTML="";
   toSelect.innerHTML="";
+  stationDropdown.innerHTML="";
 
   const stations=zoneStation[zone] || [];
 
   stations.forEach(station=> {
     fromSelect.innerHTML += `<option value="${station}">${station}</option>`;
     toSelect.innerHTML += `<option value="${station}">${station}</option>`;
+    stationDropdown.innerHTML += `<option value="${station}">${station}</option>`;
   });
 
 }
@@ -76,4 +79,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 });
+
+// Create new report with selected station
+function createNewReport() {
+  const selectedStation = document.getElementById("stationDropdown").value;
+  const zone = localStorage.getItem("zone");
+
+  if (selectedStation) {
+    localStorage.setItem("selectedStation", selectedStation);
+  }
+
+  window.location.href = "../STCAS_create.html";
+}
 

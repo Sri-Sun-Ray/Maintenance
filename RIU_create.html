@@ -46,6 +46,7 @@
     </div>
 
     <button class="btn btn-save" onclick="saveInfo()">Save</button>
+    <!-- <button class="btn btn-update" onclick="getDetailsForUpdate()">Get Details</button> -->
   </div>
 
   <!-- Main Container -->
@@ -80,33 +81,38 @@
               <th>Image</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="nmsTableBody">
             <tr>
               <td>1</td>
-              <td>Check system connectivity</td>
-              <td>Connected</td>
-              <td><input type="text" placeholder="Observation" /></td>
-              <td><input type="text" placeholder="Remarks" /></td>
+              <td>Ensure E1 network is always healthy and RIU communication is stable.</td>
+              <td>Verify communication with STCAS unit.</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
             </tr>
             <tr>
               <td>2</td>
-              <td>Verify device list</td>
-              <td>All devices listed</td>
-              <td><input type="text" placeholder="Observation" /></td>
-              <td><input type="text" placeholder="Remarks" /></td>
+              <td>Backup the Events & Fault data logs of RIU</td>
+              <td>Store the log files & Downloaded data from Google drive</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
             </tr>
             <tr>
               <td>3</td>
-              <td>Check alarm configuration</td>
-              <td>Alarms working</td>
-              <td><input type="text" placeholder="Observation" /></td>
-              <td><input type="text" placeholder="Remarks" /></td>
+              <td>Ensure RIU inputs are operated</td>
+              <td>Check all the RIU field inputs (Signals, Points, Track circuits, etc.,) are operated properly in NMS.</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
             </tr>
           </tbody>
         </table>
+        <div style="text-align: center; margin-top: 15px; gap: 10px;">
+          <button class="btn btn-save" onclick="saveModuleData('nms')">Save NMS Data</button>
+          <button class="btn btn-update" onclick="updateModuleData('nms')">Update NMS Data</button>
+          <button class="btn btn-getDetails" onclick="getDetails('nms')">Get Details</button>
+        </div>
       </div>
 
       <!-- Power Supply -->
