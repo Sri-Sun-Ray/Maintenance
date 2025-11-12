@@ -59,12 +59,10 @@ function saveInfo() {
     return;
   }
 
-  // Store data in localStorage for later use
   localStorage.setItem("selectedStation", station);
   localStorage.setItem("riuNo", riu);
   localStorage.setItem("equipNo", equipNo);
 
-  // Send data to PHP to store in database
   const data = {
     zone: zone,
     station: station,
@@ -80,7 +78,6 @@ function saveInfo() {
   .then(response => response.json())
   .then(result => {
     if (result.success) {
-      // Store in sessionStorage for module data collection
       sessionStorage.setItem('zone', zone);
       sessionStorage.setItem('station', station);
       sessionStorage.setItem('riuNo', riu);
@@ -88,12 +85,19 @@ function saveInfo() {
       
       alert(`✅ Data Saved Successfully!`);
       
-      // Load NMS module data
-      loadModuleData('nms');
+     
       
-      // Show first module after successful save
+      loadModuleData('nms');
       showModule('nms');
-    } else {
+    } 
+    else if(result.message=== 'Record already exists')
+      {
+        alert(" Record already exists");
+         // Hide save button, show get details button
+      document.getElementById('btn-save').style.display = 'none';
+      document.getElementById('btn-get_details').style.display = 'block';
+      }
+      else {
       alert("❌ Error saving data: " + result.message);
     }
   })
@@ -144,18 +148,29 @@ function loadModuleData(moduleId) {
   })
   .then(response => response.json())
   .then(result => {
-    if (result.success && result.data.length > 0) {
+    console.log("Load module result:", result); // DEBUG
+    if (result.success && result.data && result.data.length > 0) {
       populateModuleTable(moduleId, result.data);
+    } else {
+      console.log("No data found for module:", moduleId); // DEBUG
     }
   })
   .catch(error => {
-    console.error("Error:", error);
+    console.error("Error loading module data:", error);
   });
 }
 
 // Populate module table with existing data
 function populateModuleTable(moduleId, data) {
-	const tableBody = document.getElementById(moduleId + 'TableBody');
+	const tableBodyId = moduleId + 'TableBody';
+	console.log("Populating table with ID:", tableBodyId); // DEBUG
+	const tableBody = document.getElementById(tableBodyId);
+	
+	if (!tableBody) {
+		console.error("Table body element not found:", tableBodyId);
+		return;
+	}
+	
 	tableBody.innerHTML = '';
 
 	data.forEach(row => {
@@ -186,7 +201,7 @@ function populateModuleTable(moduleId, data) {
 		const appendedRowTds = tr.querySelectorAll('td');
 		if (appendedRowTds && appendedRowTds.length >= 6) {
 			const imgTd = appendedRowTds[5];
-			imgTd.imageFile = null; // no new File yet
+			imgTd.imageFile = null;
 			imgTd.imageRemoved = false;
 			imgTd.existingImagePath = row.image_path || '';
 		}
@@ -208,6 +223,16 @@ function showModule(moduleId) {
   // Show selected module
   const selected = document.getElementById(moduleId);
   if (selected) selected.style.display = "block";
+
+  // Load module data if RIU info is saved
+  const zone = sessionStorage.getItem('zone');
+  const station = sessionStorage.getItem('station');
+  const riuNo = sessionStorage.getItem('riuNo');
+  const equipNo = sessionStorage.getItem('equipNo');
+
+  if (zone && station && riuNo && equipNo) {
+    loadModuleData(moduleId);
+  }
 }
 
 // === Image Handling ===
@@ -456,7 +481,7 @@ function updateModuleData(moduleId) {
 }
 
 // === Get Details for Update ===
-function getDetails(moduleId = 'nms') {
+function getDetails(moduleId) {
   const zone = document.getElementById("zone").value.trim();
   const station = document.getElementById("station").value.trim();
   const riu = document.getElementById("riu").value.trim();
@@ -490,6 +515,65 @@ function getDetails(moduleId = 'nms') {
       // Load requested module data (images come from server via get_module_data.php)
       loadModuleData(moduleId);
       showModule(moduleId);
+    } else {
+      alert("⚠️ " + result.message);
+    }
+  })
+  .catch(error => {
+    console.error("Error:", error);
+    alert("❌ Failed to load details.");
+  });
+}
+
+// === Load all module data ===
+function loadAllModuleData(){
+  const allModules = ['nms','power','riu_equip','comm','earthing'];
+  allModules.forEach((module) => {
+    loadModuleData(module);
+  });
+}
+
+// === Show all modules ===
+function showAllModule(){
+  // Just show first module; user can click sidebar to navigate
+  showModule('nms');
+}
+
+// === Get function for Get Details button ===
+function get(){
+  const zone = document.getElementById("zone").value.trim();
+  const station = document.getElementById("station").value.trim();
+  const riu = document.getElementById("riu").value.trim();
+  const equipNo = document.getElementById("equipNo").value.trim();
+
+  if (!zone || !station || !riu || !equipNo) {
+    alert("Please fill all RIU details first.");
+    return;
+  }
+
+  const data = {
+    zone: zone,
+    station: station,
+    riu_no: riu,
+    equip_no: equipNo
+  };
+
+  fetch("get_riu_details.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(result => {
+    if (result.success) {
+      sessionStorage.setItem('zone', zone);
+      sessionStorage.setItem('station', station);
+      sessionStorage.setItem('riuNo', riu);
+      sessionStorage.setItem('equipNo', equipNo);
+      
+      alert("✅ RIU details found! Loading data...");
+      loadAllModuleData();
+      showAllModule();
     } else {
       alert("⚠️ " + result.message);
     }

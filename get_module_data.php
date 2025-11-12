@@ -39,8 +39,19 @@ if (isset($data['zone'], $data['station'], $data['riu_no'], $data['equip_no'], $
     }
     $stmt->close();
 
+    // Map module to table name
+    $tableMap = [
+        'nms' => 'nms',
+        'power' => 'nms',  // All modules use same table
+        'riu_equip' => 'nms',
+        'comm' => 'nms',
+        'earthing' => 'nms'
+    ];
+    
+    $tableName = isset($tableMap[$module]) ? $tableMap[$module] : 'nms';
+
     // Fetch module data with image paths
-    $selectStmt = $conn->prepare("SELECT sl_no, description, action_taken, observation, remarks, image_path FROM nms 
+    $selectStmt = $conn->prepare("SELECT sl_no, description, action_taken, observation, remarks, image_path FROM $tableName 
         WHERE module = ? AND riu_info_id = ? ORDER BY sl_no ASC");
     $selectStmt->bind_param("si", $module, $riuInfoId);
     $selectStmt->execute();
