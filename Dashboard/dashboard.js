@@ -23,6 +23,10 @@ function populateStations(zone){
 
   const stations=zoneStation[zone] || [];
 
+  fromSelect.innerHTML = `<option value="">Select</option>`;
+  toSelect.innerHTML = `<option value="">Select</option>`;
+  stationDropdown.innerHTML = `<option value="">Select</option>`;
+
   stations.forEach(station=> {
     fromSelect.innerHTML += `<option value="${station}">${station}</option>`;
     toSelect.innerHTML += `<option value="${station}">${station}</option>`;
@@ -44,7 +48,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   tableBody.innerHTML = "<tr><td colspan='6'>Loading reports...</td></tr>";
 
   try {
-    const res = await fetch("get_reports.php");
+    const zone = localStorage.getItem("zone");
+    const res = await fetch(`get_reports.php?zone=${zone}`);
     const data = await res.json();
 
     tableBody.innerHTML = "";
