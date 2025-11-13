@@ -26,10 +26,37 @@ try {
     exit;
 }
 
-// Fetch reports (show all; you can add user filter if you store user_id)
-$sql = "SELECT id, zone, station, riu_no, file_name, version, created_at, file_path FROM reports ORDER BY created_at DESC";
+// New: optional zone filter via GET ?zone=ECR
+$filterZone = isset($_GET['zone']) ? trim($_GET['zone']) : '';
+
+// If no explicit zone provided, and user is not admin, attempt to read user's zone from users table
+if ($filterZone === '' && strtolower($role) !== 'admin') {
+    try {
+        $uStmt = $pdo->prepare("SELECT zone FROM users WHERE username = ? LIMIT 1");
+        $uStmt->execute([$username]);
+        $uRow = $uStmt->fetch();
+        if ($uRow && !empty($uRow['zone'])) {
+            $filterZone = trim($uRow['zone']);
+        }
+    } catch (Exception $e) {
+        // ignore — keep $filterZone empty if users table doesn't exist or query fails
+        $filterZone = $filterZone;
+    }
+}
+
 try {
-    $stmt = $pdo->query($sql);
+    if ($filterZone !== '') {
+        // case-insensitive match using LOWER()
+        $sql = "SELECT id, zone, station, riu_no, file_name, version, created_at, file_path 
+                FROM reports 
+                WHERE LOWER(zone) = LOWER(?) 
+                ORDER BY created_at DESC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$filterZone]);
+    } else {
+        $sql = "SELECT id, zone, station, riu_no, file_name, version, created_at, file_path FROM reports ORDER BY created_at DESC";
+        $stmt = $pdo->query($sql);
+    }
     $reports = $stmt->fetchAll();
 } catch (Exception $e) {
     $reports = [];
@@ -76,7 +103,7 @@ th{ background:#00457C; color:#fff; }
   <a href="STCAS_index.html" class="btn back-btn">Back to Home</a>
 
   <div class="search-row">
-    <h2>Your Uploaded Reports</h2>
+    <h2>Your Uploaded Reports<?php echo $filterZone ? ' — ' . htmlspecialchars($filterZone) : ''; ?></h2>
     <div style="text-align:right;">
       <input id="search-input" type="text" placeholder="Search by Zone, Station or RIU..." />
     </div>
@@ -125,7 +152,15 @@ th{ background:#00457C; color:#fff; }
     </tbody>
   </table>
 <?php else: ?>
-  <p>No reports found.</p>
+  <p>
+    <?php
+      if ($filterZone) {
+          echo 'No reports found for zone "' . htmlspecialchars($filterZone) . '".';
+      } else {
+          echo 'No reports found.';
+      }
+    ?>
+  </p>
 <?php endif; ?>
 
 </div>
@@ -146,6 +181,17 @@ document.getElementById('search-input').addEventListener('input', function(){
     }
   });
 });
+
+// Prefill search input when a zone filter was applied server-side
+(function(){
+  const presetZone = <?php echo json_encode($filterZone); ?>;
+  if (presetZone) {
+    document.getElementById('search-input').value = presetZone;
+    // trigger input event to filter client table
+    const evt = new Event('input', { bubbles: true });
+    document.getElementById('search-input').dispatchEvent(evt);
+  }
+})();
 </script>
 </body>
 </html>

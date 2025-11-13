@@ -260,158 +260,265 @@
             createBtn.addEventListener('click', createPDF);
             viewBtn.addEventListener('click', function () { window.location.href = 'viewReports.php'; });
 
-            async function createPDF() {
-                if (!zone || !station || !riu_no) {
-                    alert('RIU metadata missing. Please go back and save RIU details.');
-                    return;
-                }
+           async function createPDF() {
+    if (!zone || !station || !riu_no) {
+        alert('RIU metadata missing. Please go back and save RIU details.');
+        return;
+    }
 
-                createBtn.disabled = true;
-                createBtn.innerText = 'Creating...';
+    createBtn.disabled = true;
+    createBtn.innerText = 'Creating...';
 
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
 
-                // ✅ Define header drawing function
-                function drawHeader(doc, pageNum, pageCount) {
-                    const headerY = 50;
-                    const boxH = 30;
-                    const startX = 40;
-                    const widths = [90, 110, 230, 70, 60];
+    // Total content width is 520 (Table Width)
+    const contentWidth = 520;
+    const startX = 40;
 
-                    const headers = [
-                        `Page ${pageNum} of ${pageCount}`,
-                        'Effective from\n21.01.2021',
-                        'Document Title:\nMonthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)',
-                        'SIF-0552',
-                        'Version 1.0'
-                    ];
+    // ✅ Define header drawing function (kept as is)
+    function drawHeader(doc, pageNum, pageCount) {
+        const headerY = 50;
+        const boxH = 30;
 
-                    doc.setFont('helvetica', 'normal');
-                    doc.setFontSize(9);
+        // Recalculated widths: [90, 100, 210, 60, 60] -> Sum = 520
+        const widths = [90, 100, 210, 60, 60];
 
-                    let x = startX;
-                    headers.forEach((text, idx) => {
-                        doc.rect(x, headerY, widths[idx], boxH);
-                        const splitText = doc.splitTextToSize(text, widths[idx] - 6);
-                        const lineHeight = 10;
-                        const totalTextHeight = splitText.length * lineHeight;
-                        const textY = headerY + (boxH - totalTextHeight) / 2 + 7;
-                        doc.text(splitText, x + 3, textY);
-                        x += widths[idx];
-                    });
-                }
+        const headers = [
+            `Page ${pageNum} of ${pageCount}`,
+            'Effective from\n21.01.2021',
+            'Document Title:\nMonthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)',
+            'SIF-0552',
+            'Version 1.0'
+        ];
 
-                // ✅ COVER PAGE
-                drawHeader(doc, 1, 1);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
 
-                doc.setFont('times', 'bold');
-                doc.setFontSize(14);
-                doc.text('SIGNAL DIRECTORATE', 200, 140);
-                doc.text('RESEARCH DESIGNS AND STANDARDS ORGANISATION', 80, 160);
-                doc.text('MANAK NAGAR, LUCKNOW - 226011', 160, 180);
+        let x = startX;
+        headers.forEach((text, idx) => {
+            doc.rect(x, headerY, widths[idx], boxH);
+            const splitText = doc.splitTextToSize(text, widths[idx] - 6);
+            const lineHeight = 10;
+            const totalTextHeight = splitText.length * lineHeight;
+            const textY = headerY + (boxH - totalTextHeight) / 2 + 7;
 
-                doc.setFontSize(12);
-                doc.text('Title: Monthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)', 60, 210);
-
-                // Issue Table
-                doc.autoTable({
-                    startY: 250,
-                    head: [['SN', 'Issue', 'Version', 'Reason of Amendment']],
-                    body: [['1', 'First', '1.0', 'First Issue']],
-                    styles: { halign: 'center', valign: 'middle' },
-                    headStyles: { fillColor: [200, 200, 200] },
-                    tableWidth: 520,
-                    margin: { left: 40 },
-                });
-
-                doc.addPage();
-
-                // ✅ SECOND PAGE
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
-                doc.text('Monthly Maintenance Report — STCAS', 40, 40);
-
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.text(`Zone: ${zone}`, 40, 64);
-                doc.text(`Station: ${station}`, 300, 64);
-                doc.text(`RIU No: ${riu_no}`, 40, 80);
-                doc.text(`Equip No: ${equip_no}`, 300, 80);
-
-                // Draw header on page 2 (temporary page count)
-                drawHeader(doc, 2, 2);
-
-                // ✅ Collect observations dynamically from table
-                const obsRows = document.querySelectorAll('.obs-table tbody tr');
-                const observations = [];
-                obsRows.forEach(row => {
-                    const cells = row.children;
-                    const imgElement = cells[5]?.querySelector('img');
-                    observations.push({
-                        sl_no: cells[0]?.innerText || '',
-                        description: cells[1]?.innerText || '',
-                        action_taken_range: cells[2]?.innerText || '',
-                        observation: cells[3]?.innerText || '',
-                        remarks: cells[4]?.innerText || '',
-                        image_path: imgElement ? imgElement.src : ''
-                    });
-                });
-
-                // Observation table
-                const head = [['Sl No', 'Description', 'Action Taken / Range', 'Observation', 'Remarks', 'Image']];
-                const body = observations.map(o => [
-                    o.sl_no, o.description, o.action_taken_range, o.observation, o.remarks, 
-                    o.image_path ? '✓ Image' : 'N/A'
-                ]);
-
-                doc.autoTable({
-                    startY: 100,
-                    head: head,
-                    body: body,
-                    styles: { fontSize: 9, cellPadding: 4 },
-                    headStyles: { fillColor: [11, 105, 208], textColor: 255 },
-                    theme: 'grid',
-                    margin: { left: 40, right: 40 },
-                    didDrawPage: function (data) {
-                        const pageNum = doc.internal.getCurrentPageInfo().pageNumber;
-                        const pageCount = doc.internal.getNumberOfPages();
-                        drawHeader(doc, pageNum, pageCount);
-                    }
-                });
-
-                // ✅ Finally, update headers with total page count
-                const totalPages = doc.internal.getNumberOfPages();
-                for (let i = 1; i <= totalPages; i++) {
-                    doc.setPage(i);
-                    drawHeader(doc, i, totalPages);
-                }
-
-                // ✅ Convert to Base64 and upload
-                const dataUri = doc.output('datauristring');
-                const base64 = dataUri.split(',')[1];
-                const payload = { zone, station, riu_no, equip_no, pdf_base64: base64 };
-
-                const resp = await fetch('generate_pdf.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const json = await resp.json();
-                if (json.success) {
-                    viewBtn.style.display = 'inline-block';
-                    viewBtn.disabled = false;
-                    viewBtn.innerText = 'View Reports (v' + (json.version || '') + ')';
-                    createBtn.innerText = 'Created';
-                    createBtn.disabled = true;
-                    alert('✅ Created PDF successfully (version: ' + (json.version || '') + ').');
-                } else {
-                    alert('❌ Failed to create PDF: ' + (json.message || 'Unknown error'));
-                    createBtn.disabled = false;
-                    createBtn.innerText = 'Create PDF';
-                }
+            if (idx === 2) {
+                 doc.text(splitText, x + widths[idx] / 2, textY, { align: 'center' });
+            } else {
+                 doc.text(splitText, x + 3, textY);
             }
+
+            x += widths[idx];
+        });
+    }
+
+    // ✅ COVER PAGE
+    drawHeader(doc, 1, 1);
+
+    // 1. Move organization block down and INCREASE SPACING after header table
+    let currentY = 130;
+
+    // Organization Details (Title block)
+    doc.setFont('times', 'bold');
+    doc.setFontSize(14);
+    doc.text('SIGNAL DIRECTORATE', doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+    currentY += 25; // Increased spacing between organization lines
+    doc.text('RESEARCH DESIGNS AND STANDARDS ORGANISATION', doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+    currentY += 25; // Increased spacing between organization lines
+    doc.text('MANAK NAGAR, LUCKNOW - 226011', doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+
+    // 2. INCREASE GAP between organization block and main title (currentY + 50)
+    currentY += 50;
+
+    doc.setFontSize(12);
+    doc.text('Title: Monthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)', doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+
+    // 3. INCREASE GAP between title and first table (currentY + 45)
+    currentY += 45;
+
+    // Issue Table (First table)
+    doc.autoTable({
+        startY: currentY,
+        head: [['SN', 'Issue', 'Version', 'Reason of Amendment']],
+        body: [['1', 'First', '1.0', 'First Issue']],
+        styles: { halign: 'center', valign: 'middle', fontSize: 10 },
+        headStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0] },
+        tableWidth: contentWidth,
+        margin: { left: startX },
+    });
+
+    // 4. INCREASE GAP between first table and second table (Issue table to Prepared/Approved)
+    const preparedApprovedY = doc.autoTable.previous.finalY + 50; // Increased gap to 50pt
+
+    const preparedText = "G. Pavan Kumar ED/Tele-II\nR.N Singh ADE/Signal-5\nAshutoshChaubey SSE/Signal";
+    const approvedText = "Shaminder Singh, PED/QA/S&T/RDSO";
+
+    // Prepared by / Approved by Section (Second table)
+    doc.autoTable({
+        startY: preparedApprovedY,
+        head: [['Prepared by:', 'Approved by:']],
+        body: [[preparedText, approvedText]],
+        styles: {
+            fontSize: 10,
+            lineColor: [0, 0, 0],
+            lineWidth: 0.5,
+            cellPadding: 8, // Increased cell padding slightly
+            valign: 'top',
+        },
+        headStyles: {
+            fontStyle: 'bold',
+            fillColor: [255, 255, 255],
+            textColor: [0, 0, 0],
+            halign: 'left',
+            cellPadding: { top: 6, bottom: 2, left: 6, right: 6 }
+        },
+        columnStyles: {
+            0: { cellWidth: '50%' },
+            1: { cellWidth: '50%' },
+        },
+        tableWidth: contentWidth,
+        margin: { left: startX },
+        rowPageBreak: 'avoid',
+    });
+
+    // 5. INCREASE GAP between second table and third table (Prepared/Approved to Signatures)
+    const signatureY = doc.autoTable.previous.finalY + 50; // Increased gap to 50pt
+
+    // Use a fixed number of line breaks for a reasonably sized signature box (Third table)
+    const numLinesFixed = 3;
+    const signatureBody = [['\n'.repeat(numLinesFixed), '\n'.repeat(numLinesFixed)]];
+
+    // Firm's Representative / Railway Representative Section (Third table)
+    doc.autoTable({
+        startY: signatureY,
+        head: [
+            ["Firm's Representative with", "Railway Representativewith"],
+            ["Name Designation and Date", "Name Designation and Date"]
+        ],
+        body: signatureBody,
+        styles: {
+            fontSize: 9,
+            lineColor: [0, 0, 0],
+            lineWidth: 0.5,
+            cellPadding: 3,
+            valign: 'middle',
+            halign: 'left',
+        },
+        headStyles: {
+            fontStyle: 'normal',
+            fillColor: [255, 255, 255],
+            textColor: [0, 0, 0],
+            cellPadding: { top: 3, bottom: 0, left: 3, right: 3 }
+        },
+        columnStyles: {
+            0: { cellWidth: '50%' },
+            1: { cellWidth: '50%' },
+        },
+        tableWidth: contentWidth,
+        margin: { left: startX },
+        didDrawCell: (data) => {
+             if (data.section === 'head' && data.row.index === 0) {
+                 // Remove the bottom line of the first header row for a merged look
+                 doc.setDrawColor(255, 255, 255);
+                 doc.setLineWidth(0.5);
+                 doc.line(data.cell.x, data.cell.y + data.cell.height, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
+                 // Redraw border on the right
+                 doc.setDrawColor(0, 0, 0);
+                 doc.line(data.cell.x + data.cell.width, data.cell.y, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
+             }
+        },
+    });
+
+    // --- Start of Page 2 (Remainder of original code)
+    doc.addPage();
+
+    // ... (rest of Page 2 generation code, kept as is) ...
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Monthly Maintenance Report — STCAS', 40, 40);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Zone: ${zone}`, 40, 64);
+    doc.text(`Station: ${station}`, 300, 64);
+    doc.text(`RIU No: ${riu_no}`, 40, 80);
+    doc.text(`Equip No: ${equip_no}`, 300, 80);
+
+    // Draw header on page 2 (temporary page count)
+    drawHeader(doc, 2, 2);
+
+    // ✅ Collect observations dynamically from table (Placeholder, assumes data exists)
+    const obsRows = document.querySelectorAll('.obs-table tbody tr');
+    const observations = [];
+    obsRows.forEach(row => {
+        const cells = row.children;
+        const imgElement = cells[5]?.querySelector('img');
+        observations.push({
+            sl_no: cells[0]?.innerText || '',
+            description: cells[1]?.innerText || '',
+            action_taken_range: cells[2]?.innerText || '',
+            observation: cells[3]?.innerText || '',
+            remarks: cells[4]?.innerText || '',
+            image_path: imgElement ? imgElement.src : ''
+        });
+    });
+
+    // Observation table
+    const head = [['Sl No', 'Description', 'Action Taken / Range', 'Observation', 'Remarks', 'Image']];
+    const body = observations.map(o => [
+        o.sl_no, o.description, o.action_taken_range, o.observation, o.remarks,
+        o.image_path ? '✓ Image' : 'N/A'
+    ]);
+
+    doc.autoTable({
+        startY: 100,
+        head: head,
+        body: body,
+        styles: { fontSize: 9, cellPadding: 4 },
+        headStyles: { fillColor: [11, 105, 208], textColor: 255 },
+        theme: 'grid',
+        margin: { left: startX, right: startX },
+        tableWidth: contentWidth,
+        didDrawPage: function (data) {
+            const pageNum = doc.internal.getCurrentPageInfo().pageNumber;
+            const pageCount = doc.internal.getNumberOfPages();
+            drawHeader(doc, pageNum, pageCount);
+        }
+    });
+
+    // ✅ Finally, update headers with total page count
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        drawHeader(doc, i, totalPages);
+    }
+
+    // ✅ Convert to Base64 and upload (server-side logic is placeholder)
+    const dataUri = doc.output('datauristring');
+    const base64 = dataUri.split(',')[1];
+    const payload = { zone, station, riu_no, equip_no, pdf_base64: base64 };
+
+    const resp = await fetch('generate_pdf.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    const json = await resp.json();
+    if (json.success) {
+        viewBtn.style.display = 'inline-block';
+        viewBtn.disabled = false;
+        viewBtn.innerText = 'View Reports (v' + (json.version || '') + ')';
+        createBtn.innerText = 'Created';
+        createBtn.disabled = true;
+        alert('✅ Created PDF successfully (version: ' + (json.version || '') + ').');
+    } else {
+        alert('❌ Failed to create PDF: ' + (json.message || 'Unknown error'));
+        createBtn.disabled = false;
+        createBtn.innerText = 'Create PDF';
+    }
+}
 
 
 
