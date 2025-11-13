@@ -22,7 +22,22 @@ if (isset($data['zone'], $data['station'], $data['riu_no'], $data['equip_no'])) 
         die(json_encode(['success' => false, 'message' => 'Connection failed: ' . $conn->connect_error]));
     }
 
-    // Insert RIU info into riu_info table
+    // Check if record exists
+    $checkStmt = $conn->prepare("SELECT id FROM riu_info WHERE zone = ? AND station = ? AND riu_no = ? AND riu_equip_no = ?");
+    $checkStmt->bind_param("ssii", $zone, $station, $riuNo, $equipNo);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
+
+    if ($checkResult->num_rows > 0) {
+        // Record already exists - return success
+        $checkStmt->close();
+        $conn->close();
+        echo json_encode(['success' => false, 'message' => 'Record already exists']);
+        exit;
+    }
+    $checkStmt->close();
+
+    // Insert RIU info
     $insertStmt = $conn->prepare("INSERT INTO riu_info (zone, station, riu_no, riu_equip_no) VALUES (?, ?, ?, ?)");
     
     if (!$insertStmt) {

@@ -45,19 +45,20 @@
       <input type="text" id="equipNo" placeholder="Enter Equipment No">
     </div>
 
-    <button class="btn btn-save" onclick="saveInfo()">Save</button>
+    <button class="btn btn-save" onclick="saveInfo()" id="btn-save">Save</button>
+    <button class="btn btn-get_details" onclick="get()" id="btn-get_details" style="display: none;">Get Details</button>
     <!-- <button class="btn btn-update" onclick="getDetailsForUpdate()">Get Details</button> -->
   </div>
 
   <!-- Main Container -->
   <div class="main-container">
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" style="pointer-events: none; opacity: 1;">
       <h3>Modules</h3>
       <ul>
         <li onclick="showModule('nms')">NMS</li>
         <li onclick="showModule('power')">Power Supply</li>
-        <li onclick="showModule('riu-table')">RIU Equipment</li>
+        <li onclick="showModule('riu')">RIU Equipment</li>
         <li onclick="showModule('comm')">Communication Module</li>
         <li onclick="showModule('earthing')">Earthing & SPD</li>
       </ul>
@@ -82,6 +83,7 @@
             </tr>
           </thead>
           <tbody id="nmsTableBody">
+            <!-- Default rows or populated from DB -->
             <tr>
               <td>1</td>
               <td>Ensure E1 network is always healthy and RIU communication is stable.</td>
@@ -118,11 +120,122 @@
       <!-- Power Supply -->
       <div id="power" class="module-table">
         <h2>Power Supply Module</h2>
-        <p>Power supply data will go here...</p>
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Description</th>
+              <th>Action Taken / Range</th>
+              <th>Observation</th>
+              <th>Remarks</th>
+              <th>Image</th>
+            </tr>
+          </thead>
+          <tbody id="powerTableBody">
+            <tr>
+              <td>1</td>
+              <td>Check the Voltage level at 230 v AC Mains input voltage to both the Battery chargers</td>
+              <td> 220 - 260V AC </td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Check the working of the A/C input supply monitoring relay for both the channels of A/C 230 V supply input to RIU</td>
+              <td>Ensure that the A/C supply monitoring relays are in ON condition when A/C power in available.</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Check the Power voltages at Equipment End of Ch-A & Ch-B</td>
+              <td>The voltage shall be in the range of 22V to 26.5V</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Check the mounting arrangementof Input fuse(If Any)</td>
+              <td>Ensure fuses are fastened securely</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Check the output Power Supplyvoltage for both Battery charger bank</td>
+              <td>21.6 ~ 28.8V DC to be observed for final O/P Voltage for both battery banks.</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+             <tr>
+              <td>6</td>
+              <td>Check the connections of the diodes in the charging path from both the battery charger output to batteries.</td>
+              <td>Ensure that the diodesare firmly connected to TB1 and TB2 in channel 1 and TB3 and TB4 in channel 2 respectively.</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>To check that RIU battery back up is available.</td>
+              <td>Switch OFF MCBs, ensure that RIU works on battery back up.</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+
+             <tr>
+              <td>8</td>
+               <td>Clean the Battery Charger and Batteries</td>
+                <td>To be free from dust</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+
+            <tr>
+              <td>9</td>
+               <td>Check the voltages at Equipment end of INTERNAL (RIU) Supply</td>
+                <td>21.6V to 28.8V DCto be observed</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+
+            <tr>
+              <td>10</td>
+               <td>Check the voltages at Equipment end of EXTERNAL</td>
+               <td>21.6V to 28.8V DCto be observed</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+
+             <tr>
+              <td>11</td>
+               <td>Check the all wago fuse indications</td>
+              <td>Disconnect type fuse wago indications should not glow</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+
+          </tbody>
+        </table>
+        <div style="text-align: center; margin-top: 15px; gap: 10px;">
+          <button class="btn btn-save" onclick="saveModuleData('power')">Save Power Supply Data</button>
+          <button class="btn btn-update" onclick="updateModuleData('power')">Update Power Supply Data</button>
+          <button class="btn btn-getDetails" onclick="getDetails('power')">Get Details</button>
+        </div>
       </div>
 
       <!-- RIU Equipment -->
-      <div id="riu-table" class="module-table">
+      <div id="riu" class="module-table">
         <h2>RIU Equipment Module</h2>
         <p>RIU data goes here...</p>
       </div>
@@ -130,13 +243,109 @@
       <!-- Communication -->
       <div id="comm" class="module-table">
         <h2>Communication Module</h2>
-        <p>Communication data goes here...</p>
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Description</th>
+              <th>Action Taken / Range</th>
+              <th>Observation</th>
+              <th>Remarks</th>
+              <th>Image</th>
+            </tr>
+          </thead>
+          <tbody id="commTableBody">
+            <tr>
+              <td>1</td>
+               <td>Check the Quad/OFC</td>
+                <td>1. Check the firmness of wiring/OFC patch card termination to communication card.
+                    2. Ensure OFC routing is properly done with avoiding 90 degree bending</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Check the Quad/OFC</td>
+              <td>1. Check the firmness of wiring/OFC patch card termination to communication card.
+                  2. Ensure OFC routing is properly done with avoiding 90 degree bending</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Check the communication status</td>
+              <td>Ensure Tx and Rx LED should Glow/Blink</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+
+            <tr>
+              <td>4</td>
+             <td>Visually examine all the communication cables areConnected properly and Communication card had tightened</td>
+             <td>Ensure the tightness of the patch card and communication module.</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+
+          </tbody>
+        </table>
+        <div style="text-align: center; margin-top: 15px; gap: 10px;">
+          <button class="btn btn-save" onclick="saveModuleData('comm')">Save NMS Data</button>
+          <button class="btn btn-update" onclick="updateModuleData('comm')">Update NMS Data</button>
+          <button class="btn btn-getDetails" onclick="getDetails('comm')">Get Details</button>
+        </div>
       </div>
 
       <!-- Earthing & SPD -->
       <div id="earthing" class="module-table">
-        <h2>Earthing & SPD Module</h2>
-        <p>Earthing data goes here...</p>
+         <h2>Earthing & SPD Module</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Description</th>
+              <th>Action Taken / Range</th>
+              <th>Observation</th>
+              <th>Remarks</th>
+              <th>Image</th>
+            </tr>
+          </thead>
+          <tbody id="earthingTableBody">
+            <tr>
+              <td>1</td>
+               <td>Clean surface of the Earth electrode/MEEB/SEEB</td>
+                <td>Surface should be kept clean</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Measure the Resistance and fillwater in the Earth Pits to keep low soil resistance</td>
+              <td>Resistance Should be ≤ 2 Ώ</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Check the SPD devices for any signs of physical degradation</td>
+              <td>Check the Indication LED status of SPD. (If SPD indicates FAIL then replace it)</td>
+              <td><input type="text" placeholder="Observation"></td>
+              <td><input type="text" placeholder="Remarks"></td>
+              <td><button onclick="openImageOptions(this)">Add Image</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="text-align: center; margin-top: 15px; gap: 10px;">
+          <button class="btn btn-save" onclick="saveModuleData('earthing')">Save NMS Data</button>
+          <button class="btn btn-update" onclick="updateModuleData('earthing')">Update NMS Data</button>
+          <button class="btn btn-getDetails" onclick="getDetails('earthing')">Get Details</button>
+        </div>
       </div>
     </div>
   </div>

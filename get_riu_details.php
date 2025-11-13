@@ -23,18 +23,17 @@ if (isset($data['zone'], $data['station'], $data['riu_no'], $data['equip_no'])) 
     }
 
     // Check if RIU record exists
-    $checkStmt = $conn->prepare("SELECT id FROM riu_info WHERE zone = ? AND station = ? AND riu_no = ? AND riu_equip_no = ?");
-    $checkStmt->bind_param("ssii", $zone, $station, $riuNo, $equipNo);
-    $checkStmt->execute();
-    $checkResult = $checkStmt->get_result();
+    $stmt = $conn->prepare("SELECT id FROM riu_info WHERE zone = ? AND station = ? AND riu_no = ? AND riu_equip_no = ?");
+    $stmt->bind_param("ssii", $zone, $station, $riuNo, $equipNo);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if ($checkResult->num_rows > 0) {
-        $row = $checkResult->fetch_assoc();
-        $checkStmt->close();
+    if ($result->num_rows > 0) {
+        $stmt->close();
         $conn->close();
-        echo json_encode(['success' => true, 'message' => 'RIU record found', 'riu_info_id' => $row['id']]);
+        echo json_encode(['success' => true, 'message' => 'RIU record found']);
     } else {
-        $checkStmt->close();
+        $stmt->close();
         $conn->close();
         echo json_encode(['success' => false, 'message' => 'RIU record not found. Please save first.']);
     }
