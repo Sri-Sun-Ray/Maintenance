@@ -84,11 +84,7 @@ function saveInfo() {
       sessionStorage.setItem('equipNo', equipNo);
       
       alert(`✅ Data Saved Successfully!`);
-      
-     
-      
-      loadModuleData('nms');
-      showModule('nms');
+      document.querySelector('.sidebar').style.pointerEvents = 'auto';
     } 
     else if(result.message=== 'Record already exists')
       {
@@ -96,6 +92,7 @@ function saveInfo() {
          // Hide save button, show get details button
       document.getElementById('btn-save').style.display = 'none';
       document.getElementById('btn-get_details').style.display = 'block';
+      document.querySelector('.sidebar').style.pointerEvents = 'auto';
       }
       else {
       alert("❌ Error saving data: " + result.message);
