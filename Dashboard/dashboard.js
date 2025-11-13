@@ -31,41 +31,59 @@ function populateStations(zone){
 
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Simulate username
-  const username=localStorage.getItem("employee_name");
+document.addEventListener("DOMContentLoaded", async () => {
+  const username = localStorage.getItem("employee_name");
   document.getElementById("username").textContent = username;
 
-  // Simulate zone name
-  const zone=localStorage.getItem("zone");
+  const zone = localStorage.getItem("zone");
   document.getElementById("zoneName").textContent = zone;
 
   populateStations(zone);
 
-  // Populate table dynamically
-  const reports = [
-    { station: "Hyderabad", report: "Signal Report", due: "2025-11-10", updated: "2025-10-28" },
-    { station: "Vijayawada", report: "Maintenance Report", due: "2025-11-12", updated: "2025-10-25" },
-    { station: "Tirupati", report: "Electrical Report", due: "2025-11-15", updated: "2025-10-27" },
-  ];
-
   const tableBody = document.getElementById("tableBody");
-  reports.forEach((item, index) => {
-    const row = `
-      <tr>
-        <td>${index + 1}</td>
-        <td>${item.station}</td>
-        <td>${item.report}</td>
-        <td>${item.due}</td>
-        <td>${item.updated}</td>
-        <td>
-          <button class="action-btn btn-view"><i class="fa fa-eye"></i> View</button>
-          <button class="action-btn btn-edit"><i class="fa fa-pen"></i> Edit</button>
-          <button class="action-btn btn-download"><i class="fa fa-download"></i> Download</button>
-        </td>
-      </tr>`;
-    tableBody.innerHTML += row;
-  });
+  tableBody.innerHTML = "<tr><td colspan='6'>Loading reports...</td></tr>";
+
+  try {
+    const res = await fetch("get_reports.php");
+    const data = await res.json();
+
+    tableBody.innerHTML = "";
+
+    if (data.success && data.reports.length > 0) {
+      data.reports.forEach((item, index) => {
+        const row = `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.station}</td>
+            <td>${item.report}</td>
+            <td></td>
+            <td></td>
+            <td>
+              <button class="action-btn btn-view" onclick="window.open('${item.path}', '_blank')">
+                <i class="fa fa-eye"></i> View
+              </button>
+              <button class="action-btn btn-download" onclick="downloadReport('${item.path}')">
+                <i class="fa fa-download"></i> Download
+              </button>
+            </td>
+          </tr>`;
+        tableBody.innerHTML += row;
+      });
+    } else {
+      tableBody.innerHTML = "<tr><td colspan='6'>No reports found.</td></tr>";
+    }
+  } catch (err) {
+    console.error(err);
+    tableBody.innerHTML = "<tr><td colspan='6'>Failed to load reports.</td></tr>";
+  }
+});
+
+function downloadReport(path) {
+  const link = document.createElement("a");
+  link.href = path;
+  link.download = path.split("/").pop();
+  link.click();
+}
 
   // Interactivity (for example)
   document.querySelector(".btn-new").addEventListener("click", () => {
@@ -76,9 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
   window.location.href="../login.html";
 });
 
-
-
-});
 
 // Create new report with selected station
 function createNewReport() {

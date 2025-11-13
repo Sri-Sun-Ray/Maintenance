@@ -38,6 +38,7 @@ $safeZone = preg_replace('/[^A-Za-z0-9_-]/', '_', $zone);
 $safeStation = preg_replace('/[^A-Za-z0-9_-]/', '_', $station);
 $safeRiu = preg_replace('/[^A-Za-z0-9_-]/', '_', $riu_no);
 // _095543 was the time part (HHMMSS). Use dashes for readability.
+date_default_timezone_set('Asia/Kolkata');
 $timestamp = date('Y-m-d_H-i-s');
 $fileName = "RIU_{$safeZone}_{$safeStation}_{$safeRiu}_{$timestamp}.pdf";
 $filePath = $reportsDir . '/' . $fileName;
