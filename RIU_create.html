@@ -57,7 +57,7 @@
       <ul>
         <li onclick="showModule('nms')">NMS</li>
         <li onclick="showModule('power')">Power Supply</li>
-        <li onclick="showModule('riu')">RIU Equipment</li>
+        <li onclick="showModule('riu-table')">RIU Equipment</li>
         <li onclick="showModule('comm')">Communication Module</li>
         <li onclick="showModule('earthing')">Earthing & SPD</li>
       </ul>
@@ -122,7 +122,7 @@
       </div>
 
       <!-- RIU Equipment -->
-      <div id="riu" class="module-table">
+      <div id="riu-table" class="module-table">
         <h2>RIU Equipment Module</h2>
         <p>RIU data goes here...</p>
       </div>
@@ -141,6 +141,39 @@
     </div>
   </div>
 
+  <!-- Generate Report Button -->
+  <button
+    id="generateReportBtn"
+    style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;"
+    onclick="generateReport()"
+  >
+    Generate Report
+  </button>
+
   <script src="RIU_create.js"></script>
+  <script>
+    function generateReport() {
+      // Collect form data
+      const zone = document.getElementById('zone').value;
+      const station = document.getElementById('station').value;
+      const riu = document.getElementById('riu').value;
+      const equipNo = document.getElementById('equipNo').value;
+
+      // Validate that required fields are filled
+      if (!zone || !station || !riu || !equipNo) {
+        alert('Please fill all required fields (Zone, Station, RIU, Equipment No) before generating report.');
+        return;
+      }
+
+      // Store in sessionStorage (not localStorage)
+      sessionStorage.setItem('zone', zone);
+      sessionStorage.setItem('station', station);
+      sessionStorage.setItem('riuNo', riu);
+      sessionStorage.setItem('equipNo', equipNo);
+
+      // Redirect to observations.html
+      window.location.href = 'observations.html';
+    }
+  </script>
 </body>
 </html>
