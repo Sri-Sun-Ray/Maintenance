@@ -65,6 +65,19 @@ foreach ($files as $file) {
 
         $stmt->close();
 
+        $stmt = $conn->prepare("SELECT riu_equip_no FROM riu_info WHERE zone = ? AND station = ? AND riu_no = ?");
+        $stmt->bind_param("ssi",$zone,$station,$riu_no);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $equip_no=null;
+
+        if($row=$result->fetch_assoc())
+        {
+            $equip_no = $row['riu_equip_no'];
+        }
+        
+
         // Only store the latest version of the report
         if ($latestVersion) {
             // Store the latest report in the array
@@ -72,8 +85,10 @@ foreach ($files as $file) {
                 'zone' => $zone,
                 'station' => $station,
                 'riu_no' => $riu_no,
+                'riu_equip_no' => $equip_no,
                 'report' => "{$baseName}_v{$latestVersion}",
                 'path' => '../reports/' . $fileName,
+                'last_updated' => $date,
                 'created_at' => "$date $time"
             ];
         }
