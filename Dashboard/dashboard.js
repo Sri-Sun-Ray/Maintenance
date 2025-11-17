@@ -122,8 +122,16 @@ function createNewReport() {
 
   if (selectedStation) {
     localStorage.setItem("selectedStation", selectedStation);
+    window.location.href = "../STCAS_index.html";
   }
 
-  window.location.href = "../STCAS_index.html";
+  else{
+  if (confirm("Do you want to continue without selecting Station?")) {
+    window.location.href = "../STCAS_index.html";
+  } else {
+      alert("Please select the station.")
+  }
+}
+
 }
 
