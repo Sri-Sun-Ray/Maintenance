@@ -47,7 +47,7 @@ if (isset($data['zone'], $data['station'], $data['riu_no'], $data['equip_no'], $
         'comm' => 'nms',
         'earthing' => 'nms'
     ];
-    
+
     $tableName = isset($tableMap[$module]) ? $tableMap[$module] : 'nms';
 
     // Fetch module data with image paths
