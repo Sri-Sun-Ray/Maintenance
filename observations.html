@@ -8,90 +8,163 @@
     <style>
         body {
             font-family: Segoe UI, Roboto, sans-serif;
-            background: #f4f6f8;
+            background: linear-gradient(180deg, #eef2f7 0%, #ffffff 100%);
             margin: 0;
-            padding: 20px
+            padding: 24px
         }
 
         .container {
-            max-width: 1100px;
+            width: 100%;
+            max-width: none;
             margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, .08)
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
         }
 
         h1 {
-            font-size: 18px;
-            margin: 0 0 12px;
-            color: #1e293b;
-            text-align: center
+            font-size: 26px;
+            margin: 0 0 16px;
+            color: #0b3a66;
+            text-align: center;
+            font-weight: 700;
         }
 
-        .meta-table,
-        .obs-table {
-            width: 100%;
+        .meta-table {
+            width: auto;
+            margin: 16px 0 24px;
             border-collapse: collapse;
-            margin: 12px 0
         }
 
         .meta-table td {
-            padding: 8px;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc
+            padding: 10px 16px;
+            border: 1px solid #d0d8e8;
+            background: #f8fafc;
+            font-size: 14px;
         }
 
         .meta-table td.label {
             font-weight: 700;
             width: 180px;
-            color: #334155
+            color: #0b3a66;
         }
 
-        .obs-table th,
-        .obs-table td {
-            padding: 8px;
-            border: 1px solid #e2e8f0;
-            font-size: 13px
+        .module-section {
+            margin-top: 20px;
         }
 
-        .obs-table th {
-            background: #0b69d0;
-            color: #fff;
-            text-align: left
-        }
+        /* === CLEAN STYLES (KEEP THESE) === */
+.meta-table-4col {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 18px;
+}
+
+.meta-table-4col td {
+    border: 1px solid black;
+    padding: 8px 10px;
+}
+
+.meta-table-4col .label {
+    font-weight: 600;
+    width: 22%;
+    background: none !important;
+}
+
+/* REMOVE CARDS & SHADOWS */
+.report-card, .module-section {
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 25px 0 !important;
+}
+
+/* MODULE TITLE - BLACK TEXT */
+.module-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: black;
+    padding: 0;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+}
+
+/* REMOVE BLUE BAR */
+.module-header {
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* CLEAN TABLE */
+.obs-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid black;
+}
+
+/* HEADER */
+.obs-table th {
+    border: 2px solid black;
+    padding: 8px;
+    font-size: 15px;
+    background: none !important;
+    color: black;
+    font-weight: 600;
+}
+
+/* BODY */
+.obs-table td {
+    border: 1.5px solid black;
+    padding: 6px;
+    font-size: 14px;
+    color: black;
+}
+
+/* IMAGE */
+.img-thumb {
+    max-width: 90px;
+    max-height: 70px;
+    border: 1px solid black;
+}
+
 
         .controls {
             display: flex;
             gap: 10px;
             justify-content: flex-end;
-            margin-top: 12px
+            margin-top: 16px;
         }
 
         .btn {
-            padding: 8px 12px;
+            padding: 10px 16px;
             border: 0;
             border-radius: 6px;
             cursor: pointer;
             color: #fff;
-            background: #007bff
+            background: #007bff;
+            font-size: 14px;
+            font-weight: 600;
         }
 
         .btn.print {
-            background: #16a34a
+            background: #16a34a;
         }
 
         .note {
             color: #64748b;
-            font-size: 13px;
-            margin-top: 8px;
-            text-align: center
+            font-size: 14px;
+            margin-top: 12px;
+            text-align: center;
         }
 
         .empty {
-            padding: 18px;
+            padding: 24px;
             text-align: center;
-            color: #444
+            color: #666;
+            font-size: 16px;
         }
 
         /* Image modal styles */
@@ -102,7 +175,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -116,17 +189,101 @@
         }
 
         #imageModal img {
-            max-width: 600px;
-            max-height: 600px;
+            max-width: 90vw;
+            max-height: 90vh;
         }
 
         #imageModal span {
             position: absolute;
             top: 10px;
             right: 15px;
-            font-size: 28px;
+            font-size: 32px;
             cursor: pointer;
+            color: #333;
         }
+
+        @media(max-width: 900px) {
+            .obs-table th, .obs-table td { font-size: 12px; padding: 10px; }
+            .img-thumb { max-width: 80px; max-height: 60px; }
+            .module-title { min-width: 150px; font-size: 16px; }
+        }
+        .meta-table-4col {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 18px;        /* bigger text */
+}
+
+.meta-table-4col td {
+    border: 1px solid black;
+    padding: 8px 10px;
+}
+
+.meta-table-4col .label {
+    font-weight: 600;
+    width: 22%;
+    background: none !important;
+}
+
+/* REMOVE ALL CARDS, BACKGROUND, SHADOWS */
+.report-card, .module-section {
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 25px 0 !important;
+}
+
+/* SIDE HEADING (MODULE NAME) */
+.module-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: black;
+    padding: 0;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+}
+
+/* BLUE BAR NOT NEEDED: REMOVE IT */
+.module-header {
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* CLEAN SIMPLE TABLE */
+.obs-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid black;   /* outer border */
+}
+
+/* TABLE HEADER */
+.obs-table th {
+    border: 2px solid black;
+    padding: 8px;
+    font-size: 15px;
+    background: none !important; /* NO color */
+    color: black;
+    font-weight: 600;
+}
+
+/* TABLE BODY */
+.obs-table td {
+    border: 1.5px solid black;
+    padding: 6px;
+    font-size: 14px;
+    color: black;
+}
+
+/* FOR SMALL IMAGES IN LAST COLUMN */
+.img-thumb {
+    max-width: 90px;
+    max-height: 70px;
+    border: 1px solid black;
+}
+
+
     </style>
 
     <!-- include jsPDF & autoTable -->
@@ -167,55 +324,81 @@
             function escapeHtml(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
             function renderMeta(info) {
-                metaArea.innerHTML = `
-      <table class="meta-table">
-        <tr><td class="label">Zone</td><td>${escapeHtml(info.zone || '--')}</td></tr>
-        <tr><td class="label">Station</td><td>${escapeHtml(info.station || '--')}</td></tr>
-        <tr><td class="label">RIU No</td><td>${escapeHtml(info.riu_no || '--')}</td></tr>
-        <tr><td class="label">RIU Equip No</td><td>${escapeHtml(info.riu_equip_no || '--')}</td></tr>
-      </table>
+    metaArea.innerHTML = `
+    <table class="meta-table-4col">
+        <tr>
+            <td class="label">Zone</td>
+            <td>${escapeHtml(info.zone || '--')}</td>
+            <td class="label">Station</td>
+            <td>${escapeHtml(info.station || '--')}</td>
+        </tr>
+        <tr>
+            <td class="label">RIU No</td>
+            <td>${escapeHtml(info.riu_no || '--')}</td>
+            <td class="label">RIU Equip No</td>
+            <td>${escapeHtml(info.riu_equip_no || '--')}</td>
+        </tr>
+    </table>
     `;
-            }
+}
+
 
             function renderObservations(observations) {
                 if (!observations || observations.length === 0) {
-                    obsArea.innerHTML = '<div class="empty">No observations found for this RIU entry.</div>';
+                    obsArea.innerHTML = '<div class="report-card"><div class="empty">No observations found for this RIU entry.</div></div>';
                     return;
                 }
-                let rows = observations.map(obs => `
-      <tr>
-        <td>${escapeHtml(obs.sl_no)}</td>
-        <td>${escapeHtml(obs.description)}</td>
-        <td>${escapeHtml(obs.action_taken_range)}</td>
-        <td>${escapeHtml(obs.observation || '')}</td>
-        <td>${escapeHtml(obs.remarks || '')}</td>
-        <td>
-          ${obs.image_path ? `<img src="${obs.image_path}" alt="Image" style="max-width:80px; max-height:80px; cursor:pointer;" onclick="openImageModal('${obs.image_path}')">` : 'N/A'}
-        </td>
-      </tr>
-    `).join('');
-                obsArea.innerHTML = `
-      <table class="obs-table">
-        <thead>
-          <tr>
-            <th style="width:6%">Sl No</th>
-            <th style="width:36%">Description</th>
-            <th style="width:18%">Action Taken / Range</th>
-            <th style="width:11%">Observation</th>
-            <th style="width:11%">Remarks</th>
-            <th style="width:11%">Images</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <!-- Image Modal -->
-      <div id="imageModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2000; align-items:center; justify-content:center;">
-        <div style="position:relative; background:white; padding:20px; border-radius:8px;">
-          <span onclick="closeImageModal()" style="position:absolute; top:10px; right:15px; font-size:28px; cursor:pointer;">&times;</span>
-          <img id="modalImage" src="" alt="Full Image" style="max-width:600px; max-height:600px;">
-        </div>
-      </div>
-    `;
+
+                // Group by location/module (fall back to 'General')
+                const groups = {};
+                observations.forEach(obs => {
+                    const key = (obs.location || obs.module || 'General').trim() || 'General';
+                    if (!groups[key]) groups[key] = [];
+                    groups[key].push(obs);
+                });
+
+                // Build HTML: for each module group show title then table
+                let html = '';
+                for (const [moduleName, rows] of Object.entries(groups)) {
+                    html += `
+<div class="module-section">
+  <div class="module-title">${escapeHtml(moduleName)}</div>
+  <div style="overflow-x: auto;">
+    <table class="obs-table">
+      <thead>
+        <tr>
+          <th style="width:6%">Sl No</th>
+          <th style="width:40%">Description</th>
+          <th style="width:20%">Action Taken / Range</th>
+          <th style="width:12%">Observation</th>
+          <th style="width:12%">Remarks</th>
+          <th style="width:10%">Image</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+                    rows.forEach(obs => {
+                        const imgHtml = obs.image_path ? `<img src="${escapeHtml(obs.image_path)}" class="img-thumb" alt="img" onclick="openImageModal('${escapeHtml(obs.image_path)}')">` : 'N/A';
+                        html += `<tr>
+                          <td>${escapeHtml(obs.sl_no || '')}</td>
+                          <td>${escapeHtml(obs.description || '')}</td>
+                          <td>${escapeHtml(obs.action_taken_range || '')}</td>
+                          <td>${escapeHtml(obs.observation || '')}</td>
+                          <td>${escapeHtml(obs.remarks || '')}</td>
+                          <td style="text-align:center">${imgHtml}</td>
+                        </tr>`;
+                    });
+
+                    html += `</tbody></table></div></div>`;
+                }
+
+                obsArea.innerHTML = html + `
+                  <div id="imageModal">
+                    <div style="position:relative; background:white; padding:14px; border-radius:8px;">
+                      <span onclick="closeImageModal()" style="position:absolute; top:8px; right:12px; cursor:pointer;">&times;</span>
+                      <img id="modalImage" src="" alt="Full Image" style="display:block;">
+                    </div>
+                  </div>`;
             }
 
             function openImageModal(imagePath) {
@@ -272,20 +455,54 @@
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
 
-    // Total content width is 520 (Table Width)
     const contentWidth = 520;
     const startX = 40;
 
-    // ✅ Define header drawing function (kept as is)
-    function drawHeader(doc, pageNum, pageCount) {
+    // Collect observations first to calculate total pages
+    const obsRows = document.querySelectorAll('.obs-table tbody tr');
+    const observations = [];
+
+    obsRows.forEach(row => {
+        const cells = row.children;
+        const imgElement = cells[5]?.querySelector('img');
+        observations.push({
+            sl_no: cells[0]?.innerText || '',
+            description: cells[1]?.innerText || '',
+            action_taken_range: cells[2]?.innerText || '',
+            observation: cells[3]?.innerText || '',
+            remarks: cells[4]?.innerText || '',
+            image_path: imgElement ? imgElement.src : ''
+        });
+    });
+
+    // Create temp doc to estimate total pages
+    const tempDoc = new jsPDF({ unit: 'pt', format: 'a4' });
+    tempDoc.addPage();
+    const head = [['Sl No', 'Description', 'Action Taken / Range', 'Observation', 'Remarks', 'Image']];
+    const body = observations.map(o => [
+        o.sl_no, o.description, o.action_taken_range, o.observation, o.remarks,
+        o.image_path ? '✓ Image' : 'N/A'
+    ]);
+    tempDoc.autoTable({
+        startY: 100,
+        head, body,
+        styles: { fontSize: 9, cellPadding: 4 },
+        headStyles: { fillColor: [11, 105, 208], textColor: 255 },
+        theme: 'grid',
+        margin: { left: startX, right: startX },
+        tableWidth: contentWidth
+    });
+    const totalPages = tempDoc.internal.getNumberOfPages();
+
+    /* ===== PAGE 1 ===== */
+
+    function drawPage1Header(doc, pageNum, total) {
         const headerY = 50;
         const boxH = 30;
-
-        // Recalculated widths: [90, 100, 210, 60, 60] -> Sum = 520
         const widths = [90, 100, 210, 60, 60];
 
         const headers = [
-            `Page ${pageNum} of ${pageCount}`,
+            `Page ${pageNum} of ${total}`,
             'Effective from\n21.01.2021',
             'Document Title:\nMonthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)',
             'SIF-0552',
@@ -304,224 +521,364 @@
             const textY = headerY + (boxH - totalTextHeight) / 2 + 7;
 
             if (idx === 2) {
-                 doc.text(splitText, x + widths[idx] / 2, textY, { align: 'center' });
+                doc.text(splitText, x + widths[idx] / 2, textY, { align: 'center' });
             } else {
-                 doc.text(splitText, x + 3, textY);
+                doc.text(splitText, x + 3, textY);
             }
-
             x += widths[idx];
         });
     }
 
-    // ✅ COVER PAGE
-    drawHeader(doc, 1, 1);
+    drawPage1Header(doc, 1, totalPages);
 
-    // 1. Move organization block down and INCREASE SPACING after header table
-    let currentY = 130;
+    let currentY = 140;
 
-    // Organization Details (Title block)
     doc.setFont('times', 'bold');
     doc.setFontSize(14);
     doc.text('SIGNAL DIRECTORATE', doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
-    currentY += 25; // Increased spacing between organization lines
+    currentY += 28;
     doc.text('RESEARCH DESIGNS AND STANDARDS ORGANISATION', doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
-    currentY += 25; // Increased spacing between organization lines
+    currentY += 28;
     doc.text('MANAK NAGAR, LUCKNOW - 226011', doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
 
-    // 2. INCREASE GAP between organization block and main title (currentY + 50)
+    currentY += 55;
+
+    doc.setFontSize(12);
+    doc.text(
+        'Title: Monthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)',
+        doc.internal.pageSize.getWidth() / 2,
+        currentY,
+        { align: 'center' }
+    );
+
     currentY += 50;
 
-    doc.setFontSize(12);
-    doc.text('Title: Monthly Maintenance Schedule For HBL STCAS - RIU (Remote Interface Unit)', doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
-
-    // 3. INCREASE GAP between title and first table (currentY + 45)
-    currentY += 45;
-
-    // Issue Table (First table)
+    /* ===== ISSUE TABLE ===== */
     doc.autoTable({
-        startY: currentY,
-        head: [['SN', 'Issue', 'Version', 'Reason of Amendment']],
-        body: [['1', 'First', '1.0', 'First Issue']],
-        styles: { halign: 'center', valign: 'middle', fontSize: 10 },
-        headStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0] },
-        tableWidth: contentWidth,
-        margin: { left: startX },
-    });
+    startY: currentY,
+    head: [['SN', 'Issue', 'Version', 'Reason of Amendment']],
+    body: [
+        ['1', 'First', '1.0', 'First Issue']
+    ],
+    styles: {
+        halign: 'center',
+        valign: 'middle',
+        fontSize: 10,
+        lineWidth: 0.5,         // Border thickness
+        lineColor: [0, 0, 0],   // Border color (black)
+        fillColor: false,       // No background
+        textColor: [0, 0, 0]    // Body text color = black
+    },
+    headStyles: {
+        fillColor: false,       // Remove header background
+        textColor: [0, 0, 0],
+        lineWidth: 0.5,
+        lineColor: [0, 0, 0],
+    },
+    alternateRowStyles: {
+        fillColor: false        // Ensure no alt row background
+    },
+    tableWidth: contentWidth,
+    margin: { left: startX },
+});
 
-    // 4. INCREASE GAP between first table and second table (Issue table to Prepared/Approved)
-    const preparedApprovedY = doc.autoTable.previous.finalY + 50; // Increased gap to 50pt
 
-    const preparedText = "G. Pavan Kumar ED/Tele-II\nR.N Singh ADE/Signal-5\nAshutoshChaubey SSE/Signal";
-    const approvedText = "Shaminder Singh, PED/QA/S&T/RDSO";
+    // Increase gap between Issue Table and Prepared/Approved Table
+const preparedApprovedY = doc.autoTable.previous.finalY + 70;
 
-    // Prepared by / Approved by Section (Second table)
-    doc.autoTable({
-        startY: preparedApprovedY,
-        head: [['Prepared by:', 'Approved by:']],
-        body: [[preparedText, approvedText]],
-        styles: {
-            fontSize: 10,
-            lineColor: [0, 0, 0],
-            lineWidth: 0.5,
-            cellPadding: 8, // Increased cell padding slightly
-            valign: 'top',
+// Prepared by text with spacing
+const preparedText =
+`G. Pavan Kumar  ED/Tele-II
+
+R N Singh  ADE/Signal-5
+
+Ashutosh Chaubey  SSE/Signal`;
+
+// Approved by (single name)
+const approvedText = `Shaminder Singh  PED/QA/S&T/RDSO`;
+
+doc.autoTable({
+    startY: preparedApprovedY,
+
+    head: [['Prepared by:', 'Approved by:']],
+
+    body: [
+        [preparedText, approvedText]
+    ],
+
+    styles: {
+        fontSize: 10,
+        textColor: [0, 0, 0],
+        fillColor: false,      // No background in body
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+        cellPadding: 10,
+        halign: 'left'
+    },
+
+    headStyles: {
+        fontStyle: 'bold',
+        fillColor: false,      // No background in header
+        textColor: [0, 0, 0],
+        halign: 'center'
+    },
+
+    alternateRowStyles: {
+        fillColor: false       // No alternate shading
+    },
+
+    columnStyles: {
+        0: {
+            cellWidth: contentWidth / 2,
+            valign: 'top',      // Prepared stays top-aligned
+            halign: 'left'
         },
-        headStyles: {
-            fontStyle: 'bold',
-            fillColor: [255, 255, 255],
-            textColor: [0, 0, 0],
-            halign: 'left',
-            cellPadding: { top: 6, bottom: 2, left: 6, right: 6 }
-        },
-        columnStyles: {
-            0: { cellWidth: '50%' },
-            1: { cellWidth: '50%' },
-        },
-        tableWidth: contentWidth,
-        margin: { left: startX },
-        rowPageBreak: 'avoid',
-    });
+        1: {
+            cellWidth: contentWidth / 2,
+            valign: 'middle',   // APPROVED BY vertically centered
+            halign: 'center'    // horizontally centered
+        }
+    },
+
+    tableWidth: contentWidth,
+    margin: { left: startX },
+});
 
     // 5. INCREASE GAP between second table and third table (Prepared/Approved to Signatures)
-    const signatureY = doc.autoTable.previous.finalY + 50; // Increased gap to 50pt
+const signatureY = doc.autoTable.previous.finalY + 70;  // moved further down
 
-    // Use a fixed number of line breaks for a reasonably sized signature box (Third table)
-    const numLinesFixed = 3;
-    const signatureBody = [['\n'.repeat(numLinesFixed), '\n'.repeat(numLinesFixed)]];
+// Signature box (empty space for signatures)
+const numLinesFixed = 4;   // increased size slightly
+const signatureBody = [['\n'.repeat(numLinesFixed), '\n'.repeat(numLinesFixed)]];
 
-    // Firm's Representative / Railway Representative Section (Third table)
-    doc.autoTable({
-        startY: signatureY,
-        head: [
-            ["Firm's Representative with", "Railway Representativewith"],
-            ["Name Designation and Date", "Name Designation and Date"]
-        ],
-        body: signatureBody,
-        styles: {
-            fontSize: 9,
-            lineColor: [0, 0, 0],
-            lineWidth: 0.5,
-            cellPadding: 3,
-            valign: 'middle',
-            halign: 'left',
-        },
-        headStyles: {
-            fontStyle: 'normal',
-            fillColor: [255, 255, 255],
-            textColor: [0, 0, 0],
-            cellPadding: { top: 3, bottom: 0, left: 3, right: 3 }
-        },
-        columnStyles: {
-            0: { cellWidth: '50%' },
-            1: { cellWidth: '50%' },
-        },
-        tableWidth: contentWidth,
-        margin: { left: startX },
-        didDrawCell: (data) => {
-             if (data.section === 'head' && data.row.index === 0) {
-                 // Remove the bottom line of the first header row for a merged look
-                 doc.setDrawColor(255, 255, 255);
-                 doc.setLineWidth(0.5);
-                 doc.line(data.cell.x, data.cell.y + data.cell.height, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
-                 // Redraw border on the right
-                 doc.setDrawColor(0, 0, 0);
-                 doc.line(data.cell.x + data.cell.width, data.cell.y, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
-             }
-        },
-    });
+doc.autoTable({
+    startY: signatureY,
 
-    // --- Start of Page 2 (Remainder of original code)
-    doc.addPage();
+    head: [
+        ["Firm's Representative with", "Railway Representative with"],
+        ["Name Designation and Date", "Name Designation and Date"]
+    ],
 
-    // ... (rest of Page 2 generation code, kept as is) ...
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('Monthly Maintenance Report — STCAS', 40, 40);
+    body: signatureBody,
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.text(`Zone: ${zone}`, 40, 64);
-    doc.text(`Station: ${station}`, 300, 64);
-    doc.text(`RIU No: ${riu_no}`, 40, 80);
-    doc.text(`Equip No: ${equip_no}`, 300, 80);
+    styles: {
+        fontSize: 10,            // increased font size
+        textColor: [0, 0, 0],
+        fillColor: false,        // NO BACKGROUND at all
+        lineColor: [0, 0, 0],
+        lineWidth: 0.5,
+        cellPadding: 6,
+        valign: 'middle',
+        halign: 'left'
+    },
 
-    // Draw header on page 2 (temporary page count)
-    drawHeader(doc, 2, 2);
+    headStyles: {
+        fontSize: 10,            // header font size
+        fontStyle: 'bold',
+        fillColor: false,        // NO header background
+        textColor: [0, 0, 0],
+        halign: 'center',
+        cellPadding: 4
+    },
 
-    // ✅ Collect observations dynamically from table (Placeholder, assumes data exists)
-    const obsRows = document.querySelectorAll('.obs-table tbody tr');
-    const observations = [];
-    obsRows.forEach(row => {
-        const cells = row.children;
-        const imgElement = cells[5]?.querySelector('img');
-        observations.push({
-            sl_no: cells[0]?.innerText || '',
-            description: cells[1]?.innerText || '',
-            action_taken_range: cells[2]?.innerText || '',
-            observation: cells[3]?.innerText || '',
-            remarks: cells[4]?.innerText || '',
-            image_path: imgElement ? imgElement.src : ''
+    alternateRowStyles: {
+        fillColor: false         // No alternate shading
+    },
+
+    columnStyles: {
+        0: { cellWidth: contentWidth / 2 },
+        1: { cellWidth: contentWidth / 2 }
+    },
+
+    tableWidth: contentWidth,
+    margin: { left: startX },
+
+    didDrawCell: (data) => {
+        // Merge header rows visually (remove bottom line of first header row)
+        if (data.section === 'head' && data.row.index === 0) {
+            doc.setDrawColor(255, 255, 255); // erase bottom border
+            doc.setLineWidth(0.5);
+            doc.line(
+                data.cell.x,
+                data.cell.y + data.cell.height,
+                data.cell.x + data.cell.width,
+                data.cell.y + data.cell.height
+            );
+            doc.setDrawColor(0, 0, 0); // restore right border
+            doc.line(
+                data.cell.x + data.cell.width,
+                data.cell.y,
+                data.cell.x + data.cell.width,
+                data.cell.y + data.cell.height
+            );
+        }
+    }
+});
+
+
+/* ===== PAGE 2 – CLEAN: ONLY REAL IMAGES, NO TEXT/LINKS ===== */
+doc.addPage('a4', 'portrait');
+
+const pageWidth = doc.internal.pageSize.getWidth();
+const pageHeight = doc.internal.pageSize.getHeight();
+const marginX = startX;
+
+// Title
+doc.setFont('helvetica', 'bold');
+doc.setFontSize(18);
+doc.text('Monthly Maintenance Report — STCAS', pageWidth / 2, 30, { align: 'center' });
+
+// === RIU INFO TABLE (4-column) ===
+doc.autoTable({
+    startY: 50,
+    head: [['Zone', 'Station', 'RIU No', 'RIU Equip No']],
+    body: [[zone || '--', station || '--', riu_no || '--', equip_no || '--']],
+    theme: 'grid',
+    styles: { fontSize: 13, cellPadding: 10, lineColor: [0,0,0], lineWidth: 1.2 },
+    headStyles: { fillColor: [30,60,120], textColor: 255, fontStyle: 'bold', fontSize: 13, lineWidth: 1.5 },
+    columnStyles: {
+        0: { cellWidth: contentWidth * 0.25, halign: 'center' },
+        1: { cellWidth: contentWidth * 0.25, halign: 'center' },
+        2: { cellWidth: contentWidth * 0.25, halign: 'center' },
+        3: { cellWidth: contentWidth * 0.25, halign: 'center' }
+    },
+    margin: { left: marginX, right: marginX }
+});
+
+currentY = doc.lastAutoTable.finalY + 25;   // Only one declaration
+
+// === GROUP DATA FROM HTML (with real image URLs) ===
+const moduleGroups = {};
+
+document.querySelectorAll('.obs-table').forEach(table => {
+    const moduleName = table.closest('.module-section')
+        ?.querySelector('.module-title')?.innerText.trim() || 'General';
+
+    if (!moduleGroups[moduleName]) moduleGroups[moduleName] = [];
+
+    table.querySelectorAll('tbody tr').forEach(row => {
+        const cells = row.cells;
+        const img = cells[5]?.querySelector('img');
+        moduleGroups[moduleName].push({
+            sl_no: cells[0]?.innerText.trim(),
+            description: cells[1]?.innerText.trim(),
+            action: cells[2]?.innerText.trim(),
+            observation: cells[3]?.innerText.trim(),
+            remarks: cells[4]?.innerText.trim(),
+            image_url: img ? img.src : null   // Only real URL or null
         });
     });
+});
 
-    // Observation table
-    const head = [['Sl No', 'Description', 'Action Taken / Range', 'Observation', 'Remarks', 'Image']];
-    const body = observations.map(o => [
-        o.sl_no, o.description, o.action_taken_range, o.observation, o.remarks,
-        o.image_path ? '✓ Image' : 'N/A'
-    ]);
+// === RENDER EACH MODULE ===
+for (const [moduleName, rows] of Object.entries(moduleGroups)) {
+    // Module Title
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.text(moduleName.toUpperCase(), marginX, currentY);
+    currentY += 15;
+
+    // Table body — we pass image URL as raw data
+    const tableBody = rows.map(row => [
+    row.sl_no,
+    row.description,
+    row.action,
+    row.observation,
+    row.remarks,
+    row.image_url ? { image: row.image_url } : ''   // ← special object
+]);
 
     doc.autoTable({
-        startY: 100,
-        head: head,
-        body: body,
-        styles: { fontSize: 9, cellPadding: 4 },
-        headStyles: { fillColor: [11, 105, 208], textColor: 255 },
+        startY: currentY,
+        head: [['Sl No', 'Description', 'Action Taken / Range', 'Observation', 'Remarks', 'Image']],
+        body: tableBody,
         theme: 'grid',
-        margin: { left: startX, right: startX },
+        styles: { fontSize: 10, cellPadding: 6, lineColor: [0,0,0], lineWidth: 0.8 },
+        headStyles: {
+            fillColor: [30,60,120],
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 11,
+            lineWidth: 1.2,
+            halign: 'center',
+            valign: 'middle'   // Fixed syntax
+        },
+        columnStyles: {
+            0: { cellWidth: 35, halign: 'center' },
+            1: { cellWidth: 170 },
+            2: { cellWidth: 95 },
+            3: { cellWidth: 80 },
+            4: { cellWidth: 80 },
+            5: { cellWidth: 80, halign: 'center' }
+        },
+        margin: { left: marginX, right: marginX },
         tableWidth: contentWidth,
-        didDrawPage: function (data) {
-            const pageNum = doc.internal.getCurrentPageInfo().pageNumber;
-            const pageCount = doc.internal.getNumberOfPages();
-            drawHeader(doc, pageNum, pageCount);
+
+        // ONLY DRAW IMAGE — NO TEXT AT ALL
+        didDrawCell: function(data) {
+    if (data.section === 'body' && data.column.index === 5 && data.cell.raw && typeof data.cell.raw === 'object' && data.cell.raw.image) {
+        const imgUrl = data.cell.raw.image;
+        const imgWidth = 70;
+        const imgHeight = 50;
+        const x = data.cell.x + (data.cell.width - imgWidth) / 2;
+        const y = data.cell.y + (data.cell.height - imgHeight) / 2;
+
+        try {
+            doc.addImage(imgUrl, 'JPEG', x, y, imgWidth, imgHeight);
+        } catch (err) {
+            // image failed → cell stays blank
+        }
+    }
+
         }
     });
 
-    // ✅ Finally, update headers with total page count
-    const totalPages = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= totalPages; i++) {
-        doc.setPage(i);
-        drawHeader(doc, i, totalPages);
+    currentY = doc.lastAutoTable.finalY + 30;
+
+    if (currentY > pageHeight - 50) {
+        doc.addPage();
+        currentY = 50;
     }
+}
 
-    // ✅ Convert to Base64 and upload (server-side logic is placeholder)
-    const dataUri = doc.output('datauristring');
-    const base64 = dataUri.split(',')[1];
-    const payload = { zone, station, riu_no, equip_no, pdf_base64: base64 };
+// Footer
+doc.setFontSize(10);
+doc.setTextColor(100);
+doc.text(
+    'Generated on: ' + new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) +
+    ' at ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    pageWidth / 2, pageHeight - 20, { align: 'center' }
+);
 
+/* ===== UPLOAD PDF ===== */
+const dataUri = doc.output('datauristring');
+const base64 = dataUri.split(',')[1];
+const payload = { zone, station, riu_no, equip_no, pdf_base64: base64 };
+
+try {
     const resp = await fetch('generate_pdf.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     });
-
     const json = await resp.json();
+
     if (json.success) {
         viewBtn.style.display = 'inline-block';
         viewBtn.disabled = false;
         viewBtn.innerText = 'View Reports (v' + (json.version || '') + ')';
         createBtn.innerText = 'Created';
         createBtn.disabled = true;
-        alert('✅ Created PDF successfully (version: ' + (json.version || '') + ').');
+        alert('PDF Created Successfully.');
     } else {
-        alert('❌ Failed to create PDF: ' + (json.message || 'Unknown error'));
-        createBtn.disabled = false;
-        createBtn.innerText = 'Create PDF';
+        throw new Error('Server error');
     }
-}
-
-
-
+} catch (err) {
+    console.error(err);
+    alert('Failed to save PDF.');
+    createBtn.disabled = false;
+    createBtn.innerText = 'Create PDF';
+}}
         })();
     </script>
 </body>
