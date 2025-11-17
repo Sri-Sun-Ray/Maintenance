@@ -61,14 +61,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             <td>${index + 1}</td>
             <td>${item.station}</td>
             <td>${item.report}</td>
-            <td></td>
-            <td></td>
+            <td>${item.due_date}</td>
+            <td>${item.last_updated}</td>
             <td>
-              <button class="action-btn btn-view" onclick="window.open('${item.path}', '_blank')">
+              <button class="action-btn btn-view" onclick="viewReport('${item.path}')">
                 <i class="fa fa-eye"></i> View
               </button>
               <button class="action-btn btn-download" onclick="downloadReport('${item.path}')">
                 <i class="fa fa-download"></i> Download
+              </button>
+              <!-- Edit Button -->
+              <button class="action-btn btn-edit" data-item='${JSON.stringify(item)}' onclick="editReport(this)">
+                <i class="fa fa-edit"></i> Edit
               </button>
             </td>
           </tr>`;
@@ -83,6 +87,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
+
+function viewReport(path) {
+  if (!path) {
+    alert("File not found!");
+    return;
+  }
+  window.open(path, "_blank");
+}
+
+
 function downloadReport(path) {
   const link = document.createElement("a");
   link.href = path;
@@ -90,14 +104,15 @@ function downloadReport(path) {
   link.click();
 }
 
-  // Interactivity (for example)
-  document.querySelector(".btn-new").addEventListener("click", () => {
-    window.location.href="../STCAS_index.html";
-  });
+function editReport(button) {
+  const item = JSON.parse(button.getAttribute('data-item'));
+  localStorage.setItem("editStation",item.station);
+  localStorage.setItem("editRiu",item.riu_no);
+  localStorage.setItem("editEquip",item.riu_equip_no);
 
-  document.querySelector(".logout-btn").addEventListener("click",()=>{
-  window.location.href="../login.html";
-});
+  window.location.href="../RIU_create.html";
+  
+};
 
 
 // Create new report with selected station
@@ -109,6 +124,6 @@ function createNewReport() {
     localStorage.setItem("selectedStation", selectedStation);
   }
 
-  window.location.href = "../STCAS_create.html";
+  window.location.href = "../STCAS_index.html";
 }
 

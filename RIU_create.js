@@ -10,21 +10,6 @@ const zoneStation = {
   "NR": ["Lucknow(Alambagh)", "Ludhiana"]
 };
 
-// Load zone from localStorage on page load
-window.addEventListener("DOMContentLoaded", function() {
-  const storedZone = localStorage.getItem("zone");
-  const storedStation = localStorage.getItem("selectedStation");
-  
-  if (storedZone) {
-    document.getElementById("zone").value = storedZone;
-    // Populate station dropdown based on zone
-    populateStationDropdown(storedZone);
-  }
-  
-  if (storedStation) {
-    document.getElementById("station").value = storedStation;
-  }
-});
 
 // Populate station dropdown based on zone
 function populateStationDropdown(zone) {
@@ -117,6 +102,26 @@ window.addEventListener("DOMContentLoaded", function() {
   if (storedStation) {
     document.getElementById("station").value = storedStation;
   }
+
+   const editStation=localStorage.getItem('editStation');
+   const editRiu=localStorage.getItem('editRiu');
+   const editEquip=localStorage.getItem('editEquip');
+  
+  if(editStation)
+  {
+    document.getElementById("station").value = editStation;
+  }
+  if(editRiu)
+  {
+    document.getElementById("riu").value = editRiu;
+  }
+
+  if(editEquip)
+  {
+    document.getElementById("equipNo").value = editEquip;
+  }
+  
+
 });
 
 // Load module data after RIU info is saved
