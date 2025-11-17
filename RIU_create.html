@@ -56,11 +56,11 @@
     <div class="sidebar" style="pointer-events: none; opacity: 1;">
       <h3>Modules</h3>
       <ul>
-        <li onclick="showModule('nms')">NMS</li>
-        <li onclick="showModule('power')">Power Supply</li>
-        <li onclick="showModule('riu')">RIU Equipment</li>
-        <li onclick="showModule('comm')">Communication Module</li>
-        <li onclick="showModule('earthing')">Earthing & SPD</li>
+        <li onclick="showModule('nms')" id="nms-tab" class="module-tab">NMS</li>
+        <li onclick="showModule('power')" id="power-tab" class="module-tab">Power Supply</li>
+        <li onclick="showModule('riu')" id="riu-tab" class="module-tab">RIU Equipment</li>
+        <li onclick="showModule('comm')" id="comm-tab" class="module-tab">Communication Module</li>
+        <li onclick="showModule('earthing')" id="earthing-tab" class="module-tab">Earthing & SPD</li>
       </ul>
     </div>
 
@@ -110,10 +110,10 @@
             </tr>
           </tbody>
         </table>
-        <div style="text-align: center; margin-top: 15px; gap: 10px;">
+        <div style="margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" onclick="saveModuleData('nms')">Save NMS Data</button>
-          <button class="btn btn-update" onclick="updateModuleData('nms')">Update NMS Data</button>
-          <button class="btn btn-getDetails" onclick="getDetails('nms')">Get Details</button>
+          <button class="btn btn-update" onclick="updateModuleData('nms')" style="display: none;">Update NMS Data</button>
+          <button class="btn btn-getDetails" onclick="getDetails('nms')" style="display: none;">Get Details</button>
         </div>
       </div>
 
@@ -353,7 +353,7 @@
   <!-- Generate Report Button -->
   <button
     id="generateReportBtn"
-    style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;"
+    style="bottom: 20px; right: 20px; z-index: 1000; float: right; margin-top: 10px;"
     onclick="generateReport()"
   >
     Generate Report

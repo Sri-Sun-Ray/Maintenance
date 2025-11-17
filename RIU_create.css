@@ -108,6 +108,7 @@ body {
   font-size: 15px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  float: right;
 }
 
 .btn-save:hover {
@@ -330,4 +331,21 @@ thead {
   top: 0;
   background-color: #007bff;    /* Background color for the header */
   z-index: 2;                   /* Ensures the header is above the body */
+}
+
+/* Module tab highlighting */
+.module-tab {
+  position: relative;
+}
+
+.module-tab.has-data {
+  background-color: #ffd700 !important;
+  color: #000 !important;
+  font-weight: bold;
+}
+
+.module-tab.has-data::after {
+  content: " ✓";
+  color: #28a745;
+  font-weight: bold;
 }

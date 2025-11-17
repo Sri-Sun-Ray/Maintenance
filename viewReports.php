@@ -58,6 +58,21 @@ try {
         $stmt = $pdo->query($sql);
     }
     $reports = $stmt->fetchAll();
+
+     foreach ($reports as $key => $row) {
+        $sql2 = "SELECT riu_equip_no 
+                 FROM riu_info 
+                 WHERE zone = ? AND station = ? AND riu_no = ? 
+                 LIMIT 1";
+
+        $stmt2 = $pdo->prepare($sql2);
+        $stmt2->execute([$row['zone'], $row['station'], $row['riu_no']]);
+        $riuInfo = $stmt2->fetch(PDO::FETCH_ASSOC);
+
+        // If record exists, add riu_equip_no else null
+        $reports[$key]['riu_equip_no'] = $riuInfo['riu_equip_no'] ?? null;
+    }
+
 } catch (Exception $e) {
     $reports = [];
 }
@@ -127,12 +142,15 @@ th{ background:#00457C; color:#fff; }
         $zone = $r['zone'] ?? '';
         $station = $r['station'] ?? '';
         $riu = $r['riu_no'] ?? '';
+        $riu_equip_no=$r['riu_equip_no'];
         $file = $r['file_name'] ?? '';
         $version = $r['version'] ?? '';
         $created = isset($r['created_at']) ? date('d/m/Y H:i', strtotime($r['created_at'])) : '';
         $filePath = $r['file_path'] ?? ('reports/' . $file);
         // fallback ensure safe url
         $filePathEsc = htmlspecialchars($filePath);
+
+        $rJson = htmlspecialchars(json_encode($r), ENT_QUOTES, 'UTF-8');
     ?>
       <tr data-zone="<?php echo htmlspecialchars(strtolower($zone)); ?>" data-station="<?php echo htmlspecialchars(strtolower($station)); ?>" data-riu="<?php echo htmlspecialchars(strtolower($riu)); ?>">
         <td><?php echo htmlspecialchars($zone); ?></td>
@@ -145,8 +163,8 @@ th{ background:#00457C; color:#fff; }
           <a class="btn view-btn" href="<?php echo $filePathEsc; ?>" target="_blank">View</a>
           <a class="btn download-btn" href="<?php echo $filePathEsc; ?>" download>Download</a>
           <!-- Edit: open create page and prefill via query params -->
-          <a class="btn edit-btn" href="STCAS_create.html?zone=<?php echo urlencode($zone); ?>&station=<?php echo urlencode($station); ?>&riu=<?php echo urlencode($riu); ?>">Edit</a>
-        </td>
+          <button class="btn edit-btn" onclick='editRecord(<?php echo $rJson; ?>)'>Edit</button>
+
       </tr>
     <?php endforeach; ?>
     </tbody>
@@ -181,6 +199,23 @@ document.getElementById('search-input').addEventListener('input', function(){
     }
   });
 });
+
+function editRecord(item) {
+
+    console.log("Full item received:", item);
+
+    // Destructure values
+    const zone = item.zone || "";
+    const station = item.station || "";
+    const riu = item.riu_no || "";
+    const equipNo = item.riu_equip_no || "";
+
+     localStorage.setItem("editStation",station);
+     localStorage.setItem("editRiu",riu);
+     localStorage.setItem("editEquip",equipNo);
+
+     window.location.href = "RIU_create.html";
+}
 
 // Prefill search input when a zone filter was applied server-side
 (function(){

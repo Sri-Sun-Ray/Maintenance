@@ -113,7 +113,11 @@ window.addEventListener("DOMContentLoaded", function() {
   }
   if(editRiu)
   {
+
     document.getElementById("riu").value = editRiu;
+      document.getElementById('btn-save').style.display = 'none';
+      document.getElementById('btn-get_details').style.display = 'block';
+      document.querySelector('.sidebar').style.pointerEvents = 'auto';
   }
 
   if(editEquip)
