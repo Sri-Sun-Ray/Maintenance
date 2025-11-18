@@ -408,6 +408,12 @@ function saveModuleData(moduleId) {
     console.error("Error:", error);
     alert("❌ Something went wrong. Check console for details.");
   });
+
+  document.getElementById(`btn-save-${moduleId}`).style.display='none';
+  document.getElementById(`btn-getDetails-${moduleId}`).style.display='block'; 
+  document.getElementById(`btn-update-${moduleId}`).style.display='block';
+  
+
 }
 
 // === Update Module Data ===
