@@ -596,3 +596,58 @@ function get(){
   });
 }
 
+// ===== BARCODE / QR CAMERA SCANNER =====
+let activeInput = "";
+let html5QrCode = null;
+
+function startScan(inputType) {
+  activeInput = inputType;
+  document.getElementById("scannerModal").style.display = "flex";
+
+  html5QrCode = new Html5Qrcode("qr-reader");
+
+  Html5Qrcode.getCameras().then(devices => {
+    if (devices.length === 0) {
+      alert("No camera found on this device!");
+      stopScan();
+      return;
+    }
+
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      (decodedText) => {
+        document.getElementById(activeInput).value = decodedText;
+        stopScan();
+      },
+      (error) => { /* ignore */ }
+    ).catch(err => {
+      alert("Camera access denied! Please enable permission.");
+      stopScan();
+    });
+  });
+}
+
+
+// 🚀 FIXED STOP FUNCTION
+function stopScan() {
+  if (html5QrCode && html5QrCode.isScanning) {  // 👈 check if running only then stop
+    html5QrCode.stop()
+      .then(() => {
+        html5QrCode.clear();
+        html5QrCode = null;
+        document.getElementById("scannerModal").style.display = "none";
+        console.log("Scanner stopped successfully!");
+      })
+      .catch(err => {
+        console.warn("Scanner was not running:", err);
+        document.getElementById("scannerModal").style.display = "none";
+      });
+  } else {
+    console.warn("Scanner already stopped.");
+    document.getElementById("scannerModal").style.display = "none";
+  }
+}
+
+
+

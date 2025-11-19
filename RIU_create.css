@@ -349,3 +349,57 @@ thead {
   color: #28a745;
   font-weight: bold;
 }
+/* ====== Scanner Styles ====== */
+.scan-box {
+  display: flex;
+  flex-direction: column; /* 👈 This makes label on top, input below */
+  position: relative;     /* Needed for scan icon */
+}
+
+.scan-box input {
+  padding-right: 35px; /* To make space for camera icon */
+}
+
+.form-group input {
+  position: relative;
+  padding-right: 35px;  /* Reserve space for camera icon */
+}
+
+.scan-icon {
+  position: absolute;
+  right: 10px;
+  top: 60%; /* adjust to look centered */
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  display: none;
+}
+
+.scan-box:hover .scan-icon {
+  display: block;
+}
+
+/* Scanner Modal - FINAL VERSION */
+.scanner-modal {
+  display: none; 
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  z-index: 9999;
+}
+
+.btn-cancel {
+  margin-top: 12px;
+  background: red;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}

@@ -1,5 +1,6 @@
-// Simulated fetching data (replace with actual PHP API calls)
-
+// =========================
+// 1. STATIC STATION DATA
+// =========================
 const zoneStation = {
   "CR": ["Bhusawal", "Kalyan"],
   "ER": ["Asansol", "Barddhaman", "Dankuni", "Howarh D", "Howrah E", "Jamalpur"],
@@ -11,73 +12,84 @@ const zoneStation = {
   "NR": ["Lucknow(Alambagh)", "Ludhiana"]
 };
 
-function populateStations(zone){
+let allReports = []; // Global for filtering
 
-  const fromSelect=document.getElementById("fromStation");
-  const toSelect=document.getElementById("toStation");
-  const stationDropdown=document.getElementById("stationDropdown")
+// DOM Elements
+const stationInput = document.getElementById("stationSearch");
+const suggestionBox = document.getElementById("suggestionBox");
+const searchBtn = document.getElementById("searchBtn");
+const zone = localStorage.getItem("zone");
+const stationDropdown = document.getElementById("stationDropdown");
 
-  fromSelect.innerHTML="";
-  toSelect.innerHTML="";
-  stationDropdown.innerHTML="";
 
-  const stations=zoneStation[zone] || [];
+// =========================
+// 2. AUTOCOMPLETE FEATURE
+// =========================
+stationInput.addEventListener("keyup", function () {
+  const searchText = stationInput.value.toLowerCase();
+  suggestionBox.innerHTML = ""; // Clear box
 
-  fromSelect.innerHTML = `<option value="">Select</option>`;
-  toSelect.innerHTML = `<option value="">Select</option>`;
-  stationDropdown.innerHTML = `<option value="">Select</option>`;
+  if (searchText === "") {
+    renderTable(allReports);  // Reset full table
+    return;
+  }
 
-  stations.forEach(station=> {
-    fromSelect.innerHTML += `<option value="${station}">${station}</option>`;
-    toSelect.innerHTML += `<option value="${station}">${station}</option>`;
+  const stations = zoneStation[zone] || [];
+  const filtered = stations.filter(st => st.toLowerCase().includes(searchText));
+
+  filtered.forEach(station => {
+    const li = document.createElement("li");
+    li.textContent = station;
+    li.addEventListener("click", () => {
+      stationInput.value = station;
+      suggestionBox.innerHTML = ""; // hide box
+    });
+    suggestionBox.appendChild(li);
+  });
+});
+
+
+// =========================
+// 3. SEARCH BUTTON (FILTER)
+// =========================
+searchBtn.addEventListener("click", function () {
+  const stationName = stationInput.value.trim();
+  if (!stationName) return alert("Please enter or select a station.");
+  const filteredReports = allReports.filter(report => report.station === stationName);
+  renderTable(filteredReports);
+});
+
+
+// =========================
+// 4. POPULATE DROPDOWN
+// =========================
+function populateStations(zone) {
+  stationDropdown.innerHTML = '<option value="">Select</option>';
+  const stations = zoneStation[zone] || [];
+  stations.forEach(station => {
     stationDropdown.innerHTML += `<option value="${station}">${station}</option>`;
   });
-
 }
 
+
+// =========================
+// 5. FETCH REPORTS (PHP)
+// =========================
 document.addEventListener("DOMContentLoaded", async () => {
-  const username = localStorage.getItem("employee_name");
-  document.getElementById("username").textContent = username;
-
-  const zone = localStorage.getItem("zone");
+  document.getElementById("username").textContent = localStorage.getItem("employee_name");
   document.getElementById("zoneName").textContent = zone;
-
   populateStations(zone);
 
   const tableBody = document.getElementById("tableBody");
   tableBody.innerHTML = "<tr><td colspan='6'>Loading reports...</td></tr>";
 
   try {
-    const zone = localStorage.getItem("zone");
     const res = await fetch(`get_reports.php?zone=${zone}`);
     const data = await res.json();
 
-    tableBody.innerHTML = "";
-
     if (data.success && data.reports.length > 0) {
-      data.reports.forEach((item, index) => {
-        const row = `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${item.station}</td>
-            <td>${item.report}</td>
-            <td>${item.due_date}</td>
-            <td>${item.last_updated}</td>
-            <td>
-              <button class="action-btn btn-view" onclick="viewReport('${item.path}')">
-                <i class="fa fa-eye"></i> View
-              </button>
-              <button class="action-btn btn-download" onclick="downloadReport('${item.path}')">
-                <i class="fa fa-download"></i> Download
-              </button>
-              <!-- Edit Button -->
-              <button class="action-btn btn-edit" data-item='${JSON.stringify(item)}' onclick="editReport(this)">
-                <i class="fa fa-edit"></i> Edit
-              </button>
-            </td>
-          </tr>`;
-        tableBody.innerHTML += row;
-      });
+      allReports = data.reports; // Save reports
+      renderTable(allReports);   // Display
     } else {
       tableBody.innerHTML = "<tr><td colspan='6'>No reports found.</td></tr>";
     }
@@ -88,14 +100,71 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-function viewReport(path) {
-  if (!path) {
-    alert("File not found!");
-    return;
-  }
-  window.open(path, "_blank");
+// =========================
+// 6. DUE DATE LOGIC (MONTHLY)
+// =========================
+function getNextDueDate(lastUpdated) {
+  let date = new Date(lastUpdated);
+  date.setMonth(date.getMonth() + 1);  // Next Month
+
+  let dd = String(date.getDate()).padStart(2, '0');
+  let mm = String(date.getMonth() + 1).padStart(2, '0');
+  let yyyy = date.getFullYear();
+
+  return `${dd}-${mm}-${yyyy}`;
 }
 
+function getDueStatus(dueDate) {
+  const today = new Date();
+  const due = new Date(dueDate.split('-').reverse().join('-'));
+
+  if (due < today) return "overdue";      // RED
+  if (due.toDateString() === today.toDateString()) return "dueToday"; // ORANGE
+  return "upcoming";                      // GREEN
+}
+
+
+// =========================
+// 7. RENDER TABLE
+// =========================
+function renderTable(reports) {
+  const tableBody = document.getElementById("tableBody");
+  tableBody.innerHTML = "";
+
+  if (reports.length === 0) {
+    tableBody.innerHTML = "<tr><td colspan='6'>No reports found.</td></tr>";
+    return;
+  }
+
+  reports.forEach((item, index) => {
+    const nextDueDate = getNextDueDate(item.last_updated);
+    const dueClass = getDueStatus(nextDueDate);
+
+    const row = `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${item.station}</td>
+        <td>${item.report}</td>
+        <td class="${dueClass}">${nextDueDate}</td>
+        <td>${item.last_updated}</td>
+        <td>
+          <button class="action-btn btn-view" onclick="viewReport('${item.path}')"><i class="fa fa-eye"></i> View</button>
+          <button class="action-btn btn-download" onclick="downloadReport('${item.path}')"><i class="fa fa-download"></i> Download</button>
+          <button class="action-btn btn-edit" data-item='${JSON.stringify(item)}' onclick="editReport(this)"><i class="fa fa-edit"></i> Edit</button>
+        </td>
+      </tr>`;
+    tableBody.innerHTML += row;
+  });
+}
+
+
+// =========================
+// 7. VIEW / DOWNLOAD / EDIT
+// =========================
+function viewReport(path) {
+  if (!path) return alert("File not found!");
+  window.open(path, "_blank");
+}
 
 function downloadReport(path) {
   const link = document.createElement("a");
@@ -106,32 +175,24 @@ function downloadReport(path) {
 
 function editReport(button) {
   const item = JSON.parse(button.getAttribute('data-item'));
-  localStorage.setItem("editStation",item.station);
-  localStorage.setItem("editRiu",item.riu_no);
-  localStorage.setItem("editEquip",item.riu_equip_no);
-
-  window.location.href="../RIU_create.html";
-  
-};
+  localStorage.setItem("editStation", item.station);
+  localStorage.setItem("editRiu", item.riu_no);
+  localStorage.setItem("editEquip", item.riu_equip_no);
+  window.location.href = "../RIU_create.html";
+}
 
 
-// Create new report with selected station
+// =========================
+// 8. CREATE NEW REPORT
+// =========================
 function createNewReport() {
-  const selectedStation = document.getElementById("stationDropdown").value;
-  const zone = localStorage.getItem("zone");
-
+  const selectedStation = stationDropdown.value;
   if (selectedStation) {
     localStorage.setItem("selectedStation", selectedStation);
     window.location.href = "../STCAS_index.html";
-  }
-
-  else{
-  if (confirm("Do you want to continue without selecting Station?")) {
-    window.location.href = "../STCAS_index.html";
   } else {
-      alert("Please select the station.")
+    confirm("Continue without selecting station?")
+      ? window.location.href = "../STCAS_index.html"
+      : alert("Please select a station.");
   }
 }
-
-}
-

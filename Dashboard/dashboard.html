@@ -42,17 +42,16 @@
   </section>
 
   <!-- Stations Filter Section -->
-  <section class="filters stations-filter">
-    <div class="filter-left">
-      <div class="stations">
-        <label>From Station:</label>
-        <select id="fromStation"></select>
-
-        <label>To Station:</label>
-        <select id="toStation"></select>
-      </div>
+ <section class="filters stations-filter">
+  <div class="filter-left">
+    <div class="station-search">
+      <input type="text" id="stationSearch" placeholder="Enter station name..." autocomplete="off">
+      <button id="searchBtn" class="search-btn">🔍</button>
     </div>
-  </section>
+    <ul id="suggestionBox" class="suggestions"></ul>
+  </div>
+</section>
+
 
   <!-- Dashboard Table -->
   <section class="table-section">
