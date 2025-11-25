@@ -66,7 +66,7 @@
       <ul>
         <li onclick="showModule('nms')" id="nms-tab" class="module-tab">NMS</li>
         <li onclick="showModule('power')" id="power-tab" class="module-tab">Power Supply</li>
-        <li onclick="showModule('riu')" id="riu-tab" class="module-tab">RIU Equipment</li>
+        <li onclick="showModule('riu_equip')" id="riu-tab" class="module-tab">RIU Equipment</li>
         <li onclick="showModule('comm')" id="comm-tab" class="module-tab">Communication Module</li>
         <li onclick="showModule('earthing')" id="earthing-tab" class="module-tab">Earthing & SPD</li>
       </ul>
@@ -296,7 +296,7 @@
       </div>
 
       <!-- RIU Equipment -->
-      <div id="riu" class="module-table">
+      <div id="riu_equip" class="module-table">
         <h2>RIU Equipment Module</h2>
         <table>
           <thead>
@@ -412,9 +412,9 @@ ISO LED</td>
           </tbody>
         </table>
         <div style="text-align: center; margin-top: 15px; gap: 10px;">
-          <button class="btn btn-save" id="btn-save-riu" onclick="saveModuleData('riu')">Save NMS Data</button>
-          <button class="btn btn-update" id="btn-update-riu" onclick="updateModuleData('riu')">Update NMS Data</button>
-          <button class="btn btn-getDetails" id="btn-getDetails-riu" onclick="getDetails('riu')">Get Details</button>
+          <button class="btn btn-save" id="btn-save-riu" onclick="saveModuleData('riu_equip')">Save NMS Data</button>
+          <button class="btn btn-update" id="btn-update-riu" onclick="updateModuleData('riu_equip')">Update NMS Data</button>
+          <button class="btn btn-getDetails" id="btn-getDetails-riu" onclick="getDetails('riu_equip')">Get Details</button>
         </div>
       </div>
       <!-- Communication -->
