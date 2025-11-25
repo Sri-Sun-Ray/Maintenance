@@ -499,8 +499,25 @@
             function renderObservations(observations) {
                 if (!observations || observations.length === 0) {
                     obsArea.innerHTML = '<div class="report-card"><div class="empty">No observations found for this RIU entry.</div></div>';
+                    // still render summary: all points considered open (29)
+                    const TOTAL_POINTS = 29;
+                    const openPointsCount = TOTAL_POINTS;
+                    document.querySelector('h1').innerText = `Monthly Maintenance Report — STCAS (Generated) — Not Completed`;
+                    metaArea.innerHTML += `
+                      <div class="module-section">
+                        <div class="module-title">Summary</div>
+                        <table class="meta-table-4col">
+                          <tr>
+                            <td class="label">Total Points</td><td>${TOTAL_POINTS}</td>
+                            <td class="label">Open Points</td><td>${openPointsCount}</td>
+                          </tr>
+                        </table>
+                        <div style="margin-top:8px;"><em>All points missing or not recorded.</em></div>
+                      </div>`;
                     return;
                 }
+
+                const TOTAL_POINTS = 29;
 
                 // Group by location/module (fall back to 'General')
                 const groups = {};
@@ -510,7 +527,63 @@
                     groups[key].push(obs);
                 });
 
-                // Build HTML: for each module group show title then table
+                // Compute open points per module and overall
+                const openByModule = {};
+                let openCount = 0;
+                observations.forEach(obs => {
+                    const key = (obs.location || obs.module || 'General').trim() || 'General';
+                    const isOpen = !obs.observation || (String(obs.observation).trim() === '');
+                    if (isOpen) {
+                        openCount++;
+                        if (!openByModule[key]) openByModule[key] = [];
+                        openByModule[key].push(String(obs.sl_no || ''));
+                    }
+                });
+
+                // If some expected points are missing from DB rows, count them as open (report note)
+                const missingEntries = Math.max(0, TOTAL_POINTS - observations.length);
+                const totalOpen = openCount + missingEntries;
+
+                // Update page title with completion status
+                const statusText = (totalOpen === 0) ? 'Completed' : 'Not Completed';
+                document.querySelector('h1').innerText = `Monthly Maintenance Report — STCAS (Generated) — ${statusText}`;
+
+                // Build summary HTML and inject below meta area
+                let summaryHtml = `
+                  <div class="module-section">
+                    <div class="module-title">Summary</div>
+                    <table class="meta-table-4col">
+                      <tr>
+                        <td class="label">Total Points</td><td>${TOTAL_POINTS}</td>
+                        <td class="label">Open Points</td><td>${totalOpen}</td>
+                      </tr>
+                    </table>`;
+
+                if (missingEntries > 0) {
+                  summaryHtml += `<div style="margin-top:8px;color:#b55353">Note: ${missingEntries} expected point(s) are missing from the database and counted as open.</div>`;
+                }
+
+                // Module-wise open points table
+                summaryHtml += `<div style="margin-top:12px;">
+                  <table class="obs-table" style="border:1px solid #000; width:100%; margin-top:8px;">
+                    <thead>
+                      <tr><th style="width:40%;">Module</th><th style="width:60%;">Open Points (Sl No)</th></tr>
+                    </thead>
+                    <tbody>`;
+
+                // include all modules found in groups (show "—" if none open)
+                Object.keys(groups).forEach(moduleName => {
+                  const opens = openByModule[moduleName] || [];
+                  const display = opens.length ? opens.join(', ') : '—';
+                  summaryHtml += `<tr><td>${escapeHtml(moduleName)}</td><td>${escapeHtml(display)}</td></tr>`;
+                });
+
+                summaryHtml += `</tbody></table></div></div>`;
+
+                // append (do not replace) so meta info remains
+                metaArea.innerHTML += summaryHtml;
+
+                // Build HTML for observation tables (unchanged behavior)
                 let html = '';
                 for (const [moduleName, rows] of Object.entries(groups)) {
                     html += `
@@ -797,7 +870,7 @@ doc.autoTable({
     margin: { left: startX },
 });
 
-    // 5. INCREASE GAP between second table and third table (Prepared/Approved to Signatures)
+// 5. INCREASE GAP between second table and third table (Prepared/Approved to Signatures)
 const signatureY = doc.autoTable.previous.finalY + 70;  // moved further down
 
 // Signature box (empty space for signatures)

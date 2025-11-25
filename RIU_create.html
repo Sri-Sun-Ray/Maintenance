@@ -96,85 +96,49 @@
               <td>1</td>
               <td>Ensure E1 network is always healthy and RIU communication is stable.</td>
               <td>Verify communication with STCAS unit.</td>
-              <td><input type="text" placeholder="Observation"></td>
+              <td>
+                <!-- changed back to single-line input to keep column consistent -->
+                <textarea placeholder="Observation"></textarea>
+              </td>
               <td><input type="text" placeholder="Remarks"></td>
-               <td style="padding-right: 10px;">
-    <button class="add-image" onclick="showUploadOptions(9)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Add Image</button>
-    <div class="upload-options" id="upload-options-9" style="display: none;">
-      <button class="add-image" onclick="startCamera(9)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Camera</button>
-      <label for="file-input-9" class="upload-label" style="cursor: pointer; padding: 5px 10px; font-size: 14px;">Upload from Device</label>
-      <input type="file" id="file-input-9" accept="image/*" multiple onchange="displayImages(this, 9)" style="display: none;">
-    </div>
-      <!-- Container for multiple images --> 
-      <div id="image-container-9"></div>
-      <!-- Camera Container -->
-    <div id="camera-container-9" style="display: none;">
-      <video id="camera-9" width="100%" height="auto" autoplay></video>
-      <button class="add-image" onclick="captureImage(9)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Capture Image</button>
-      <button class="add-image" onclick="stopCamera(9)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Stop Camera</button>
-      <button class="reverse-camera" onclick="switchCamera(9)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">🔄 Switch Camera</button>
-      <canvas id="canvas-9" style="display: none;"></canvas>
-    </div>
+              <td>
+    <!-- simplified to use the existing openImageOptions handler -->
+    <button onclick="openImageOptions(this)">Add Image</button>
   </td>
             </tr>
             <tr>
               <td>2</td>
               <td>Backup the Events & Fault data logs of RIU</td>
               <td>Store the log files & Downloaded data from Google drive</td>
-              <td><input type="text" placeholder="Observation"></td>
+              <td>
+                <!-- changed back to single-line input to keep column consistent -->
+                <textarea placeholder="Observation"></textarea>
+              </td>
               <td><input type="text" placeholder="Remarks"></td>
-              <td style="padding-right: 10px;">
-    <button class="add-image" onclick="showUploadOptions(10)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Add Image</button>
-    <div class="upload-options" id="upload-options-10" style="display: none;">
-      <button class="add-image" onclick="startCamera(10)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Camera</button>
-      <label for="file-input-9" class="upload-label" style="cursor: pointer; padding: 5px 10px; font-size: 14px;">Upload from Device</label>
-      <input type="file" id="file-input-10" accept="image/*" multiple onchange="displayImages(this, 10)" style="display: none;">
-    </div>
-      <!-- Container for multiple images --> 
-      <div id="image-container-10"></div>
-      <!-- Camera Container -->
-    <div id="camera-container-10" style="display: none;">
-      <video id="camera-10" width="100%" height="auto" autoplay></video>
-      <button class="add-image" onclick="captureImage(10)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Capture Image</button>
-      <button class="add-image" onclick="stopCamera(10)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Stop Camera</button>
-      <button class="reverse-camera" onclick="switchCamera(10)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">🔄 Switch Camera</button>
-      <canvas id="canvas-10" style="display: none;"></canvas>
-    </div>
+              <td>
+    <!-- simplified to use the existing openImageOptions handler -->
+    <button onclick="openImageOptions(this)">Add Image</button>
   </td>
-
             </tr>
             <tr>
               <td>3</td>
               <td>Ensure RIU inputs are operated</td>
               <td>Check all the RIU field inputs (Signals, Points, Track circuits, etc.,) are operated properly in NMS.</td>
-              <td><input type="text" placeholder="Observation"></td>
+              <td>
+                <!-- changed back to single-line input to keep column consistent -->
+                <textarea placeholder="Observation"></textarea>
+              </td>
               <td><input type="text" placeholder="Remarks"></td>
-                            <td style="padding-right: 10px;">
-    <button class="add-image" onclick="showUploadOptions(10)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Add Image</button>
-    <div class="upload-options" id="upload-options-10" style="display: none;">
-      <button class="add-image" onclick="startCamera(10)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Camera</button>
-      <label for="file-input-9" class="upload-label" style="cursor: pointer; padding: 5px 10px; font-size: 14px;">Upload from Device</label>
-      <input type="file" id="file-input-10" accept="image/*" multiple onchange="displayImages(this, 10)" style="display: none;">
-    </div>
-      <!-- Container for multiple images --> 
-      <div id="image-container-10"></div>
-      <!-- Camera Container -->
-    <div id="camera-container-10" style="display: none;">
-      <video id="camera-10" width="100%" height="auto" autoplay></video>
-      <button class="add-image" onclick="captureImage(10)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Capture Image</button>
-      <button class="add-image" onclick="stopCamera(10)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">Stop Camera</button>
-      <button class="reverse-camera" onclick="switchCamera(10)" style="margin-left: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer;">🔄 Switch Camera</button>
-      <canvas id="canvas-10" style="display: none;"></canvas>
-    </div>
+              <td>
+    <!-- simplified to use the existing openImageOptions handler -->
+    <button onclick="openImageOptions(this)">Add Image</button>
   </td>
-
-</tr>
+            </tr>
           </tbody>
         </table>
         <div style="margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" id="btn-save-nms" onclick="saveModuleData('nms')">Save NMS Data</button>
           <button class="btn btn-update" id="btn-update-nms" onclick="updateModuleData('nms')" style="display: none; float: right;">Update NMS Data</button>
-          <button class="btn btn-getDetails" id="btn-getDetails-nms" onclick="getDetails('nms')" style="display: none; float: right;">Get Details</button>
         </div>
       </div>
 
@@ -290,8 +254,7 @@
         </table>
         <div style="text-align: center; margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" id="btn-save-power" onclick="saveModuleData('power')">Save Power Supply Data</button>
-          <button class="btn btn-update" id="btn-update-power" onclick="updateModuleData('power')">Update Power Supply Data</button>
-          <button class="btn btn-getDetails" id="btn-getDetails-power" onclick="getDetails('power')">Get Details</button>
+          <button class="btn btn-update" id="btn-update-power" onclick="updateModuleData('power')" style="display: none;">Update Power Supply Data</button>
         </div>
       </div>
 
@@ -309,26 +272,11 @@
               <th>Image</th>
             </tr>
           </thead>
-          <tbody id="riuTableBody">
-
+          <tbody id="riu_equipTableBody">
             <tr>
               <td>1</td>
-               <td>Clean the RIU Equipment and Check the
-communication
-status of the RIU
-COM1 & RIU COM2
-Modules</td>
-                <td>To be free from dust,LEDs should be Glow/Blink
-PWR LED
-MHLT LED
-WHLT LED
-DATA1 LED
-DATA2 LED
-CH1/LINK1 LED
-CH2/LINK2 LED
-BMS LED
-CNS LED
-BHLT LED</td>
+              <td>Clean the RIU Equipment and Check the communication status of the RIU COM1 & RIU COM2 Modules</td>
+              <td>To be free from dust,LEDs should be Glow/Blink PWR LED MHLT LED WHLT LED DATA1 LED DATA2 LED CH1/LINK1 LED CH2/LINK2 LED BMS LED CNS LED BHLT LED</td>
               <td><input type="text" placeholder="Observation"></td>
               <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
@@ -336,15 +284,8 @@ BHLT LED</td>
 
             <tr>
               <td>2</td>
-               <td>Check all Health Status
-LEDs, i.eRIU – FSC
-Module</td>
-                <td>LEDs should be Glow/Blink
-PWR LED
-SCS LED
-WHLT LED
-ADC LED
-MHLT LED</td>
+              <td>Check all Health Status LEDs, i.eRIU – FSC Module</td>
+              <td>LEDs should be Glow/Blink PWR LED SCS LED WHLT LED ADC LED MHLT LED</td>
               <td><input type="text" placeholder="Observation"></td>
               <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
@@ -352,26 +293,22 @@ MHLT LED</td>
 
             <tr>
               <td>3</td>
-               <td>Check the Power
-Supply Module -RIU</td>
-                <td>LEDs should be Glow/Blink
-PWR LED
-CAN LED
-ISO LED</td>
+              <td>Check the Power Supply Module -RIU</td>
+              <td>LEDs should be Glow/Blink PWR LED CAN LED ISO LED</td>
               <td><input type="text" placeholder="Observation"></td>
               <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
             </tr>
-            <tr>
 
             <tr>
               <td>4</td>
-               <td>Visually examine all the cards are inserted properly and tighten the corresponding screws</td>
-                <td>Ensure the tightness of the cards</td>
+              <td>Visually examine all the cards are inserted properly and tighten the corresponding screws</td>
+              <td>Ensure the tightness of the cards</td>
               <td><input type="text" placeholder="Observation"></td>
               <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
             </tr>
+            
             <tr>
               <td>5</td>
               <td>Visually examine all PS, communication cables are tighten all the connections / Terminations / Wagoterminals</td>
@@ -380,12 +317,11 @@ ISO LED</td>
               <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
             </tr>
+            
             <tr>
               <td>6</td>
               <td>Check the RIU Internal and External wirings</td>
-              <td>1. Check the firmness of wiring Connections from FSC module to Rly. FieldInputs.
-                  2.Check the firmness ofCommunication cable connections between RIU communication to F M S Unit
-                  3.Check the firmness of wiring connections between Battery Charger .</td>
+              <td>1. Check the firmness of wiring Connections from FSC module to Rly. FieldInputs. 2.Check the firmness ofCommunication cable connections between RIU communication to F M S Unit 3.Check the firmness of wiring connections between Battery Charger .</td>
               <td><input type="text" placeholder="Observation"></td>
               <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
@@ -393,8 +329,8 @@ ISO LED</td>
 
             <tr>
               <td>7</td>
-             <td>Check the output Supply voltage of 24 Volts charger provided for relay input wiring</td>
-             <td>The voltage measured should be approx. 21V - 29V DC.</td>
+              <td>Check the output Supply voltage of 24 Volts charger provided for relay input wiring</td>
+              <td>The voltage measured should be approx. 21V - 29V DC.</td>
               <td><input type="text" placeholder="Observation"></td>
               <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
@@ -402,8 +338,8 @@ ISO LED</td>
 
             <tr>
               <td>8</td>
-             <td>Check voltage from contacts of field input relays at terminals. witred to RIU.</td>
-             <td>The voltage on the terminals when the relay is picked up should be between 20 to 29V DC.</td>
+              <td>Check voltage from contacts of field input relays at terminals. witred to RIU.</td>
+              <td>The voltage on the terminals when the relay is picked up should be between 20 to 29V DC.</td>
               <td><input type="text" placeholder="Observation"></td>
               <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
@@ -412,9 +348,8 @@ ISO LED</td>
           </tbody>
         </table>
         <div style="text-align: center; margin-top: 15px; gap: 10px;">
-          <button class="btn btn-save" id="btn-save-riu" onclick="saveModuleData('riu_equip')">Save NMS Data</button>
-          <button class="btn btn-update" id="btn-update-riu" onclick="updateModuleData('riu_equip')">Update NMS Data</button>
-          <button class="btn btn-getDetails" id="btn-getDetails-riu" onclick="getDetails('riu_equip')">Get Details</button>
+          <button class="btn btn-save" id="btn-save-riu_equip" onclick="saveModuleData('riu_equip')">Save RIU Equipment Data</button>
+          <button class="btn btn-update" id="btn-update-riu_equip" onclick="updateModuleData('riu_equip')" style="display: none;">Update RIU Equipment Data</button>
         </div>
       </div>
       <!-- Communication -->
@@ -471,9 +406,8 @@ ISO LED</td>
           </tbody>
         </table>
         <div style="text-align: center; margin-top: 15px; gap: 10px;">
-          <button class="btn btn-save" id="btn-save-comm" onclick="saveModuleData('comm')">Save NMS Data</button>
-          <button class="btn btn-update" id="btn-update-comm" onclick="updateModuleData('comm')">Update NMS Data</button>
-          <button class="btn btn-getDetails" id="btn-getDetails-comm" onclick="getDetails('comm')">Get Details</button>
+          <button class="btn btn-save" id="btn-save-comm" onclick="saveModuleData('comm')">Save Communication Module</button>
+          <button class="btn btn-update" id="btn-update-comm" onclick="updateModuleData('comm')" style="display: none;">Update Communication Module</button>
         </div>
       </div>
 
@@ -519,9 +453,8 @@ ISO LED</td>
           </tbody>
         </table>
         <div style="text-align: center; margin-top: 15px; gap: 10px;">
-          <button class="btn btn-save" id="btn-save-earthing" onclick="saveModuleData('earthing')">Save NMS Data</button>
-          <button class="btn btn-update" id="btn-update-earthing" onclick="updateModuleData('earthing')">Update NMS Data</button>
-          <button class="btn btn-getDetails" id="btn-getDetails-earthing" onclick="getDetails('earthing')">Get Details</button>
+          <button class="btn btn-save" id="btn-save-earthing" onclick="saveModuleData('earthing')">Save Earthing</button>
+          <button class="btn btn-update" id="btn-update-earthing" onclick="updateModuleData('earthing')" style="display: none;">Update Earthing</button>
         </div>
       </div>
     </div>
