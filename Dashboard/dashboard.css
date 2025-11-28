@@ -244,4 +244,18 @@ tbody tr:nth-child(even) {
 .upcoming { background: #d0ffd0; color: #006600; } /* GREEN */
 .dueToday { background: #ffe4b3; color: #b35900; font-weight: bold; } /* ORANGE */
 
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #fff;
+}
+.status-completed { background: #28a745; }       /* green */
+.status-completedlate { background: #ff9800; }   /* amber/orange */
+.status-notcompleted { background: #6c757d; }    /* gray */
+.status-unknown { background: #5a5a5a; }
+
 

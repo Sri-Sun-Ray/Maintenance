@@ -6,6 +6,13 @@
   <title>RIU Maintenance</title>
   <link rel="stylesheet" href="RIU_create.css">
   <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="libs/jquery-3.6.0.min.js"></script>
+  <script src="libs/zxing-browser.min.js"></script>
+  <script src="libs/jspdf.umd.min.js"></script>
+  <script src="libs/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@latest/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js"></script>
+  
 </head>
 <body>
 
@@ -79,6 +86,7 @@
       <!-- NMS Module -->
       <div id="nms" class="module-table">
         <h2>NMS Module</h2>
+        <div class="table-container">
         <table>
           <thead>
             <tr>
@@ -136,6 +144,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
         <div style="margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" id="btn-save-nms" onclick="saveModuleData('nms')">Save NMS Data</button>
           <button class="btn btn-update" id="btn-update-nms" onclick="updateModuleData('nms')" style="display: none; float: right;">Update NMS Data</button>
@@ -145,6 +154,7 @@
       <!-- Power Supply -->
       <div id="power" class="module-table">
         <h2>Power Supply Module</h2>
+        <div class="table-container">
         <table>
           <thead>
             <tr>
@@ -252,6 +262,7 @@
 
           </tbody>
         </table>
+        </div>
         <div style="text-align: center; margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" id="btn-save-power" onclick="saveModuleData('power')">Save Power Supply Data</button>
           <button class="btn btn-update" id="btn-update-power" onclick="updateModuleData('power')" style="display: none;">Update Power Supply Data</button>
@@ -261,6 +272,7 @@
       <!-- RIU Equipment -->
       <div id="riu_equip" class="module-table">
         <h2>RIU Equipment Module</h2>
+        <div class="table-container">
         <table>
           <thead>
             <tr>
@@ -308,7 +320,7 @@
               <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
             </tr>
-            
+
             <tr>
               <td>5</td>
               <td>Visually examine all PS, communication cables are tighten all the connections / Terminations / Wagoterminals</td>
@@ -317,7 +329,7 @@
               <td><input type="text" placeholder="Remarks"></td>
               <td><button onclick="openImageOptions(this)">Add Image</button></td>
             </tr>
-            
+
             <tr>
               <td>6</td>
               <td>Check the RIU Internal and External wirings</td>
@@ -347,6 +359,7 @@
 
           </tbody>
         </table>
+        </div>
         <div style="text-align: center; margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" id="btn-save-riu_equip" onclick="saveModuleData('riu_equip')">Save RIU Equipment Data</button>
           <button class="btn btn-update" id="btn-update-riu_equip" onclick="updateModuleData('riu_equip')" style="display: none;">Update RIU Equipment Data</button>
@@ -355,6 +368,7 @@
       <!-- Communication -->
       <div id="comm" class="module-table">
         <h2>Communication Module</h2>
+        <div class="table-container">
         <table>
           <thead>
             <tr>
@@ -405,6 +419,7 @@
 
           </tbody>
         </table>
+        </div>
         <div style="text-align: center; margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" id="btn-save-comm" onclick="saveModuleData('comm')">Save Communication Module</button>
           <button class="btn btn-update" id="btn-update-comm" onclick="updateModuleData('comm')" style="display: none;">Update Communication Module</button>
@@ -461,13 +476,30 @@
   </div>
 
   <!-- Generate Report Button -->
-  <button
-    id="generateReportBtn"
-    style="bottom: 20px; right: 20px; z-index: 1000; float: right; margin-top: 10px;"
-    onclick="generateReport()"
-  >
-    Generate Report
-  </button>
+ <button
+  id="generateReportBtn"
+  style="
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    float: right;
+    margin-top: 10px;
+    padding: 12px 24px;     /* Increase space inside button */
+    font-size: 16px;        /* Bigger text */
+    border-radius: 6px;     /* Optional – better look */
+  "
+  onclick="generateReport()"
+>
+  Generate Report
+</button>
+
+  <div id="imagePreviewModal" class="image-preview-modal">
+    <div class="image-preview-content">
+      <span class="close-preview" onclick="closeImagePreview()">&times;</span>
+      <img id="imagePreviewElement" src="" alt="Preview">
+    </div>
+  </div>
+
 
   <script src="RIU_create.js"></script>
   <script>

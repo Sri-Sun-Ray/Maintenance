@@ -5,6 +5,47 @@ header('Content-Type: application/json');
 
 $data = json_decode(file_get_contents('php://input'), true);
 
+function resolveModuleTable($module)
+{
+    $map = [
+        'nms' => 'nms',
+        'power' => 'power',
+        'riu_equip' => 'riu_equip',
+        'comm' => 'comm',
+        'earthing' => 'earthing'
+    ];
+
+    $key = strtolower($module);
+    return $map[$key] ?? null;
+}
+
+function decodeImagePathsValue($value)
+{
+    if ($value === null || $value === '') {
+        return [];
+    }
+
+    if (is_array($value)) {
+        return array_values(array_filter($value, function ($item) {
+            return $item !== null && $item !== '';
+        }));
+    }
+
+    $trimmed = trim((string)$value);
+    if ($trimmed === '') {
+        return [];
+    }
+
+    $decoded = json_decode($trimmed, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        return array_values(array_filter($decoded, function ($item) {
+            return $item !== null && $item !== '';
+        }));
+    }
+
+    return [$trimmed];
+}
+
 if (isset($data['zone'], $data['station'], $data['riu_no'], $data['equip_no'], $data['module'])) {
     $zone = htmlspecialchars($data['zone']);
     $station = htmlspecialchars($data['station']);
@@ -39,16 +80,11 @@ if (isset($data['zone'], $data['station'], $data['riu_no'], $data['equip_no'], $
     }
     $stmt->close();
 
-    // Map module to table name
-    $tableMap = [
-        'nms' => 'nms',
-        'power' => 'nms',  // All modules use same table
-        'riu_equip' => 'nms',
-        'comm' => 'nms',
-        'earthing' => 'nms'
-    ];
-
-    $tableName = isset($tableMap[$module]) ? $tableMap[$module] : 'nms';
+    $tableName = resolveModuleTable($module);
+    if (!$tableName) {
+        echo json_encode(['success' => false, 'message' => 'Unsupported module']);
+        exit;
+    }
 
     // Fetch module data with image paths
     $selectStmt = $conn->prepare("SELECT sl_no, description, action_taken, observation, remarks, image_path FROM $tableName 
@@ -59,6 +95,9 @@ if (isset($data['zone'], $data['station'], $data['riu_no'], $data['equip_no'], $
 
     $moduleData = [];
     while ($row = $result->fetch_assoc()) {
+        $imagePaths = decodeImagePathsValue($row['image_path'] ?? null);
+        $row['image_paths'] = $imagePaths;
+        $row['image_path'] = $imagePaths[0] ?? '';
         $moduleData[] = $row;
     }
 

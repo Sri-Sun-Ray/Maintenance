@@ -35,7 +35,7 @@ CREATE TABLE `comm` (
   `action_taken` text NOT NULL,
   `observation` text DEFAULT NULL,
   `remarks` text DEFAULT NULL,
-  `image_path` varchar(255) DEFAULT NULL,
+  `image_path` text DEFAULT NULL,
   `riu_info_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -55,7 +55,7 @@ CREATE TABLE `earthing` (
   `action_taken` text NOT NULL,
   `observation` text DEFAULT NULL,
   `remarks` text DEFAULT NULL,
-  `image_path` varchar(255) DEFAULT NULL,
+  `image_path` text DEFAULT NULL,
   `riu_info_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -75,7 +75,7 @@ CREATE TABLE `nms` (
   `action_taken` text NOT NULL,
   `observation` text DEFAULT NULL,
   `remarks` text DEFAULT NULL,
-  `image_path` varchar(255) DEFAULT NULL,
+  `image_path` text DEFAULT NULL,
   `riu_info_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -183,7 +183,7 @@ CREATE TABLE `power` (
   `action_taken` text NOT NULL,
   `observation` text DEFAULT NULL,
   `remarks` text DEFAULT NULL,
-  `image_path` varchar(255) DEFAULT NULL,
+  `image_path` text DEFAULT NULL,
   `riu_info_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -236,7 +236,7 @@ CREATE TABLE `riu_equip` (
   `action_taken` text NOT NULL,
   `observation` text DEFAULT NULL,
   `remarks` text DEFAULT NULL,
-  `image_path` varchar(255) DEFAULT NULL,
+  `image_path` text DEFAULT NULL,
   `riu_info_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()

@@ -15,6 +15,152 @@ if (!$zone || !$station || !$riuNo || !$equipNo || !$module) {
     exit;
 }
 
+function resolveModuleTable($module)
+{
+    $map = [
+        'nms' => 'nms',
+        'power' => 'power',
+        'riu_equip' => 'riu_equip',
+        'comm' => 'comm',
+        'earthing' => 'earthing'
+    ];
+
+    $key = strtolower($module);
+    return $map[$key] ?? null;
+}
+
+$tableName = resolveModuleTable($module);
+if (!$tableName) {
+    echo json_encode(['success' => false, 'message' => 'Unsupported module']);
+    exit;
+}
+
+function ensureImageDirectory($relativePath)
+{
+    $absolutePath = rtrim(__DIR__ . '/' . $relativePath, '/') . '/';
+    if (!is_dir($absolutePath)) {
+        mkdir($absolutePath, 0755, true);
+    }
+    return $absolutePath;
+}
+
+function sanitizeFileSegment($value)
+{
+    $sanitized = preg_replace('/[^a-zA-Z0-9_-]/', '_', $value);
+    return $sanitized === '' ? 'file' : $sanitized;
+}
+
+function moveUploadedImage($tmpName, $originalName, $metaParts, $folderRel, $folderAbs)
+{
+    if (!$tmpName || !is_uploaded_file($tmpName)) {
+        return null;
+    }
+
+    $safeOriginal = sanitizeFileSegment(pathinfo($originalName ?? 'image.png', PATHINFO_FILENAME));
+    $extension = pathinfo($originalName ?? '', PATHINFO_EXTENSION);
+    $extPart = $extension ? '.' . preg_replace('/[^a-zA-Z0-9]/', '', $extension) : '.png';
+
+    $fileName = implode('_', [
+        sanitizeFileSegment($metaParts['zone']),
+        sanitizeFileSegment($metaParts['station']),
+        sanitizeFileSegment($metaParts['riu']),
+        sanitizeFileSegment($metaParts['sl']),
+        uniqid()
+    ]) . '_' . $safeOriginal . $extPart;
+
+    $destinationAbs = $folderAbs . $fileName;
+    if (move_uploaded_file($tmpName, $destinationAbs)) {
+        return str_replace('\\', '/', $folderRel . $fileName);
+    }
+
+    return null;
+}
+
+function collectUploadedImagesForRow($filesRoot, $rowIndex, $metaParts, $folderRel, $folderAbs)
+{
+    $collected = [];
+    if (!$filesRoot || !isset($filesRoot['name'][$rowIndex])) {
+        return $collected;
+    }
+
+    $targetSets = [
+        'images' => true,
+        'image' => false
+    ];
+
+    foreach ($targetSets as $key => $isArray) {
+        if (!isset($filesRoot['name'][$rowIndex][$key])) {
+            continue;
+        }
+
+        if ($isArray) {
+            foreach ($filesRoot['name'][$rowIndex][$key] as $imgIdx => $originalName) {
+                if (!$originalName) {
+                    continue;
+                }
+
+                $errorCode = $filesRoot['error'][$rowIndex][$key][$imgIdx] ?? UPLOAD_ERR_NO_FILE;
+                $tmpName = $filesRoot['tmp_name'][$rowIndex][$key][$imgIdx] ?? null;
+                if ($errorCode !== UPLOAD_ERR_OK || !$tmpName) {
+                    continue;
+                }
+
+                $stored = moveUploadedImage($tmpName, $originalName, $metaParts, $folderRel, $folderAbs);
+                if ($stored) {
+                    $collected[] = $stored;
+                }
+            }
+        } else {
+            $originalName = $filesRoot['name'][$rowIndex][$key];
+            if (!$originalName) {
+                continue;
+            }
+
+            $errorCode = $filesRoot['error'][$rowIndex][$key] ?? UPLOAD_ERR_NO_FILE;
+            $tmpName = $filesRoot['tmp_name'][$rowIndex][$key] ?? null;
+            if ($errorCode !== UPLOAD_ERR_OK || !$tmpName) {
+                continue;
+            }
+
+            $stored = moveUploadedImage($tmpName, $originalName, $metaParts, $folderRel, $folderAbs);
+            if ($stored) {
+                $collected[] = $stored;
+            }
+        }
+    }
+
+    return $collected;
+}
+
+function normalizeToArray($value)
+{
+    if (is_array($value)) {
+        return array_values(array_filter($value, function ($item) {
+            return $item !== null && $item !== '';
+        }));
+    }
+
+    if ($value === null || $value === '') {
+        return [];
+    }
+
+    return [$value];
+}
+
+function deleteImageFiles($paths)
+{
+    foreach ($paths as $path) {
+        if (!$path) {
+            continue;
+        }
+        $normalized = ltrim(str_replace(['\\'], '/', $path), '/');
+        $fullPath = __DIR__ . '/' . $normalized;
+        if (is_file($fullPath)) {
+            @unlink($fullPath);
+        }
+    }
+}
+
 // DB connection
 $servername = "localhost";
 $username = "root";
@@ -46,16 +192,11 @@ $stmt->close();
 
 // Ensure uploads folder exists
 $imageFolderRel = 'uploads/images/';
-$imageFolderFull = __DIR__ . '/' . $imageFolderRel;
-if (!is_dir($imageFolderFull)) {
-    if (!mkdir($imageFolderFull, 0755, true)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to create image folder']);
-        exit;
-    }
-}
+$imageFolderFull = ensureImageDirectory($imageFolderRel);
 
 // Observations array from POST
 $observations = isset($_POST['observations']) ? $_POST['observations'] : [];
+$fileBag = isset($_FILES['observations']) ? $_FILES['observations'] : null;
 
 foreach ($observations as $index => $obs) {
     // Text fields
@@ -64,93 +205,51 @@ foreach ($observations as $index => $obs) {
     $actionTaken = isset($obs['action_taken']) ? trim($obs['action_taken']) : '';
     $observation = isset($obs['observation']) ? trim($obs['observation']) : '';
     $remarks = isset($obs['remarks']) ? trim($obs['remarks']) : '';
-    $existingImagePath = isset($obs['existing_image_path']) ? trim($obs['existing_image_path']) : '';
-    $removeImageFlag = isset($obs['remove_image']) && $obs['remove_image'] == '1';
-
-    // Detect new uploaded file for this observation
-    $newImageUploaded = false;
-    $newImageRelPath = null;
-
-    if (isset($_FILES['observations'])
-        && isset($_FILES['observations']['name'][$index])
-        && isset($_FILES['observations']['name'][$index]['image'])
-        && isset($_FILES['observations']['tmp_name'][$index])
-        && isset($_FILES['observations']['tmp_name'][$index]['image'])
-    ) {
-        $fileError = $_FILES['observations']['error'][$index]['image'];
-        if ($fileError === UPLOAD_ERR_OK) {
-            $tmpName = $_FILES['observations']['tmp_name'][$index]['image'];
-            $origName = basename($_FILES['observations']['name'][$index]['image']);
-            $timestamp = time();
-            // sanitize filename a bit
-            $origName = preg_replace('/[^a-zA-Z0-9\-\._]/', '_', $origName);
-            $uniqueName = "{$zone}_{$station}_{$riuNo}_{$slNo}_{$timestamp}_{$origName}";
-            $destFull = $imageFolderFull . $uniqueName;
-            if (move_uploaded_file($tmpName, $destFull)) {
-                $newImageUploaded = true;
-                $newImageRelPath = $imageFolderRel . $uniqueName;
-                // remove existing file if present
-                if ($existingImagePath) {
-                    $existingFull = __DIR__ . '/' . $existingImagePath;
-                    if (file_exists($existingFull)) {
-                        @unlink($existingFull);
-                    }
-                }
-            } else {
-                echo json_encode(['success' => false, 'message' => "Failed to move uploaded file for row {$index}"]);
-                exit;
-            }
+    $existingImages = [];
+    if (isset($obs['existing_images'])) {
+        $existingImages = normalizeToArray($obs['existing_images']);
+    } else {
+        $existingImagePath = isset($obs['existing_image_path']) ? trim($obs['existing_image_path']) : '';
+        if ($existingImagePath !== '') {
+            $existingImages = [$existingImagePath];
         }
     }
 
-    // If remove flag is set and no new image was uploaded, delete existing file and set to NULL
-    $setImagePath = '__KEEP__'; // sentinel => leave unchanged
-    if ($removeImageFlag && !$newImageUploaded) {
-        if ($existingImagePath) {
-            $existingFull = __DIR__ . '/' . $existingImagePath;
-            if (file_exists($existingFull)) {
-                @unlink($existingFull);
-            }
-        }
-        $setImagePath = null; // explicitly set to NULL in DB
-    } elseif ($newImageUploaded) {
-        $setImagePath = $newImageRelPath; // set to new relative path
+    $removedImages = [];
+    if (isset($obs['removed_images'])) {
+        $removedImages = normalizeToArray($obs['removed_images']);
+    } elseif (!empty($obs['remove_image']) && $obs['remove_image'] == '1') {
+        $removedImages = $existingImages;
+        $existingImages = [];
     }
+
+    if (!empty($removedImages)) {
+        deleteImageFiles($removedImages);
+        $existingImages = array_values(array_diff($existingImages, $removedImages));
+    }
+
+    $uploadedPaths = [];
+    if ($fileBag) {
+        $uploadedPaths = collectUploadedImagesForRow(
+            $fileBag,
+            $index,
+            ['zone' => $zone, 'station' => $station, 'riu' => $riuNo, 'sl' => $slNo],
+            $imageFolderRel,
+            $imageFolderFull
+        );
+    }
+
+    $finalImages = array_values(array_unique(array_merge($existingImages, $uploadedPaths)));
+    $imageJson = !empty($finalImages) ? json_encode($finalImages) : null;
 
     $updatedAt = date('Y-m-d H:i:s');
-
-    // Build and execute UPDATE depending on $setImagePath
-    if ($setImagePath === '__KEEP__') {
-        // keep image_path unchanged
-        $updateSql = "UPDATE nms SET description = ?, action_taken = ?, observation = ?, remarks = ?, updated_at = ? WHERE sl_no = ? AND module = ? AND riu_info_id = ?";
-        $stmtUp = $conn->prepare($updateSql);
-        if (!$stmtUp) {
-            echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
-            exit;
-        }
-        // bind: desc(s), action(s), observation(s), remarks(s), updated_at(s), sl_no(i), module(s), riu_info_id(i)
-        $stmtUp->bind_param("sssssisi", $description, $actionTaken, $observation, $remarks, $updatedAt, $slNo, $module, $riuInfoId);
-    } elseif ($setImagePath === null) {
-        // set image_path = NULL
-        $updateSql = "UPDATE nms SET description = ?, action_taken = ?, observation = ?, remarks = ?, image_path = NULL, updated_at = ? WHERE sl_no = ? AND module = ? AND riu_info_id = ?";
-        $stmtUp = $conn->prepare($updateSql);
-        if (!$stmtUp) {
-            echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
-            exit;
-        }
-        // bind: desc(s), action(s), observation(s), remarks(s), updated_at(s), sl_no(i), module(s), riu_info_id(i)
-        $stmtUp->bind_param("sssssisi", $description, $actionTaken, $observation, $remarks, $updatedAt, $slNo, $module, $riuInfoId);
-    } else {
-        // set image_path to new relative path (string)
-        $updateSql = "UPDATE nms SET description = ?, action_taken = ?, observation = ?, remarks = ?, image_path = ?, updated_at = ? WHERE sl_no = ? AND module = ? AND riu_info_id = ?";
-        $stmtUp = $conn->prepare($updateSql);
-        if (!$stmtUp) {
-            echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
-            exit;
-        }
-        // bind: desc(s), action(s), observation(s), remarks(s), image_path(s), updated_at(s), sl_no(i), module(s), riu_info_id(i)
-        $stmtUp->bind_param("ssssssisi", $description, $actionTaken, $observation, $remarks, $setImagePath, $updatedAt, $slNo, $module, $riuInfoId);
+    $updateSql = "UPDATE {$tableName} SET description = ?, action_taken = ?, observation = ?, remarks = ?, image_path = ?, updated_at = ? WHERE sl_no = ? AND module = ? AND riu_info_id = ?";
+    $stmtUp = $conn->prepare($updateSql);
+    if (!$stmtUp) {
+        echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
+        exit;
     }
+    $stmtUp->bind_param("ssssssisi", $description, $actionTaken, $observation, $remarks, $imageJson, $updatedAt, $slNo, $module, $riuInfoId);
 
     if (!$stmtUp->execute()) {
         echo json_encode(['success' => false, 'message' => 'Error updating row: ' . $stmtUp->error]);

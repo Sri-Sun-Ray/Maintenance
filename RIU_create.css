@@ -30,9 +30,9 @@ html, body {
 
 /* Logo */
 .Logo{
-  height: 60px;           
-  width: auto;            
-  object-fit: contain;    
+  height: 60px;
+  width: auto;
+  object-fit: contain;
   display: block;
 
 }
@@ -83,7 +83,7 @@ html, body {
   padding: 30px;
   width: 80%;
   max-width: 1000px;
-  margin: 10px auto; 
+  margin: 10px auto;
 }
 
 .form-group {
@@ -276,69 +276,164 @@ button:hover {
   cursor: pointer;
 }
 
-/* === Uploaded Image Styles === */
-/* === Uploaded Images Box === */
+/* === Multi-image grid === */
+.image-collection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .image-box {
   position: relative;
+  width: 70px;
+  height: 70px;
+  border: 1px solid #d0d5dd;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #f8fafc;
   display: flex;
-  flex-wrap: wrap;                /* Allows images to wrap inside the cell */
-  gap: 6px;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  padding: 5px;
-  background-color: #f9f9f9;
-  max-width: 100%;                /* Ensure the images fit within the cell */
 }
 
 .uploaded-image {
-  width: 60px;                    /* Thumbnail size */
-  height: 60px;                   /* Fixed height to maintain aspect ratio */
-  object-fit: cover;              /* Ensures the image covers the area properly */
-  border-radius: 4px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.image-empty {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.image-actions .add-image-btn {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 12px;
+  border: 1px dashed #94a3b8;
+  border-radius: 6px;
+  background: #fff;
+  color: #0f172a;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.image-actions .add-image-btn:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
 }
 
 .remove-btn {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: rgba(255, 0, 0, 0.7);
+  top: 2px;
+  right: 2px;
+  background-color: rgba(239, 68, 68, 0.9);
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1;
 }
 
 .remove-btn:hover {
-  background-color: rgba(255, 0, 0, 0.9);
+  background-color: rgba(220, 38, 38, 0.95);
 }
 
-/* Image Options Styling (Button Style) */
 .image-options {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  align-items: center;
 }
 
-.image-options button {
+.image-options button,
+.camera-controls button {
+  width: 100%;
   font-size: 12px;
   padding: 6px;
-  background-color: #007bff;
-  color: white;
+  background-color: #0f62fe;
+  color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.image-options button:hover {
-  background-color: #0056b3;
+.image-options button.cancel-btn {
+  background-color: #9ca3af;
+}
+
+.image-options button:hover,
+.camera-controls button:hover {
+  background-color: #0043ce;
+}
+
+.image-options button.cancel-btn:hover {
+  background-color: #6b7280;
+}
+
+.camera-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.camera-container video {
+  max-height: 140px;
+  border-radius: 6px;
+}
+
+.camera-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.image-preview-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 5000;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-preview-content {
+  position: relative;
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  max-width: 90vw;
+  max-height: 90vh;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45);
+}
+
+.image-preview-content img {
+  max-width: 80vw;
+  max-height: 80vh;
+  display: block;
+}
+
+.close-preview {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 28px;
+  color: #111;
+  cursor: pointer;
 }
 
 .table-container {
@@ -409,12 +504,12 @@ thead {
 
 /* Scanner Modal - FINAL VERSION */
 .scanner-modal {
-  display: none; 
+  display: none;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   position: fixed;
-  top: 0; 
+  top: 0;
   left: 0;
   width: 100%;
   height: 100%;

@@ -5,6 +5,44 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 header('Content-Type: application/json');
 
+function getModuleTableMap()
+{
+    return [
+        'nms' => 'nms',
+        'power' => 'power',
+        'riu_equip' => 'riu_equip',
+        'comm' => 'comm',
+        'earthing' => 'earthing'
+    ];
+}
+
+function decodeImagePathsValue($value)
+{
+    if ($value === null || $value === '') {
+        return [];
+    }
+
+    if (is_array($value)) {
+        return array_values(array_filter($value, function ($item) {
+            return $item !== null && $item !== '';
+        }));
+    }
+
+    $trimmed = trim((string)$value);
+    if ($trimmed === '') {
+        return [];
+    }
+
+    $decoded = json_decode($trimmed, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        return array_values(array_filter($decoded, function ($item) {
+            return $item !== null && $item !== '';
+        }));
+    }
+
+    return [$trimmed];
+}
+
 try {
     // Read JSON input
     $data = json_decode(file_get_contents('php://input'), true);
@@ -51,21 +89,32 @@ try {
     ];
     $stmt->close();
 
-    // Query observations
-    $stmt = $conn->prepare("SELECT sl_no, module, description, action_taken, observation, remarks, image_path 
-                        FROM nms
-                        WHERE riu_info_id = ? ORDER BY CAST(sl_no AS SIGNED)");
-
-    $stmt->bind_param("i", $riuInfoId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
     $observations = [];
-    while ($row = $result->fetch_assoc()) {
-        $observations[] = $row;
+    foreach (getModuleTableMap() as $moduleKey => $tableName) {
+        $stmt = $conn->prepare("SELECT sl_no, module, description, action_taken, observation, remarks, image_path 
+                            FROM {$tableName}
+                            WHERE riu_info_id = ? ORDER BY CAST(sl_no AS SIGNED)");
+        if (!$stmt) {
+            throw new Exception('Prepare failed: ' . $conn->error);
+        }
+
+        $stmt->bind_param("i", $riuInfoId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            if (empty($row['module'])) {
+                $row['module'] = $moduleKey;
+            }
+            $imagePaths = decodeImagePathsValue($row['image_path'] ?? null);
+            $row['image_paths'] = $imagePaths;
+            $row['image_path'] = $imagePaths[0] ?? '';
+            $observations[] = $row;
+        }
+
+        $stmt->close();
     }
 
-    $stmt->close();
     $conn->close();
 
     // Return response

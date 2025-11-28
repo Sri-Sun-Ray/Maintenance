@@ -130,6 +130,23 @@
     border: 1px solid black;
 }
 
+/* Summary table (top block) - separate from observation tables so PDF builder skips it */
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 15px;
+}
+.summary-table td, .summary-table th {
+    border: 1px solid #000;
+    padding: 8px 10px;
+}
+.summary-table thead th {
+    background: #f1f5f9;
+    color: #0b3a66;
+    font-weight: 700;
+}
+
 
         .controls {
             display: flex;
@@ -276,11 +293,13 @@
     color: black;
 }
 
-/* FOR SMALL IMAGES IN LAST COLUMN */
+/* FOR THUMBNAILS IN LAST COLUMN */
 .img-thumb {
-    max-width: 90px;
-    max-height: 70px;
+    max-width: 130px;
+    max-height: 95px;
     border: 1px solid black;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 
@@ -342,8 +361,10 @@
         }
 
         #imageModal img {
-            max-width: 90vw;
+            max-width: 95vw;
             max-height: 90vh;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
         }
 
         #imageModal span {
@@ -548,40 +569,61 @@
                 const statusText = (totalOpen === 0) ? 'Completed' : 'Not Completed';
                 document.querySelector('h1').innerText = `Monthly Maintenance Report — STCAS (Generated) — ${statusText}`;
 
-                // Build summary HTML and inject below meta area
-                let summaryHtml = `
-                  <div class="module-section">
-                    <div class="module-title">Summary</div>
-                    <table class="meta-table-4col">
-                      <tr>
-                        <td class="label">Total Points</td><td>${TOTAL_POINTS}</td>
-                        <td class="label">Open Points</td><td>${totalOpen}</td>
-                      </tr>
-                    </table>`;
+                                // Build and inject the top Summary block (Total / Open and Module -> Status)
+                                (function() {
+                                        let summaryHtml = `
+                                            <div class="module-section">
+                                                <div class="module-title">Summary</div>
+                                                <table class="meta-table-4col">
+                                                    <tr>
+                                                        <td class="label">Total Points</td><td>${TOTAL_POINTS}</td>
+                                                        <td class="label">Open Points</td><td>${totalOpen}</td>
+                                                    </tr>
+                                                </table>`;
 
-                if (missingEntries > 0) {
-                  summaryHtml += `<div style="margin-top:8px;color:#b55353">Note: ${missingEntries} expected point(s) are missing from the database and counted as open.</div>`;
-                }
+                                        if (missingEntries > 0) {
+                                            summaryHtml += `<div style="margin-top:8px;color:#b55353">Note: ${missingEntries} expected point(s) are missing from the database and counted as open.</div>`;
+                                        }
 
-                // Module-wise open points table
-                summaryHtml += `<div style="margin-top:12px;">
-                  <table class="obs-table" style="border:1px solid #000; width:100%; margin-top:8px;">
-                    <thead>
-                      <tr><th style="width:40%;">Module</th><th style="width:60%;">Open Points (Sl No)</th></tr>
-                    </thead>
-                    <tbody>`;
+                                        // Module-wise status table (Module / Status)
+                                        summaryHtml += `<div style="margin-top:12px;">
+                                            <table class="summary-table" style="border:1px solid #000; width:100%; margin-top:8px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:40%; background:#f1f5f9; font-weight:700; color:#0b3a66;">Module</th>
+                                                        <th style="width:60%; background:#f1f5f9; font-weight:700; color:#0b3a66;">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>`;
 
-                // include all modules found in groups (show "—" if none open)
-                Object.keys(groups).forEach(moduleName => {
-                  const opens = openByModule[moduleName] || [];
-                  const display = opens.length ? opens.join(', ') : '—';
-                  summaryHtml += `<tr><td>${escapeHtml(moduleName)}</td><td>${escapeHtml(display)}</td></tr>`;
-                });
+                                        const expectedModules = ['nms','power','riu_equip','comm','earthing'];
+                                        // add expected modules first
+                                        expectedModules.forEach(moduleName => {
+                                                const moduleRows = groups[moduleName] || [];
+                                                const opens = openByModule[moduleName] || [];
+                                                let status = '';
+                                                if (moduleRows.length === 0) status = 'Not yet started';
+                                                else if (opens.length === 0) status = 'Completed';
+                                                else status = 'Open: ' + opens.join(', ');
+                                                summaryHtml += `<tr><td style="width:40%; font-weight:600">${escapeHtml(moduleName.toUpperCase())}</td><td style="width:60%;">${escapeHtml(status)}</td></tr>`;
+                                        });
 
-                summaryHtml += `</tbody></table></div></div>`;
+                                        // include any additional modules returned from DB
+                                        Object.keys(groups).forEach(moduleName => {
+                                                if (expectedModules.indexOf(moduleName) !== -1) return;
+                                                const moduleRows = groups[moduleName] || [];
+                                                const opens = openByModule[moduleName] || [];
+                                                let status = '';
+                                                if (moduleRows.length === 0) status = 'Not yet started';
+                                                else if (opens.length === 0) status = 'Completed';
+                                                else status = 'Open: ' + opens.join(', ');
+                                                summaryHtml += `<tr><td style="width:40%; font-weight:600">${escapeHtml(moduleName.toUpperCase())}</td><td style="width:60%;">${escapeHtml(status)}</td></tr>`;
+                                        });
 
-                // append (do not replace) so meta info remains
-                metaArea.innerHTML += summaryHtml;
+                                        summaryHtml += `</tbody></table></div></div>`;
+
+                                        metaArea.innerHTML += summaryHtml;
+                                })();
 
                 // Build HTML for observation tables (unchanged behavior)
                 let html = '';
@@ -604,7 +646,12 @@
       <tbody>`;
 
                     rows.forEach(obs => {
-                        const imgHtml = obs.image_path ? `<img src="${escapeHtml(obs.image_path)}" class="img-thumb" alt="img" onclick="openImageModal('${escapeHtml(obs.image_path)}')">` : 'N/A';
+                        const imagePaths = Array.isArray(obs.image_paths)
+                            ? obs.image_paths.filter(p => !!p)
+                            : (obs.image_path ? [obs.image_path] : []);
+                        const imgHtml = imagePaths.length
+                            ? imagePaths.map(path => `<img src="${escapeHtml(path)}" class="img-thumb" alt="img" onclick="openImageModal('${escapeHtml(path)}')">`).join('')
+                            : 'N/A';
                         html += `<tr>
                           <td>${escapeHtml(obs.sl_no || '')}</td>
                           <td>${escapeHtml(obs.description || '')}</td>
@@ -635,6 +682,8 @@
             function closeImageModal() {
                 document.getElementById('imageModal').style.display = 'none';
             }
+            window.openImageModal = openImageModal;
+            window.closeImageModal = closeImageModal;
 
             function showError(msg) {
                 metaArea.innerHTML = `<div class="empty">${escapeHtml(msg)}</div>`;
@@ -690,14 +739,14 @@
 
     obsRows.forEach(row => {
         const cells = row.children;
-        const imgElement = cells[5]?.querySelector('img');
+        const imgElements = cells[5]?.querySelectorAll('img') || [];
         observations.push({
             sl_no: cells[0]?.innerText || '',
             description: cells[1]?.innerText || '',
             action_taken_range: cells[2]?.innerText || '',
             observation: cells[3]?.innerText || '',
             remarks: cells[4]?.innerText || '',
-            image_path: imgElement ? imgElement.src : ''
+            image_paths: Array.from(imgElements).map(img => img.src)
         });
     });
 
@@ -707,7 +756,7 @@
     const head = [['Sl No', 'Description', 'Action Taken / Range', 'Observation', 'Remarks', 'Image']];
     const body = observations.map(o => [
         o.sl_no, o.description, o.action_taken_range, o.observation, o.remarks,
-        o.image_path ? '✓ Image' : 'N/A'
+        (o.image_paths && o.image_paths.length > 0) ? '✓ Image' : 'N/A'
     ]);
     tempDoc.autoTable({
         startY: 100,
@@ -984,19 +1033,139 @@ document.querySelectorAll('.obs-table').forEach(table => {
 
     table.querySelectorAll('tbody tr').forEach(row => {
         const cells = row.cells;
-        const img = cells[5]?.querySelector('img');
+        const imgNodes = cells[5]?.querySelectorAll('img') || [];
+        const imageUrls = Array.from(imgNodes).map(img => img.src).filter(Boolean);
         moduleGroups[moduleName].push({
             sl_no: cells[0]?.innerText.trim(),
             description: cells[1]?.innerText.trim(),
-            action_taken: cells[2]?.innerText.trim(),    // ← FIXED
+            action_taken: cells[2]?.innerText.trim(),
             observation: cells[3]?.innerText.trim(),
             remarks: cells[4]?.innerText.trim(),
-            image_url: img ? img.src : null
+            image_urls: imageUrls
         });
     });
 });
 
+    // PDF summary removed as requested: no module/status table will be generated here.
+
 // === RENDER EACH MODULE ===
+// === Add compact Module -> Status summary into PDF ===
+{
+    const expectedModulesPdf = ['nms','power','riu_equip','comm','earthing'];
+    const lcGroups = {};
+    Object.keys(moduleGroups).forEach(k => lcGroups[k.toLowerCase()] = { name: k, rows: moduleGroups[k] });
+
+    const openByModulePdf = {};
+    Object.keys(lcGroups).forEach(lc => {
+        const rows = lcGroups[lc].rows || [];
+        rows.forEach(r => {
+            const isOpen = !r.observation || String(r.observation).trim() === '';
+            if (isOpen) {
+                if (!openByModulePdf[lc]) openByModulePdf[lc] = [];
+                openByModulePdf[lc].push(String(r.sl_no || ''));
+            }
+        });
+    });
+
+    const summaryRows = [];
+    expectedModulesPdf.forEach(mn => {
+        const lc = mn.toLowerCase();
+        const entry = lcGroups[lc];
+        const rows = entry ? entry.rows : [];
+        const opens = openByModulePdf[lc] || [];
+        let status = '';
+        if (!rows || rows.length === 0) status = 'Not yet started';
+        else if (opens.length === 0) status = 'Completed';
+        else status = 'Open: ' + opens.join(', ');
+        const displayName = entry ? entry.name.toUpperCase() : mn.toUpperCase();
+        summaryRows.push([displayName, status]);
+    });
+    // include any additional modules
+    Object.keys(lcGroups).forEach(lc => {
+        if (expectedModulesPdf.indexOf(lc) !== -1) return;
+        const entry = lcGroups[lc];
+        const rows = entry.rows || [];
+        const opens = openByModulePdf[lc] || [];
+        let status = '';
+        if (rows.length === 0) status = 'Not yet started';
+        else if (opens.length === 0) status = 'Completed';
+        else status = 'Open: ' + opens.join(', ');
+        summaryRows.push([entry.name.toUpperCase(), status]);
+    });
+
+    if (summaryRows.length) {
+        doc.autoTable({
+            startY: currentY,
+            head: [['Module', 'Status']],
+            body: summaryRows,
+            theme: 'grid',
+            styles: { fontSize: 11, cellPadding: 6 },
+            headStyles: { fillColor: [241,245,249], textColor: [11,58,102], fontStyle: 'bold' },
+            columnStyles: { 0: { cellWidth: contentWidth * 0.4 }, 1: { cellWidth: contentWidth * 0.6 } },
+            margin: { left: marginX, right: marginX },
+            tableWidth: contentWidth
+        });
+        currentY = doc.lastAutoTable.finalY + 18;
+    }
+    // === Overall completion checkboxes ===
+    const TOTAL_POINTS_PDF = 29;
+    const missingEntriesPdf = Math.max(0, TOTAL_POINTS_PDF - observations.length);
+    // count open points from openByModulePdf
+    let openCountPdf = 0;
+    Object.keys(openByModulePdf || {}).forEach(k => { openCountPdf += (openByModulePdf[k] || []).length; });
+    const totalOpenPdf = openCountPdf + missingEntriesPdf;
+
+    // Draw two checkboxes: Completed / Not Completed (styled, filled when active)
+    const boxSize = 14;
+    const boxX = marginX;
+    const boxY = currentY + 12; // give more breathing room after table
+
+    // Completed box: fill green when completed, otherwise empty border
+    if (totalOpenPdf === 0) {
+        doc.setFillColor(0, 128, 0);
+        doc.rect(boxX, boxY, boxSize, boxSize, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(12);
+        doc.text('✓', boxX + 3.5, boxY + boxSize - 3);
+        doc.setTextColor(0);
+    } else {
+        doc.setDrawColor(0);
+        doc.rect(boxX, boxY, boxSize, boxSize);
+    }
+    doc.setFontSize(11);
+    doc.text('Completed', boxX + boxSize + 10, boxY + boxSize - 2);
+
+    // Not Completed box: fill red when not completed
+    const ncX = boxX + 160;
+    if (totalOpenPdf > 0) {
+        doc.setFillColor(200, 40, 40);
+        doc.rect(ncX, boxY, boxSize, boxSize, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(12);
+        doc.text('✖', ncX + 3.5, boxY + boxSize - 3);
+        doc.setTextColor(0);
+    } else {
+        doc.setDrawColor(0);
+        doc.rect(ncX, boxY, boxSize, boxSize);
+    }
+    doc.setFontSize(11);
+    doc.text('Not Completed', ncX + boxSize + 10, boxY + boxSize - 2);
+
+    // move currentY further down so module title/table doesn't overlap
+    currentY = boxY + boxSize + 20;
+}
+const IMAGE_COL_INDEX = 5;
+const IMAGE_COLUMN_WIDTH = 160;
+const THUMB_GAP = 10;
+const MAX_IMAGES_PER_ROW = 1;
+
+function detectImageFormat(url) {
+    if (!url) return 'JPEG';
+    const lower = url.toLowerCase();
+    if (lower.startsWith('data:image/png') || lower.endsWith('.png')) return 'PNG';
+    return 'JPEG';
+}
+
 for (const [moduleName, rows] of Object.entries(moduleGroups)) {
     // Module Title
     doc.setFont('helvetica', 'bold');
@@ -1011,7 +1180,7 @@ for (const [moduleName, rows] of Object.entries(moduleGroups)) {
     row.action_taken,      // ← FIXED
     row.observation,
     row.remarks,
-    row.image_url ? { image: row.image_url } : ''
+    (row.image_urls && row.image_urls.length) ? { images: row.image_urls } : ''
 ]);
 
     doc.autoTable({
@@ -1031,28 +1200,64 @@ for (const [moduleName, rows] of Object.entries(moduleGroups)) {
         },
         columnStyles: {
             0: { cellWidth: 35, halign: 'center' },
-            1: { cellWidth: 170 },
-            2: { cellWidth: 95 },
-            3: { cellWidth: 80 },
-            4: { cellWidth: 80 },
-            5: { cellWidth: 80, halign: 'center' }
+            1: { cellWidth: 120 },
+            2: { cellWidth: 80 },
+            3: { cellWidth: 65 },
+            4: { cellWidth: 60 },
+            5: { cellWidth: IMAGE_COLUMN_WIDTH, halign: 'center' }
         },
         margin: { left: marginX, right: marginX },
         tableWidth: contentWidth,
-
-        // ONLY DRAW IMAGE — NO TEXT AT ALL
+        didParseCell: function (data) {
+            if (data.section !== 'body' || data.column.index !== IMAGE_COL_INDEX) return;
+            const payload = data.cell.raw;
+            if (!payload || !Array.isArray(payload.images) || payload.images.length === 0) return;
+            data.cell.text = '';
+            const cellWidth = data.cell.width || 100;
+            const usableWidth = Math.max(cellWidth - 14, 60);
+            const thumbWidth = (usableWidth - (MAX_IMAGES_PER_ROW - 1) * THUMB_GAP) / MAX_IMAGES_PER_ROW;
+            const thumbHeight = thumbWidth * 0.75;
+            const rowsNeeded = Math.ceil(payload.images.length / MAX_IMAGES_PER_ROW);
+            const requiredHeight = rowsNeeded * thumbHeight + Math.max(0, rowsNeeded - 1) * THUMB_GAP + 16;
+            if (requiredHeight > data.row.height) {
+                data.row.height = requiredHeight;
+            }
+            data.cell._imageMeta = {
+                thumbWidth,
+                thumbHeight
+            };
+        },
         didDrawCell: function(data) {
-    if (data.section === 'body' && data.column.index === 5 && data.cell.raw && typeof data.cell.raw === 'object' && data.cell.raw.image) {
-        const imgUrl = data.cell.raw.image;
-        const imgWidth = 70;
-        const imgHeight = 50;
-        const x = data.cell.x + (data.cell.width - imgWidth) / 2;
-        const y = data.cell.y + (data.cell.height - imgHeight) / 2;
+    if (data.section !== 'body' || data.column.index !== IMAGE_COL_INDEX) return;
+    const payload = data.cell.raw;
+    if (!payload || !Array.isArray(payload.images) || payload.images.length === 0) return;
 
-        try {
-            doc.addImage(imgUrl, 'JPEG', x, y, imgWidth, imgHeight);
-        } catch (err) {
-            // image failed → cell stays blank
+    const images = payload.images;
+    const rowsNeeded = Math.ceil(images.length / MAX_IMAGES_PER_ROW);
+    let imgIndex = 0;
+    const meta = data.cell._imageMeta || {};
+    const thumbWidth = meta.thumbWidth || Math.min(100, data.cell.width - 12);
+    const thumbHeight = meta.thumbHeight || thumbWidth * 0.75;
+
+    for (let rowIdx = 0; rowIdx < rowsNeeded; rowIdx++) {
+        const itemsThisRow = Math.min(MAX_IMAGES_PER_ROW, images.length - imgIndex);
+        const rowWidth = itemsThisRow * thumbWidth + (itemsThisRow - 1) * THUMB_GAP;
+        let xPointer = data.cell.x + (data.cell.width - rowWidth) / 2;
+        const yPointer = data.cell.y + 6 + rowIdx * (thumbHeight + THUMB_GAP);
+
+        for (let colIdx = 0; colIdx < itemsThisRow; colIdx++) {
+            const imgUrl = images[imgIndex++];
+            if (!imgUrl) {
+                xPointer += thumbWidth + THUMB_GAP;
+                continue;
+            }
+            try {
+                const format = detectImageFormat(imgUrl);
+                doc.addImage(imgUrl, format, xPointer, yPointer, thumbWidth, thumbHeight);
+            } catch (err) {
+                // ignore failed image draw
+            }
+            xPointer += thumbWidth + THUMB_GAP;
         }
     }
 
@@ -1079,7 +1284,31 @@ doc.text(
 /* ===== UPLOAD PDF ===== */
 const dataUri = doc.output('datauristring');
 const base64 = dataUri.split(',')[1];
-const payload = { zone, station, riu_no, equip_no, pdf_base64: base64 };
+// Compute overall open points so we can include completion status in report name
+const TOTAL_POINTS_FOR_NAME = 29;
+const openCountForName = observations.reduce((acc, o) => {
+    const isOpen = !o.observation || String(o.observation).trim() === '';
+    return acc + (isOpen ? 1 : 0);
+}, 0);
+const missingForName = Math.max(0, TOTAL_POINTS_FOR_NAME - observations.length);
+const totalOpenForName = openCountForName + missingForName;
+const statusForName = (totalOpenForName === 0) ? 'Completed' : 'NotCompleted';
+const safeZone = (zone || '--').toString().replace(/\s+/g, '_');
+const safeStation = (station || '--').toString().replace(/\s+/g, '_');
+// append timestamp to report name for uniqueness and readability
+function formatTimestampForName(d) {
+    const pad = (n) => String(n).padStart(2, '0');
+    const Y = d.getFullYear();
+    const M = pad(d.getMonth() + 1);
+    const D = pad(d.getDate());
+    const h = pad(d.getHours());
+    const m = pad(d.getMinutes());
+    const s = pad(d.getSeconds());
+    return `${Y}-${M}-${D}_${h}-${m}-${s}`;
+}
+const nowTs = formatTimestampForName(new Date());
+const reportName = `RIU_${safeZone}_${safeStation}_${riu_no || '--'}_${statusForName}_${nowTs}.pdf`;
+const payload = { zone, station, riu_no, equip_no, pdf_base64: base64, report_name: reportName };
 
 try {
     const resp = await fetch('generate_pdf.php', {

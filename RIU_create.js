@@ -274,24 +274,13 @@ function populateModuleTable(moduleId, data) {
 	data.forEach(row => {
 		const tr = document.createElement('tr');
 
-		let imageHtml = '<button onclick="openImageOptions(this)">Add Image</button>';
-		if (row.image_path && row.image_path.trim() !== '') {
-			const src = row.image_path;
-			imageHtml = `
-				<div class="image-box">
-				  <img src="${src}" alt="Uploaded" class="uploaded-image">
-				  <button onclick="removeImage(this)" class="remove-btn">✖</button>
-				</div>
-			`;
-		}
-
 		tr.innerHTML = `
 		  <td>${row.sl_no}</td>
 		  <td>${row.description}</td>
 		  <td>${row.action_taken}</td>
 		  <td><textarea placeholder="Observation">${row.observation || ''}</textarea></td>
 		  <td><input type="text" value="${row.remarks || ''}" placeholder="Remarks" /></td>
-		  <td>${imageHtml}</td>
+          <td class="image-cell"></td>
 		`;
 		tableBody.appendChild(tr);
 
@@ -299,9 +288,10 @@ function populateModuleTable(moduleId, data) {
 		const appendedRowTds = tr.querySelectorAll('td');
 		if (appendedRowTds && appendedRowTds.length >= 6) {
 			const imgTd = appendedRowTds[5];
-			imgTd.imageFile = null;
-			imgTd.imageRemoved = false;
-			imgTd.existingImagePath = row.image_path || '';
+            const paths = Array.isArray(row.image_paths)
+                ? row.image_paths
+                : (row.image_path ? [row.image_path] : []);
+            hydrateImageCellWithExisting(imgTd, paths);
 		}
 	});
 }
@@ -340,155 +330,276 @@ function attachMetadataToRows(moduleId) {
     const cells = row.querySelectorAll('td');
     if (cells.length >= 6) {
       const imgTd = cells[5];
-      if (!imgTd.imageFile) {
-        imgTd.imageFile = null;
-        imgTd.imageRemoved = false;
-        imgTd.existingImagePath = '';
-      }
+      initializeBlankImageCell(imgTd);
     }
   });
 }
 
-// === Image Handling ===
-// === Image Handling Logic ===
-// =========================
-// REAL CAMERA IMAGE HANDLING
-// =========================
-
-// Keep track of active camera stream per cell
+// === Image Handling (multi-image support) ===
 const activeCellCameras = {};
+const cameraCellMap = {};
 
-// When Add Image is clicked
+function buildImageCellMarkup() {
+  return `
+    <div class="image-collection">
+      <div class="image-list"></div>
+      <div class="image-actions">
+        <button type="button" class="add-image-btn" onclick="openImageOptions(this)">Add Image</button>
+      </div>
+    </div>
+  `;
+}
+
+function initializeBlankImageCell(td) {
+  if (!td || td.dataset.imageCellInitialized === '1') {
+    return;
+  }
+  td.dataset.imageCellInitialized = '1';
+  td.existingImages = td.existingImages || [];
+  td.newImages = td.newImages || [];
+  td.removedExistingImages = td.removedExistingImages || [];
+  td.innerHTML = buildImageCellMarkup();
+  renderImageList(td);
+}
+
+function hydrateImageCellWithExisting(td, existingPaths) {
+  if (!td) return;
+  td.dataset.imageCellInitialized = '0';
+  initializeBlankImageCell(td);
+  const normalized = Array.isArray(existingPaths)
+    ? existingPaths.filter(Boolean)
+    : (existingPaths ? [existingPaths] : []);
+  td.existingImages = [...normalized];
+  td.newImages = [];
+  td.removedExistingImages = [];
+  renderImageList(td);
+}
+
+function renderImageList(td) {
+  if (!td) return;
+  initializeBlankImageCell(td);
+  td.existingImages = td.existingImages || [];
+  td.newImages = td.newImages || [];
+  td.removedExistingImages = td.removedExistingImages || [];
+
+  const list = td.querySelector('.image-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  const existing = td.existingImages;
+  const newcomers = td.newImages;
+  if ((!existing || existing.length === 0) && (!newcomers || newcomers.length === 0)) {
+    list.innerHTML = '<div class="image-empty">No images yet</div>';
+    return;
+  }
+
+  existing.forEach((path, idx) => {
+    const div = document.createElement('div');
+    div.className = 'image-box';
+    div.innerHTML = `
+      <img src="${path}" alt="Uploaded" class="uploaded-image">
+      <button type="button" class="remove-btn" data-type="existing" data-index="${idx}" onclick="removeImage(this)">✖</button>
+    `;
+    list.appendChild(div);
+    const imgEl = div.querySelector('img');
+    if (imgEl) {
+      imgEl.addEventListener('click', () => openImagePreview(path));
+    }
+  });
+
+  newcomers.forEach((imgObj, idx) => {
+    const div = document.createElement('div');
+    div.className = 'image-box';
+    div.innerHTML = `
+      <img src="${imgObj.preview}" alt="Uploaded" class="uploaded-image">
+      <button type="button" class="remove-btn" data-type="new" data-index="${idx}" onclick="removeImage(this)">✖</button>
+    `;
+    list.appendChild(div);
+    const imgEl = div.querySelector('img');
+    if (imgEl) {
+      imgEl.addEventListener('click', () => openImagePreview(imgObj.preview));
+    }
+  });
+}
+
+function resetImageActions(td) {
+  if (!td) return;
+  const actions = td.querySelector('.image-actions');
+  if (actions) {
+    actions.innerHTML = `<button type="button" class="add-image-btn" onclick="openImageOptions(this)">Add Image</button>`;
+  }
+}
+
+function addNewImageToCell(td, file, previewSrc) {
+  if (!td) return;
+  initializeBlankImageCell(td);
+  td.newImages = td.newImages || [];
+  td.newImages.push({ file, preview: previewSrc });
+  renderImageList(td);
+}
+
 function openImageOptions(btn) {
-  const td = btn.closest("td");
-  td.innerHTML = `
+  const td = btn.closest('td');
+  if (!td) return;
+  initializeBlankImageCell(td);
+  const actions = td.querySelector('.image-actions');
+  if (!actions) return;
+  actions.innerHTML = `
     <div class="image-options">
-      <button onclick="openCameraInCell(this, 'user')">Front Camera</button>
-      <button onclick="openCameraInCell(this, 'environment')">Back Camera</button>
-      <button onclick="uploadInCell(this)">Upload from Device</button>
+      <button type="button" onclick="openCameraInCell(this, 'user')">Front Camera</button>
+      <button type="button" onclick="openCameraInCell(this, 'environment')">Back Camera</button>
+      <button type="button" onclick="uploadInCell(this)">Upload from Device</button>
+      <button type="button" class="cancel-btn" onclick="closeImageOptions(this)">Cancel</button>
     </div>
   `;
 }
 
-// Open real camera inside the table cell
+function closeImageOptions(button) {
+  const td = button.closest('td');
+  resetImageActions(td);
+}
+
 function openCameraInCell(button, facingMode) {
-  const td = button.closest("td");
-  const rowId = Date.now(); // unique ID for the camera instance
+  const td = button.closest('td');
+  if (!td) return;
+  initializeBlankImageCell(td);
+  const actions = td.querySelector('.image-actions');
+  if (!actions) return;
 
-  td.innerHTML = `
-    <div id="camera-container-${rowId}" style="text-align:center;">
-      <video id="camera-${rowId}" autoplay style="width:100%;border:1px solid #333;"></video>
-      <br>
-      <button onclick="captureImageInCell(${rowId})">Capture</button>
-      <button onclick="stopCameraInCell(${rowId}, this)">Close</button>
+  const rowId = Date.now();
+  actions.innerHTML = `
+    <div class="camera-container" data-camera-id="${rowId}">
+      <video id="camera-${rowId}" autoplay playsinline style="width:100%;border:1px solid #333;border-radius:6px;"></video>
+      <div class="camera-controls">
+        <button type="button" onclick="captureImageInCell(${rowId})">Capture</button>
+        <button type="button" onclick="stopCameraInCell(${rowId})">Close</button>
+      </div>
     </div>
-    <canvas id="canvas-${rowId}" style="display:none;"></canvas>
   `;
 
-  startCameraInCell(rowId, facingMode);
+  startCameraInCell(rowId, facingMode, td);
 }
 
-// Start camera stream
-async function startCameraInCell(rowId, facingMode) {
+async function startCameraInCell(rowId, facingMode, td) {
   const video = document.getElementById(`camera-${rowId}`);
   if (!video) return;
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: facingMode },
+      video: { facingMode },
       audio: false
     });
-
     video.srcObject = stream;
     activeCellCameras[rowId] = stream;
-
+    cameraCellMap[rowId] = td;
   } catch (err) {
     alert("Camera access denied!");
     console.error(err);
+    resetImageActions(td);
   }
 }
 
-// Stop camera
-function stopCameraInCell(rowId, btn) {
+function stopCameraInCell(rowId) {
   const stream = activeCellCameras[rowId];
   if (stream) {
     stream.getTracks().forEach(track => track.stop());
     delete activeCellCameras[rowId];
   }
-
-  const td = btn.closest("td");
-  td.innerHTML = `<button onclick="openImageOptions(this)">Add Image</button>`;
+  const td = cameraCellMap[rowId];
+  if (td) {
+    resetImageActions(td);
+  }
+  delete cameraCellMap[rowId];
 }
 
-// Capture image inside table cell
 function captureImageInCell(rowId) {
   const video = document.getElementById(`camera-${rowId}`);
-  const canvas = document.getElementById(`canvas-${rowId}`);
-  const td = video.closest("td");
+  if (!video) return;
+  const td = cameraCellMap[rowId];
+  if (!td) return;
 
-  if (!video || !canvas || !td) return;
-
-  const ctx = canvas.getContext("2d");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  canvas.toBlob((blob) => {
+  canvas.toBlob(blob => {
     if (!blob) return;
-
+    const file = new File([blob], `capture-${rowId}.png`, { type: 'image/png' });
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      td.imageFile = new File([blob], `capture-${rowId}.png`, { type: "image/png" });
-
-      td.innerHTML = `
-        <div class="image-box">
-          <img src="${ev.target.result}" class="uploaded-image">
-          <button onclick="removeImage(this)" class="remove-btn">✖</button>
-        </div>
-      `;
-    };
-    reader.readAsDataURL(blob);
-
-    stopCameraInCell(rowId, video.closest("td").querySelector("button"));
-  });
-}
-
-// Upload image from device
-function uploadInCell(button) {
-  const td = button.closest("td");
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-
-  input.onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      td.imageFile = file;
-
-      td.innerHTML = `
-        <div class="image-box">
-          <img src="${ev.target.result}" class="uploaded-image">
-          <button onclick="removeImage(this)" class="remove-btn">✖</button>
-        </div>
-      `;
+    reader.onload = ev => {
+      addNewImageToCell(td, file, ev.target.result);
+      stopCameraInCell(rowId);
     };
     reader.readAsDataURL(file);
+  }, 'image/png');
+}
+
+function uploadInCell(button) {
+  const td = button.closest('td');
+  if (!td) return;
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.multiple = true;
+
+  input.onchange = (e) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        addNewImageToCell(td, file, ev.target.result);
+      };
+      reader.readAsDataURL(file);
+    });
+    closeImageOptions(button);
   };
 
   input.click();
 }
 
-// Remove image
 function removeImage(button) {
-  const td = button.closest("td");
-  td.imageFile = null;
-  td.imageRemoved = true;
+  const td = button.closest('td');
+  if (!td) return;
+  const type = button.dataset.type;
+  const index = Number(button.dataset.index);
 
-  td.innerHTML = `<button onclick="openImageOptions(this)">Add Image</button>`;
+  if (type === 'existing') {
+    if (td.existingImages && td.existingImages[index] !== undefined) {
+      const [removed] = td.existingImages.splice(index, 1);
+      if (removed) {
+        td.removedExistingImages = td.removedExistingImages || [];
+        td.removedExistingImages.push(removed);
+      }
+    }
+  } else if (type === 'new') {
+    if (td.newImages) {
+      td.newImages.splice(index, 1);
+    }
+  }
+
+  renderImageList(td);
 }
+
+function openImagePreview(imageSrc) {
+  if (!imageSrc) return;
+  const modal = document.getElementById('imagePreviewModal');
+  const img = document.getElementById('imagePreviewElement');
+  if (!modal || !img) return;
+  img.src = imageSrc;
+  modal.style.display = 'flex';
+}
+
+function closeImagePreview() {
+  const modal = document.getElementById('imagePreviewModal');
+  const img = document.getElementById('imagePreviewElement');
+  if (modal) modal.style.display = 'none';
+  if (img) img.src = '';
+}
+
+window.openImagePreview = openImagePreview;
+window.closeImagePreview = closeImagePreview;
 
 // === On Load ===
 window.onload = () => {
@@ -562,8 +673,17 @@ function saveModuleData(moduleId) {
     formData.append(`observations[${rowIndex}][remarks]`, remarks);
 
     const td = cells[5];
-    if (td && td.imageFile) {
-      formData.append(`observations[${rowIndex}][image]`, td.imageFile);
+    if (td) {
+      if (Array.isArray(td.existingImages) && td.existingImages.length) {
+        td.existingImages.forEach(path => {
+          formData.append(`observations[${rowIndex}][existing_images][]`, path);
+        });
+      }
+      if (Array.isArray(td.newImages) && td.newImages.length) {
+        td.newImages.forEach(imageObj => {
+          formData.append(`observations[${rowIndex}][images][]`, imageObj.file);
+        });
+      }
     }
   });
 
@@ -649,20 +769,24 @@ function updateModuleData(moduleId) {
     formData.append(`observations[${rowIndex}][remarks]`, remarks);
 
     const td = cells[5];
-    if (td && td.existingImagePath) {
-      formData.append(`observations[${rowIndex}][existing_image_path]`, td.existingImagePath);
-    } else {
-      formData.append(`observations[${rowIndex}][existing_image_path]`, '');
-    }
+    if (td) {
+      if (Array.isArray(td.existingImages) && td.existingImages.length) {
+        td.existingImages.forEach(path => {
+          formData.append(`observations[${rowIndex}][existing_images][]`, path);
+        });
+      }
 
-    if (td && td.imageRemoved) {
-      formData.append(`observations[${rowIndex}][remove_image]`, '1');
-    } else {
-      formData.append(`observations[${rowIndex}][remove_image]`, '0');
-    }
+      if (Array.isArray(td.removedExistingImages) && td.removedExistingImages.length) {
+        td.removedExistingImages.forEach(path => {
+          formData.append(`observations[${rowIndex}][removed_images][]`, path);
+        });
+      }
 
-    if (td && td.imageFile) {
-      formData.append(`observations[${rowIndex}][image]`, td.imageFile);
+      if (Array.isArray(td.newImages) && td.newImages.length) {
+        td.newImages.forEach(imageObj => {
+          formData.append(`observations[${rowIndex}][images][]`, imageObj.file);
+        });
+      }
     }
   });
 

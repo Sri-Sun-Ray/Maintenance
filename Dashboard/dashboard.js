@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   populateStations(zone);
 
   const tableBody = document.getElementById("tableBody");
-  tableBody.innerHTML = "<tr><td colspan='6'>Loading reports...</td></tr>";
+  tableBody.innerHTML = "<tr><td colspan='7'>Loading reports...</td></tr>";
 
   try {
     const res = await fetch(`get_reports.php?zone=${zone}`);
@@ -132,21 +132,93 @@ function renderTable(reports) {
   tableBody.innerHTML = "";
 
   if (reports.length === 0) {
-    tableBody.innerHTML = "<tr><td colspan='6'>No reports found.</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='7'>No reports found.</td></tr>";
     return;
   }
+  // Keep only the latest report per RIU (by riu_no). If `version` exists use it, otherwise use `last_updated`.
+  const latestMap = {};
+  reports.forEach(item => {
+    const key = item.riu_no || (item.station + '::' + (item.riu_no || ''));
+    if (!latestMap[key]) {
+      latestMap[key] = item;
+      return;
+    }
 
-  reports.forEach((item, index) => {
+    const a = latestMap[key];
+    // prefer numeric version if available
+    if (typeof item.version !== 'undefined' && typeof a.version !== 'undefined') {
+      if (Number(item.version) > Number(a.version)) latestMap[key] = item;
+    } else {
+      // fallback to last_updated timestamp comparison
+      const aTime = new Date(a.last_updated).getTime() || 0;
+      const bTime = new Date(item.last_updated).getTime() || 0;
+      if (bTime > aTime) latestMap[key] = item;
+    }
+  });
+
+  const latestReports = Object.values(latestMap);
+
+  latestReports.forEach((item, index) => {
     const nextDueDate = getNextDueDate(item.last_updated);
     const dueClass = getDueStatus(nextDueDate);
+    // map status to badge
+    const status = (item.status || 'NotCompleted');
+    let statusLabel = '';
+    let statusClass = '';
+    if (status === 'Completed') {
+      statusLabel = 'Completed';
+      statusClass = 'status-completed';
+    } else if (status === 'CompletedLate') {
+      statusLabel = 'Completed (Late)';
+      statusClass = 'status-completedlate';
+    } else if (status === 'NotCompleted') {
+      statusLabel = 'Open';
+      statusClass = 'status-notcompleted';
+    } else {
+      statusLabel = status;
+      statusClass = 'status-unknown';
+    }
+
+    // helper to format created_at or date strings to dd-mm-yyyy
+    function formatDateForDisplay(dtStr) {
+      if (!dtStr) return '';
+      const d = new Date(dtStr);
+      if (!isNaN(d.getTime())) {
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        return `${dd}-${mm}-${yyyy}`;
+      }
+      // fallback: try to extract yyyy-mm-dd
+      const m = dtStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+      return dtStr;
+    }
+
+    // Decide what to show in the Due / Completion cell
+    let displayDue = nextDueDate;
+    let dueCellClass = dueClass;
+    const createdAt = item.created_at || item.last_updated;
+    if (status === 'Completed') {
+      displayDue = `Completed before due: ${formatDateForDisplay(createdAt)}`;
+      dueCellClass = '';
+    } else if (status === 'CompletedLate') {
+      displayDue = `Completed (Late): ${formatDateForDisplay(createdAt)}`;
+      dueCellClass = '';
+    } else {
+      // NotCompleted — keep due date and its colouring
+      displayDue = nextDueDate;
+      dueCellClass = dueClass;
+    }
 
     const row = `
       <tr>
         <td>${index + 1}</td>
         <td>${item.station}</td>
-        <td>${item.report}</td>
-        <td class="${dueClass}">${nextDueDate}</td>
+        <td title="${item.file_name || item.report}">${item.report}</td>
+        <td class="${dueCellClass}">${displayDue}</td>
         <td>${item.last_updated}</td>
+        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
         <td>
           <button class="action-btn btn-view" onclick="viewReport('${item.path}')"><i class="fa fa-eye"></i> View</button>
           <button class="action-btn btn-download" onclick="downloadReport('${item.path}')"><i class="fa fa-download"></i> Download</button>

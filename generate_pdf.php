@@ -37,10 +37,20 @@ if (!is_dir($reportsDir) && !mkdir($reportsDir, 0755, true)) {
 $safeZone = preg_replace('/[^A-Za-z0-9_-]/', '_', $zone);
 $safeStation = preg_replace('/[^A-Za-z0-9_-]/', '_', $station);
 $safeRiu = preg_replace('/[^A-Za-z0-9_-]/', '_', $riu_no);
-// _095543 was the time part (HHMMSS). Use dashes for readability.
+// If client supplied a preferred report name use it (after sanitizing), otherwise fall back to timestamped name
 date_default_timezone_set('Asia/Kolkata');
-$timestamp = date('Y-m-d_H-i-s');
-$fileName = "RIU_{$safeZone}_{$safeStation}_{$safeRiu}_{$timestamp}.pdf";
+$clientName = trim($input['report_name'] ?? '');
+if ($clientName !== '') {
+    // sanitize: allow letters, numbers, dash, underscore, dot; replace other chars with underscore
+    $fileName = preg_replace('/[^A-Za-z0-9_\-.]/', '_', $clientName);
+    // ensure .pdf extension
+    if (stripos($fileName, '.pdf') === false) {
+        $fileName .= '.pdf';
+    }
+} else {
+    $timestamp = date('Y-m-d_H-i-s');
+    $fileName = "RIU_{$safeZone}_{$safeStation}_{$safeRiu}_{$timestamp}.pdf";
+}
 $filePath = $reportsDir . '/' . $fileName;
 $publicPath = 'reports/' . $fileName; // relative path returned to client
 
