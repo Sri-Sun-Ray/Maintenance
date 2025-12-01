@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LTCAS Maintenance Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="logo">
+      <img src="hbl logo.jpg" alt="Company Logo">
+    </div>
+    <div class="title">
+      <h2>LTCAS Maintenance Dashboard</h2>
+    </div>
+    <div class="user-info">
+      <i class="fa-solid fa-user"></i>
+      <span id="username">Loading...</span>
+      <button class="logout-btn">Logout</button>
+    </div>
+  </header>
+
+  <!-- Filters Section -->
+  <section class="filters">
+    <div class="filter-left">
+      <div class="zone-info">
+        <label>Zone:</label>
+        <span id="zoneName">Loading...</span>
+      </div>
+      <div class="stations">
+        <label>Station:</label>
+        <select id="stationDropdown"></select>
+      </div>
+    </div>
+    <div class="filter-right">
+      <button class="btn-new" onclick="createNewReport()"><i class="fa-solid fa-plus"></i> New Report</button>
+    </div>
+  </section>
+
+  <!-- Stations Filter Section -->
+ <section class="filters stations-filter">
+  <div class="filter-left">
+    <div class="station-search">
+      <input type="text" id="stationSearch" placeholder="Enter station name..." autocomplete="off">
+      <button id="searchBtn" class="search-btn">🔍</button>
+    </div>
+    <ul id="suggestionBox" class="suggestions"></ul>
+  </div>
+</section>
+
+
+  <!-- Dashboard Table -->
+  <section class="table-section">
+    <table id="dashboardTable">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Station Name</th>
+          <th>Report Name</th>
+          <th>Due / Completion</th>
+          <th>Last Updated</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Filled dynamically -->
+      </tbody>
+    </table>
+  </section>
+
+  <script src="./dashboard.js"></script>
+</body>
+</html>
