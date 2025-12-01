@@ -261,10 +261,10 @@ function createNewReport() {
   const selectedStation = stationDropdown.value;
   if (selectedStation) {
     localStorage.setItem("selectedStation", selectedStation);
-    window.location.href = "../STCAS_index.html";
+    window.location.href = "../RIU_index.html";
   } else {
     confirm("Continue without selecting station?")
-      ? window.location.href = "../STCAS_index.html"
+      ? window.location.href = "../RIU_index.html"
       : alert("Please select a station.");
   }
 }
