@@ -517,162 +517,157 @@
 }
 
 
-            function renderObservations(observations) {
-                if (!observations || observations.length === 0) {
-                    obsArea.innerHTML = '<div class="report-card"><div class="empty">No observations found for this RIU entry.</div></div>';
-                    // still render summary: all points considered open (29)
-                    const TOTAL_POINTS = 29;
-                    const openPointsCount = TOTAL_POINTS;
-                    document.querySelector('h1').innerText = `Monthly Maintenance Report — STCAS (Generated) — Not Completed`;
-                    metaArea.innerHTML += `
-                      <div class="module-section">
-                        <div class="module-title">Summary</div>
-                        <table class="meta-table-4col">
-                          <tr>
-                            <td class="label">Total Points</td><td>${TOTAL_POINTS}</td>
-                            <td class="label">Open Points</td><td>${openPointsCount}</td>
-                          </tr>
-                        </table>
-                        <div style="margin-top:8px;"><em>All points missing or not recorded.</em></div>
-                      </div>`;
-                    return;
-                }
+           function renderObservations(observations) {
+    if (!observations || observations.length === 0) {
+        obsArea.innerHTML = '<div class="report-card"><div class="empty">No observations found for this RIU entry.</div></div>';
+        const TOTAL_POINTS = 29;
+        document.querySelector('h1').innerText = `Monthly Maintenance Report — STCAS (Generated) — Not Completed`;
+        metaArea.innerHTML += `
+          <div class="module-section">
+            <div class="module-title">Summary</div>
+            <table class="meta-table-4col">
+             <tr><td class="label">Total Points</td><td>${TOTAL_POINTS}</td><td class="label">Open Points</td><td>${TOTAL_POINTS}</td></tr>
+            </table>
+            <div style="margin-top:8px;"><em>All points missing or not recorded.</em></div>
+          </div>`;
+        return;
+    }
 
-                const TOTAL_POINTS = 29;
+    const TOTAL_POINTS = 29;
 
-                // Group by location/module (fall back to 'General')
-                const groups = {};
-                observations.forEach(obs => {
-                    const key = (obs.location || obs.module || 'General').trim() || 'General';
-                    if (!groups[key]) groups[key] = [];
-                    groups[key].push(obs);
-                });
+    // FINAL MAPPING — NO DUPLICATES EVER
+    const CLEAN_NAME = {
+        'nms'          : 'NMS',
+        'power'        : 'POWER SUPPLY',
+        'riu_equip'    : 'RIU EQUIPMENT',
+        'riu_equipment': 'RIU EQUIPMENT',
+        'comm'         : 'COMMUNICATION MODULE',
+        'communication': 'COMMUNICATION MODULE',
+        'earthing'     : 'EARTHING & SPD'
+    };
 
-                // Compute open points per module and overall
-                const openByModule = {};
-                let openCount = 0;
-                observations.forEach(obs => {
-                    const key = (obs.location || obs.module || 'General').trim() || 'General';
-                    const isOpen = !obs.observation || (String(obs.observation).trim() === '');
-                    if (isOpen) {
-                        openCount++;
-                        if (!openByModule[key]) openByModule[key] = [];
-                        openByModule[key].push(String(obs.sl_no || ''));
-                    }
-                });
+    // Smart grouping + open points tracking
+    const groups = {};
+    const openByModule = {};
 
-                // If some expected points are missing from DB rows, count them as open (report note)
-                const missingEntries = Math.max(0, TOTAL_POINTS - observations.length);
-                const totalOpen = openCount + missingEntries;
+    observations.forEach(obs => {
+        const raw = (obs.location || obs.module || '').toString().trim().toLowerCase();
+        const moduleName = CLEAN_NAME[raw] || 'GENERAL';
 
-                // Update page title with completion status
-                const statusText = (totalOpen === 0) ? 'Completed' : 'Not Completed';
-                document.querySelector('h1').innerText = `Monthly Maintenance Report — STCAS (Generated) — ${statusText}`;
+        if (!groups[moduleName]) groups[moduleName] = [];
+        groups[moduleName].push(obs);
 
-                                // Build and inject the top Summary block (Total / Open and Module -> Status)
-                                (function() {
-                                        let summaryHtml = `
-                                            <div class="module-section">
-                                                <div class="module-title">Summary</div>
-                                                <table class="meta-table-4col">
-                                                    <tr>
-                                                        <td class="label">Total Points</td><td>${TOTAL_POINTS}</td>
-                                                        <td class="label">Open Points</td><td>${totalOpen}</td>
-                                                    </tr>
-                                                </table>`;
+        if (!obs.observation || obs.observation.toString().trim() === '') {
+            if (!openByModule[moduleName]) openByModule[moduleName] = [];
+            openByModule[moduleName].push(obs.sl_no || '?');
+        }
+    });
 
-                                        if (missingEntries > 0) {
-                                            summaryHtml += `<div style="margin-top:8px;color:#b55353">Note: ${missingEntries} expected point(s) are missing from the database and counted as open.</div>`;
-                                        }
+    // Calculate totals
+    const missingEntries = Math.max(0, TOTAL_POINTS - observations.length);
+    let openCount = 0;
+    Object.values(openByModule).forEach(arr => openCount += arr.length);
+    const totalOpen = openCount + missingEntries;
+    const statusText = totalOpen === 0 ? 'Completed' : 'Not Completed';
+    document.querySelector('h1').innerText = `Monthly Maintenance Report — STCAS (Generated) — ${statusText}`;
 
-                                        // Module-wise status table (Module / Status)
-                                        summaryHtml += `<div style="margin-top:12px;">
-                                            <table class="summary-table" style="border:1px solid #000; width:100%; margin-top:8px;">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="width:40%; background:#f1f5f9; font-weight:700; color:#0b3a66;">Module</th>
-                                                        <th style="width:60%; background:#f1f5f9; font-weight:700; color:#0b3a66;">Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>`;
+    // Build Summary Table — Perfect Order & Correct Status
+    (function() {
+        let html = `<div class="module-section"><div class="module-title">Summary</div>
+            <table class="meta-table-4col">
+                <tr><td class="label">Total Points</td><td>${TOTAL_POINTS}</td><td class="label">Open Points</td><td>${totalOpen}</td></tr>
+            </table>`;
 
-                                        const expectedModules = ['nms','power','riu_equip','comm','earthing'];
-                                        // add expected modules first
-                                        expectedModules.forEach(moduleName => {
-                                                const moduleRows = groups[moduleName] || [];
-                                                const opens = openByModule[moduleName] || [];
-                                                let status = '';
-                                                if (moduleRows.length === 0) status = 'Not yet started';
-                                                else if (opens.length === 0) status = 'Completed';
-                                                else status = 'Open: ' + opens.join(', ');
-                                                summaryHtml += `<tr><td style="width:40%; font-weight:600">${escapeHtml(moduleName.toUpperCase())}</td><td style="width:60%;">${escapeHtml(status)}</td></tr>`;
-                                        });
+        if (missingEntries > 0) {
+            html += `<div style="margin-top:8px;color:#b55353">Note: ${missingEntries} point(s) missing from database → counted as open.</div>`;
+        }
 
-                                        // include any additional modules returned from DB
-                                        Object.keys(groups).forEach(moduleName => {
-                                                if (expectedModules.indexOf(moduleName) !== -1) return;
-                                                const moduleRows = groups[moduleName] || [];
-                                                const opens = openByModule[moduleName] || [];
-                                                let status = '';
-                                                if (moduleRows.length === 0) status = 'Not yet started';
-                                                else if (opens.length === 0) status = 'Completed';
-                                                else status = 'Open: ' + opens.join(', ');
-                                                summaryHtml += `<tr><td style="width:40%; font-weight:600">${escapeHtml(moduleName.toUpperCase())}</td><td style="width:60%;">${escapeHtml(status)}</td></tr>`;
-                                        });
+        html += `<div style="margin-top:12px;">
+            <table class="summary-table" style="border:1px solid #000;width:100%;margin-top:8px;">
+                <thead>
+                    <tr>
+                        <th style="width:40%;background:#f1f5f9;font-weight:700;color:#0b3a66;">Module</th>
+                        <th style="width:60%;background:#f1f5f9;font-weight:700;color:#0b3a66;">Status</th>
+                    </tr>
+                </thead><tbody>`;
 
-                                        summaryHtml += `</tbody></table></div></div>`;
+        const order = ['NMS', 'POWER SUPPLY', 'RIU EQUIPMENT', 'COMMUNICATION MODULE', 'EARTHING & SPD'];
 
-                                        metaArea.innerHTML += summaryHtml;
-                                })();
+        order.forEach(name => {
+            const rows = groups[name] || [];
+            const opens = openByModule[name] || [];
 
-                // Build HTML for observation tables (unchanged behavior)
-                let html = '';
-                for (const [moduleName, rows] of Object.entries(groups)) {
-                    html += `
-<div class="module-section">
-  <div class="module-title">${escapeHtml(moduleName)}</div>
-  <div style="overflow-x: auto;">
-    <table class="obs-table">
-      <thead>
-        <tr>
-          <th style="width:6%">Sl No</th>
-          <th style="width:40%">Description</th>
-          <th style="width:20%">Action Taken / Range</th>
-          <th style="width:12%">Observation</th>
-          <th style="width:12%">Remarks</th>
-          <th style="width:10%">Image</th>
-        </tr>
-      </thead>
-      <tbody>`;
-
-                    rows.forEach(obs => {
-                        const imagePaths = Array.isArray(obs.image_paths)
-                            ? obs.image_paths.filter(p => !!p)
-                            : (obs.image_path ? [obs.image_path] : []);
-                        const imgHtml = imagePaths.length
-                            ? imagePaths.map(path => `<img src="${escapeHtml(path)}" class="img-thumb" alt="img" onclick="openImageModal('${escapeHtml(path)}')">`).join('')
-                            : 'N/A';
-                        html += `<tr>
-                          <td>${escapeHtml(obs.sl_no || '')}</td>
-                          <td>${escapeHtml(obs.description || '')}</td>
-                          <td>${escapeHtml(obs.action_taken || '')}</td>
-                          <td>${escapeHtml(obs.observation || '')}</td>
-                          <td>${escapeHtml(obs.remarks || '')}</td>
-                          <td style="text-align:center">${imgHtml}</td>
-                        </tr>`;
-                    });
-
-                    html += `</tbody></table></div></div>`;
-                }
-
-                obsArea.innerHTML = html + `
-                  <div id="imageModal">
-                    <div style="position:relative; background:white; padding:14px; border-radius:8px;">
-                      <span onclick="closeImageModal()" style="position:absolute; top:8px; right:12px; cursor:pointer;">&times;</span>
-                      <img id="modalImage" src="" alt="Full Image" style="display:block;">
-                    </div>
-                  </div>`;
+            let status = '';
+            if (rows.length === 0) {
+                status = 'Not yet started';
+            } else if (opens.length === 0) {
+                status = 'Completed';
+            } else {
+                status = 'Open: ' + opens.sort((a,b)=>a-b).join(', ');
             }
+
+            html += `<tr>
+                <td style="font-weight:600">${escapeHtml(name)}</td>
+                <td>${escapeHtml(status)}</td>
+            </tr>`;
+        });
+
+        html += `</tbody></table></div></div>`;
+        metaArea.innerHTML += html;
+    })();
+
+    // Build observation tables — same perfect order
+    let tableHtml = '';
+    const displayOrder = ['NMS', 'POWER SUPPLY', 'RIU EQUIPMENT', 'COMMUNICATION MODULE', 'EARTHING & SPD'];
+
+    displayOrder.forEach(name => {
+        if (!groups[name]) return;
+
+        tableHtml += `<div class="module-section">
+            <div class="module-title">${escapeHtml(name)}</div>
+            <div style="overflow-x:auto;">
+                <table class="obs-table">
+                    <thead>
+                        <tr>
+                            <th style="width:6%">Sl No</th>
+                            <th style="width:40%">Description</th>
+                            <th style="width:20%">Action Taken / Range</th>
+                            <th style="width:12%">Observation</th>
+                            <th style="width:12%">Remarks</th>
+                            <th style="width:10%">Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+        groups[name].forEach(obs => {
+            const images = Array.isArray(obs.image_paths) ? obs.image_paths.filter(Boolean)
+                       : (obs.image_path ? [obs.image_path] : []);
+            const imgHtml = images.length
+                ? images.map(p => `<img src="${escapeHtml(p)}" class="img-thumb" onclick="openImageModal('${escapeHtml(p)}')">`).join('')
+                : 'N/A';
+
+            tableHtml += `<tr>
+                <td>${escapeHtml(obs.sl_no || '')}</td>
+                <td>${escapeHtml(obs.description || '')}</td>
+                <td>${escapeHtml(obs.action_taken || '')}</td>
+                <td>${escapeHtml(obs.observation || '')}</td>
+                <td>${escapeHtml(obs.remarks || '')}</td>
+                <td style="text-align:center">${imgHtml}</td>
+            </tr>`;
+        });
+
+        tableHtml += `</tbody></table></div></div>`;
+    });
+
+    obsArea.innerHTML = tableHtml + `
+        <div id="imageModal">
+            <div style="position:relative;background:white;padding:14px;border-radius:8px;">
+                <span onclick="closeImageModal()" style="position:absolute;top:8px;right:12px;cursor:pointer;">×</span>
+                <img id="modalImage" src="" style="max-width:95vw;max-height:90vh;">
+            </div>
+        </div>`;
+}
+
 
             function openImageModal(imagePath) {
                 document.getElementById('modalImage').src = imagePath;
