@@ -12,24 +12,19 @@
   <script src="libs/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@latest/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js"></script>
-  
 </head>
+
 <body>
+
+    <!-- HEADER -->
     <header class="top-header">
-        <div>
-          <img src="hbl logo.jpg" alt="Logo" class="Logo">
-        </div>
+        <div><img src="hbl logo.jpg" alt="Logo" class="Logo"></div>
+        <div class="title-section"><h1>LTCAS Maintenance</h1></div>
+        <div class="logout-section"><button id="logoutBtn">Logout</button></div>
+    </header>
 
-        <div class="title-section">
-          <h1>LTCAS Maintenance</h1>
-        </div>
-
-        <div class="logout-section">
-          <button id="logoutBtn">Logout</button>
-        </div>
-      </header>
-
-   <div class="info-section">
+    <!-- INFO SECTION -->
+    <div class="info-section">
       <div class="form-group">
         <label for="zone">Zone:</label>
         <input type="text" id="zone" placeholder="Enter Zone" readonly>
@@ -40,19 +35,94 @@
         <input type="text" id="station" placeholder="Enter Station" readonly>
       </div>
 
-      <div class="form-group scan-box">
+      <div class="form-group">
         <label for="loco">Loco No:</label>
-        <input type="text" id="loco" placeholder="Enter Loco noi">
+        <input type="text" id="loco" placeholder="Enter Loco No">
       </div>
 
-      <div class="form-group scan-box">
+      <div class="form-group">
         <label for="date">Date:</label>
         <input type="text" id="date" placeholder="Enter Date">
       </div>
 
       <button class="btn btn-save" onclick="saveInfo()" id="btn-save">Save</button>
-      <button class="btn btn-get_details" onclick="get()" id="btn-get_details" style="display: none;">Get Details</button>
-      
+      <button class="btn btn-get_details" onclick="get()" id="btn-get_details" style="display:none;">Get Details</button>
     </div>
+
+    <!-- 🔵 MODULE TABS -->
+    <div class="modules-tabs">
+      <button class="tab-btn active" onclick="showModuleTab('module_nms')">NMS</button>
+      <button class="tab-btn" onclick="showModuleTab('module_power')">Power Supply</button>
+      <button class="tab-btn" onclick="showModuleTab('module_riu')">RIU Equipment</button>
+      <button class="tab-btn" onclick="showModuleTab('module_comm')">Communication</button>
+      <button class="tab-btn" onclick="showModuleTab('module_earthing')">Earthing & SPD</button>
+    </div>
+
+    <!-- 🔵 MODULE 1 (Visible by default) -->
+    <div id="module_nms" class="module-container">
+      <div class="table-container">
+        <table class="module-table-full">
+          <thead>
+            <tr>
+              <th rowspan="2">S.No</th>
+              <th rowspan="2">Description of Equipment</th>
+              <th rowspan="2">Parameter for Quality Check</th>
+              <th colspan="2">Details of Work Done</th>
+              <th rowspan="2">Remarks</th>
+              <th colspan="5">Identified Schedule in which activity shall be carried out</th>
+            </tr>
+            <tr>
+              <th>Cab 1</th>
+              <th>Cab 2</th>
+              <th>Trip</th>
+              <th>IA/IB</th>
+              <th>IC</th>
+              <th>TOH/AOH</th>
+              <th>IOH/POH</th>
+            </tr>
+          </thead>
+          <tbody id="nmsFullTableBody">
+
+            <tr>
+              <td>1.1</td>
+              <td>Example Description</td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 🔵 MODULE 2 -->
+    <div id="module_power" class="module-container" style="display:none;">
+      <h3 style="text-align:center;">Power Supply Module</h3>
+    </div>
+
+    <!-- 🔵 MODULE 3 -->
+    <div id="module_riu" class="module-container" style="display:none;">
+      <h3 style="text-align:center;">RIU Equipment Module</h3>
+    </div>
+
+    <!-- 🔵 MODULE 4 -->
+    <div id="module_comm" class="module-container" style="display:none;">
+      <h3 style="text-align:center;">Communication Module</h3>
+    </div>
+
+    <!-- 🔵 MODULE 5 -->
+    <div id="module_earthing" class="module-container" style="display:none;">
+      <h3 style="text-align:center;">Earthing & SPD Module</h3>
+    </div>
+
+<script src="LTCAS_create.js"></script>
+
 </body>
 </html>
