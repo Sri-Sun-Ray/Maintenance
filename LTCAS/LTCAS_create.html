@@ -42,24 +42,25 @@
 
       <div class="form-group">
         <label for="date">Date:</label>
-        <input type="text" id="date" placeholder="Enter Date">
+        <input type="date" id="date" readonly>
       </div>
 
-      <button class="btn btn-save" onclick="saveInfo()" id="btn-save">Save</button>
+      <button class="btn btn-save" onclick="saveLocoInfo()" id="btn-save">Save</button>
       <button class="btn btn-get_details" onclick="get()" id="btn-get_details" style="display:none;">Get Details</button>
     </div>
 
     <!-- 🔵 MODULE TABS -->
     <div class="modules-tabs">
-      <button class="tab-btn active" onclick="showModuleTab('module_nms')">NMS</button>
-      <button class="tab-btn" onclick="showModuleTab('module_power')">Power Supply</button>
-      <button class="tab-btn" onclick="showModuleTab('module_riu')">RIU Equipment</button>
-      <button class="tab-btn" onclick="showModuleTab('module_comm')">Communication</button>
-      <button class="tab-btn" onclick="showModuleTab('module_earthing')">Earthing & SPD</button>
+      <button class="tab-btn active" onclick="showModuleTab('module_locomotive')">LocoMotive</button>
+      <button class="tab-btn" onclick="showModuleTab('module_brakeInterface')">Brake Interface</button>
+      <button class="tab-btn" onclick="showModuleTab('module_underFrame')">UnderFrame</button>
+      <button class="tab-btn" onclick="showModuleTab('module_locomotiveAvail')">Locomotive(as per Availability)</button>
+      <button class="tab-btn" onclick="showModuleTab('module_underFrame2')">UnderFrame II</button>
+      <button class="tab-btn" onclick="showModuleTab('module_roof')">Roof</button>
     </div>
 
     <!-- 🔵 MODULE 1 (Visible by default) -->
-    <div id="module_nms" class="module-container">
+    <div id="module_locomotive" class="module-container">
       <div class="table-container">
         <table class="module-table-full">
           <thead>
@@ -81,12 +82,303 @@
               <th>IOH/POH</th>
             </tr>
           </thead>
-          <tbody id="nmsFullTableBody">
+          <tbody id="locomotiveFullTableBody">
 
             <tr>
-              <td>1.1</td>
-              <td>Example Description</td>
+              <td>1.1.1</td>
+              <td rowspan="5" style="vertical-align:top; text-align:left; padding:8px 10px;">LPOCIP</td>
               <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>1.1.2</td>
+              <td>Physical condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>1.1.3</td>
+              <td>Fixing condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>1.1.4</td>
+              <td>Open all couplers and check the intactness of couplers and its pins.</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>1.1.5</td>
+              <td>Ensuring of correct wheel diameter as per the wheel diameter measurement carried out by shed.</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>1.2.1</td>
+              <td rowspan="4" style="vertical-align:top; text-align:left; padding:8px 10px;">Cab Radio Display Unit (If applicable)</td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+             <tr>
+              <td>1.2.2</td>
+              <td>Physical Condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>1.2.3</td>
+              <td>Fixing Condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>1.2.4</td>
+              <td>Open all couplers and check the intactness of couplers and its pins.</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+             <tr>
+              <td>2.1.1</td>
+              <td rowspan="2" style="vertical-align:top; text-align:left; padding:8px 10px;">Buzzer </td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>2.1.2</td>
+              <td>Physical Condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+             <tr>
+              <td>3.1.1</td>
+              <td rowspan="4" style="vertical-align:top; text-align:left; padding:8px 10px;">Radio Unit</td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>3.1.2</td>
+              <td>Physical Condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>3.1.3</td>
+              <td>Intactness of Connectors and Couplers</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>3.1.4</td>
+              <td>Fixing condition </td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>4.1.1</td>
+              <td rowspan="4" style="vertical-align:top; text-align:left; padding:8px 10px;">LTE Router-1 (Ifapplicable)</td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>4.1.2</td>
+              <td>Physical condition </td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>4.1.3</td>
+              <td>Intactness of Connectors and Couplers </td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>4.1.4</td>
+              <td>Fixing condition  </td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>  
+            
+             <tr>
+              <td>5.1.1</td>
+              <td rowspan="4" style="vertical-align:top; text-align:left; padding:8px 10px;">LTE Router-2 (Ifapplicable)</td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>5.1.2</td>
+              <td>Physical condition </td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>5.1.3</td>
+              <td>Intactness of Connectors and Couplers </td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>5.1.4</td>
+              <td>Fixing condition  </td>
               <td><textarea placeholder="Cab1"></textarea></td>
               <td><textarea placeholder="Cab2"></textarea></td>
               <td><textarea placeholder="remarks"></textarea></td>
@@ -100,26 +392,1078 @@
           </tbody>
         </table>
       </div>
+
+      <!-- ✅ ACTION BUTTON ROW (RIGHT ALIGNED) -->
+      <div class="table-action-row">
+        <button class="btn btn-save">Save</button>
+        <button class="btn btn-get-details" style="display:none;">Get Details</button>
+        <button class="btn btn-update" style="display:none;">Update</button>
+      </div>
+
+      <!-- ✅ REPORT BUTTON (NEXT ROW) -->
+      <div class="report-row">
+        <button class="btn btn-report">Generate Report</button>
+      </div>
+
     </div>
 
     <!-- 🔵 MODULE 2 -->
-    <div id="module_power" class="module-container" style="display:none;">
-      <h3 style="text-align:center;">Power Supply Module</h3>
+    <div id="module_brakeInterface" class="module-container" style="display:none;">
+      <div class="table-container">
+        <table class="module-table-full">
+          <thead>
+            <thead>
+            <tr>
+              <th rowspan="2">S.No</th>
+              <th rowspan="2">Description of Equipment</th>
+              <th rowspan="2">Parameter for Quality Check</th>
+              <th colspan="2">Details of Work Done</th>
+              <th rowspan="2">Remarks</th>
+              <th colspan="5">Identified Schedule in which activity shall be carried out</th>
+            </tr>
+            <tr>
+              <th>Cab 1</th>
+              <th>Cab 2</th>
+              <th>Trip</th>
+              <th>IA/IB</th>
+              <th>IC</th>
+              <th>TOH/AOH</th>
+              <th>IOH/POH</th>
+            </tr>
+          </thead>
+
+          <tbody id="brakeInterfaceFullTableBody">
+
+            <tr>
+              <td>6.1.1</td>
+              <td rowspan="3" style="vertical-align:top; text-align:left; padding:8px 10px;">Interface Relay Unit</td>
+              <td>Intactness of Mounting</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.1.2</td>
+              <td>Intactness of connectors</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.1.3</td>
+              <td>Visually inspect the condition of Relays inside interface relay unit for any sulphation marks</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.2.1</td>
+              <td rowspan="3" style="vertical-align:top; text-align:left; padding:8px 10px;">EP Relay valve</td>
+              <td>Air Leakage</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.2.2</td>
+              <td>Wiring terminations</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.2.3</td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+             <tr>
+              <td>6.3.1</td>
+              <td rowspan="3" style="vertical-align:top; text-align:left; padding:8px 10px;">EP Relay valve isolating cock</td>
+              <td>Air Leakage</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.3.2</td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.3.3</td>
+              <td>Labelling Ok</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.4.1</td>
+              <td rowspan="2" style="vertical-align:top; text-align:left; padding:8px 10px;">Piping for Transducers and EP Valve</td>
+              <td>Check the intactness of connectors and ferrules and attend if require</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.4.2</td>
+              <td>Check the leakages with Soap Water</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.5.1</td>
+              <td rowspan="1" style="vertical-align:top; text-align:left; padding:8px 10px;">Isolating Cocks</td>
+              <td>Ensure Proper Operation of Isolation Cocks and Handles</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.6.1</td>
+              <td rowspan="2" style="vertical-align:top; text-align:left; padding:8px 10px;">Horn Circuit</td>
+              <td>Ensure Proper Operation of Isolation Cocks and Handles</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.6.2</td>
+              <td>Check working of Horn Isolation Cock for any leakage</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>6.7.1</td>
+              <td rowspan="1" style="vertical-align:top; text-align:left; padding:8px 10px;">Testing of Transducers (Cab-1 only)</td>
+              <td>Ensure proper recording of pressures through Transducers by comparing with Data logging in Onboard Kavach. (Cab-1 only)</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ✅ ACTION BUTTON ROW (RIGHT ALIGNED) -->
+      <div class="table-action-row">
+        <button class="btn btn-save">Save</button>
+        <button class="btn btn-get-details" style="display:none;">Get Details</button>
+        <button class="btn btn-update" style="display:none;">Update</button>
+      </div>
+
+      <!-- ✅ REPORT BUTTON (NEXT ROW) -->
+      <div class="report-row">
+        <button class="btn btn-report">Generate Report</button>
+      </div>
     </div>
 
     <!-- 🔵 MODULE 3 -->
-    <div id="module_riu" class="module-container" style="display:none;">
-      <h3 style="text-align:center;">RIU Equipment Module</h3>
+    <div id="module_underFrame" class="module-container" style="display:none;">
+      <div class="table-container">
+        <table class="module-table-full">
+          <thead>
+            <tr>
+              <th rowspan="2">S.No</th>
+              <th rowspan="2">Description of Equipment</th>
+              <th rowspan="2">Parameter for Quality Check</th>
+              <th colspan="2">Details of Work Done</th>
+              <th rowspan="2">Remarks</th>
+              <th colspan="5">Identified Schedule in which activity shall be carried out</th>
+            </tr>
+            <tr>
+              <th>Cab 1</th>
+              <th>Cab 2</th>
+              <th>Trip</th>
+              <th>IA/IB</th>
+              <th>IC</th>
+              <th>TOH/AOH</th>
+              <th>IOH/POH</th>
+            </tr>
+          </thead>
+          <tbody id="underFrameFullTableBody">
+
+            <tr>
+              <td>7.1.1</td>
+              <td rowspan="5" style="vertical-align:top; text-align:left; padding:8px 10px;">RFID Reader</td>
+              <td>Cable Conduit clamping condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>7.1.2</td>
+              <td>RFID Reader Mounting fixture welding Intactness (visual check)</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>7.1.3</td>
+              <td>Ensure intactness of welding by Magnetic particle testing/DPT</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>7.1.4</td>
+              <td>Availability and intactness of Sling for RFID Reader</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>7.1.5</td>
+              <td>Intactness of Guard for RFID reader</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+       <!-- ✅ ACTION BUTTON ROW (RIGHT ALIGNED) -->
+      <div class="table-action-row">
+        <button class="btn btn-save">Save</button>
+        <button class="btn btn-get-details" style="display:none;">Get Details</button>
+        <button class="btn btn-update" style="display:none;">Update</button>
+      </div>
+
+      <!-- ✅ REPORT BUTTON (NEXT ROW) -->
+      <div class="report-row">
+        <button class="btn btn-report">Generate Report</button>
+      </div>
     </div>
 
     <!-- 🔵 MODULE 4 -->
-    <div id="module_comm" class="module-container" style="display:none;">
-      <h3 style="text-align:center;">Communication Module</h3>
+    <div id="module_locomotiveAvail" class="module-container" style="display:none;">
+      <div class="table-container">
+        <table class="module-table-full">
+          <thead>
+            <tr>
+              <th rowspan="2">S.No</th>
+              <th rowspan="2">Description of Equipment</th>
+              <th rowspan="2">Parameter for Quality Check</th>
+              <th colspan="2">Details of Work Done</th>
+              <th rowspan="2">Remarks</th>
+              <th colspan="5">Identified Schedule in which activity shall be carried out</th>
+            </tr>
+            <tr>
+              <th>Cab 1</th>
+              <th>Cab 2</th>
+              <th>Trip</th>
+              <th>IA/IB</th>
+              <th>IC</th>
+              <th>TOH/AOH</th>
+              <th>IOH/POH</th>
+            </tr>
+          </thead>
+          <tbody id="locomotiveAvail">
+
+            <tr>
+              <td>8.1.1</td>
+              <td rowspan="6" style="vertical-align:top; text-align:left; padding:8px 10px;">Onboard Kavach</td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.1.2</td>
+              <td>Physical condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.1.3</td>
+              <td>Intactness of Connectors and Couplers</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.1.4</td>
+              <td>Fixing conditions</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.1.5</td>
+              <td>Feeding/ensuring of correct wheel dia. As per the wheel dia. Measurement carried out by Shed</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+             <tr>
+              <td>8.1.6</td>
+              <td>Remove all connectors/couplers and examine the intactness of connectors/couplers</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.2.1</td>
+              <td rowspan="3" style="vertical-align:top; text-align:left; padding:8px 10px;">Counter Readings</td>
+              <td>Note EB counter reading</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.2.2</td>
+              <td>Note Isolation counter reading</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.2.3</td>
+              <td>Note SOS counter reading</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.3.1</td>
+              <td rowspan="4" style="vertical-align:top; text-align:left; padding:8px 10px;">CAB Input Box(If Applicable)</td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.3.2</td>
+              <td>Physical condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.3.3</td>
+              <td>Intactness of Connectors and Couplers</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.3.4</td>
+              <td>Fixing condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.4.1</td>
+              <td rowspan="4" style="vertical-align:top; text-align:left; padding:8px 10px;">E70 Interface Unit(If applicable)(HBL)</td>
+              <td>Cleanliness</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.4.2</td>
+              <td>Physical condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.4.3</td>
+              <td>Intactness of Connectors and Couplers</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.4.4</td>
+              <td>Fixing condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>8.5.1</td>
+              <td rowspan="1" style="vertical-align:top; text-align:left; padding:8px 10px;">MCBs (2 nos)</td>
+              <td>Check Working and Tripping of MCBs on Test Bench</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>9.1.1</td>
+              <td rowspan="2" style="vertical-align:top; text-align:left; padding:8px 10px;">LE Valve</td>
+              <td>Fixing condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>9.1.2</td>
+              <td>Overhauling of LE Unit</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>10.1.1</td>
+              <td rowspan="3" style="vertical-align:top; text-align:left; padding:8px 10px;">Isolation Box</td>
+              <td>If Isolation box kept in Isolation position whether LPOCIP is indicating the status or not</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+             <tr>
+              <td>10.1.2</td>
+              <td>Cleanliness </td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>10.1.2</td>
+              <td>Cleanliness </td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>10.1.3</td>
+              <td>Physical condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+       <div class="table-action-row">
+        <button class="btn btn-save">Save</button>
+        <button class="btn btn-get-details" style="display:none;">Get Details</button>
+        <button class="btn btn-update" style="display:none;">Update</button>
+      </div>
+
+      <!-- ✅ REPORT BUTTON (NEXT ROW) -->
+      <div class="report-row">
+        <button class="btn btn-report">Generate Report</button>
+      </div>
     </div>
 
     <!-- 🔵 MODULE 5 -->
-    <div id="module_earthing" class="module-container" style="display:none;">
-      <h3 style="text-align:center;">Earthing & SPD Module</h3>
+    <div id="module_underFrame2" class="module-container" style="display:none;">
+      <div class="table-container">
+        <table class="module-table-full">
+          <thead>
+            <tr>
+              <th rowspan="2">S.No</th>
+              <th rowspan="2">Description of Equipment</th>
+              <th rowspan="2">Parameter for Quality Check</th>
+              <th colspan="2">Details of Work Done</th>
+              <th rowspan="2">Remarks</th>
+              <th colspan="5">Identified Schedule in which activity shall be carried out</th>
+            </tr>
+            <tr>
+              <th>Cab 1</th>
+              <th>Cab 2</th>
+              <th>Trip</th>
+              <th>IA/IB</th>
+              <th>IC</th>
+              <th>TOH/AOH</th>
+              <th>IOH/POH</th>
+            </tr>
+          </thead>
+          <tbody id="underFrame2FullTableBody">
+
+            <tr>
+              <td>11.1.1</td>
+              <td rowspan="3" style="vertical-align:top; text-align:left; padding:8px 10px;">Speed Sensor I</td>
+              <td>Visual check of Speed Sensor Cables</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>11.1.2</td>
+              <td>Physical condition of PG mounting and Junction box</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+             <tr>
+              <td>11.1.3</td>
+              <td>Remove the speed sensor and clean any excess grease</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>11.2.1</td>
+              <td rowspan="3" style="vertical-align:top; text-align:left; padding:8px 10px;">Speed Sensor II</td>
+              <td>Visual check of Speed Sensor Cables</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>11.2.2</td>
+              <td>Physical condition of PG mounting and Junction box</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>11.2.3</td>
+              <td>Remove the speed sensor and clean any excess grease</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+       <div class="table-action-row">
+        <button class="btn btn-save">Save</button>
+        <button class="btn btn-get-details" style="display:none;">Get Details</button>
+        <button class="btn btn-update" style="display:none;">Update</button>
+      </div>
+
+      <!-- ✅ REPORT BUTTON (NEXT ROW) -->
+      <div class="report-row">
+        <button class="btn btn-report">Generate Report</button>
+      </div>
+    </div>
+
+    <div id="module_roof" class="module-container" style="display: none;">
+      <div class="table-container">
+        <table class="module-table-full">
+          <thead>
+            <tr>
+              <th rowspan="2">S.No</th>
+              <th rowspan="2">Description of Equipment</th>
+              <th rowspan="2">Parameter for Quality Check</th>
+              <th colspan="2">Details of Work Done</th>
+              <th rowspan="2">Remarks</th>
+              <th colspan="5">Identified Schedule in which activity shall be carried out</th>
+            </tr>
+            <tr>
+              <th>Cab 1</th>
+              <th>Cab 2</th>
+              <th>Trip</th>
+              <th>IA/IB</th>
+              <th>IC</th>
+              <th>TOH/AOH</th>
+              <th>IOH/POH</th>
+            </tr>
+          </thead>
+          <tbody id="roofFullTableBody">
+
+             <tr>
+              <td>1.1.1</td>
+              <td rowspan="2" style="vertical-align:top; text-align:left; padding:8px 10px;">GSM/GNSS(GPS) Antenna on roof (In some makes only one unit available)</td>
+              <td>Physical condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              </tr>
+
+             <tr>
+              <td>12.1.2</td>
+              <td>Cable conduit clamping condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>13.1.1</td>
+              <td rowspan="3" style="vertical-align:top; text-align:left; padding:8px 10px;">Antennae on Roof of CAB1</td>
+              <td>Physical condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>13.1.2</td>
+              <td>Cable Conduit clamping condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>13.1.3</td>
+              <td>Checking Reverse Power status</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>13.2.1</td>
+              <td rowspan="3" style="vertical-align:top; text-align:left; padding:8px 10px;">Antennae on Roof of CAB2</td>
+              <td>Physical condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>13.2.2</td>
+              <td>Cable Conduit clamping condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>13.2.3</td>
+              <td>Checking Reverse Power status</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>13.3.1</td>
+              <td rowspan="2" style="vertical-align:top; text-align:left; padding:8px 10px;">LTE Antenna-1 (If applicable)</td>
+              <td>Physical condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>13.3.2</td>
+              <td>Cable Conduit clamping condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>13.4.1</td>
+              <td rowspan="2" style="vertical-align:top; text-align:left; padding:8px 10px;">LTE Antenna-2 (If applicable)</td>
+              <td>Physical condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>13.4.2</td>
+              <td>Cable Conduit clamping condition</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>14.1</td>
+              <td rowspan="1" style="vertical-align:top; text-align:left; padding:8px 10px;">Data downloading from Onboard Kavach</td>
+              <td>Data downloading for analysing</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+            <tr>
+              <td>14.2</td>
+              <td rowspan="1" style="vertical-align:top; text-align:left; padding:8px 10px;">System Functionality</td>
+              <td>Testing as per the Station Kavach Layout in Shed(in Trip sheds subject to availability of Station Kavach)</td>
+              <td><textarea placeholder="Cab1"></textarea></td>
+              <td><textarea placeholder="Cab2"></textarea></td>
+              <td><textarea placeholder="remarks"></textarea></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+       <div class="table-action-row">
+        <button class="btn btn-save">Save</button>
+        <button class="btn btn-get-details" style="display:none;">Get Details</button>
+        <button class="btn btn-update" style="display:none;">Update</button>
+      </div>
+
+      <!-- ✅ REPORT BUTTON (NEXT ROW) -->
+      <div class="report-row">
+        <button class="btn btn-report">Generate Report</button>
+      </div>
     </div>
 
 <script src="LTCAS_create.js"></script>
