@@ -1,14 +1,3 @@
-function convertToFullTemplate(moduleId) {
-  const existingTableBody = document.getElementById(moduleId + 'TableBody');
-  const newHtml = `
-    <table class="module-table-full"> 
-      <thead>...</thead>
-      <tbody id="${moduleId}FullTableBody"></tbody>
-    </table>
-  `;
-  
-  document.getElementById(moduleId).innerHTML = newHtml;
-}
 
 function showModuleTab(moduleId) {
     // Hide all module containers
@@ -34,6 +23,11 @@ function showActionButtons() {
 }
 
 window.addEventListener("DOMContentLoaded", function(){
+
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.disabled = true;
+    });
 
     const storedZone=localStorage.getItem("zone");
     const storedStation=this.localStorage.getItem("selectedStation");
@@ -86,7 +80,7 @@ function saveLocoInfo(){
   .then(result => {
     if(result.success)
     {
-      alert("Data saved Successfully");
+      alert(result.message);
     }
     else{
       alert("Error saving data:"+result.message);
@@ -98,3 +92,66 @@ function saveLocoInfo(){
   });
 }
 
+function saveModule(id) {
+  const tableBody = document.getElementById(`${id}FullTableBody`);
+  const rows = tableBody.querySelectorAll("tr");
+
+  let tableData = [];
+  let lastDescription = "";   // ✅ store rowspan description
+
+  rows.forEach(row => {
+    const cells = row.querySelectorAll("td");
+
+    let sno = cells[0]?.innerText.trim() || "";
+
+    let description = "";
+    let parameter = "";
+    let startIndex = 0;
+
+    // ✅ If this row contains new description (rowspan row)
+    if (cells.length === 11) {
+      description = cells[1].innerText.trim();
+      lastDescription = description;
+      parameter = cells[2].innerText.trim();
+      startIndex = 3;
+    } 
+    // ✅ If this row is part of rowspan
+    else if (cells.length === 10) {
+      description = lastDescription;   // reuse previous
+      parameter = cells[1].innerText.trim();
+      startIndex = 2;
+    }
+
+    const rowData = {
+      sno: sno,
+      description: description,
+      parameter: parameter,
+      cab1: cells[startIndex]?.querySelector("textarea")?.value || "",
+      cab2: cells[startIndex + 1]?.querySelector("textarea")?.value || "",
+      remarks: cells[startIndex + 2]?.querySelector("textarea")?.value || "",
+      trip: cells[startIndex + 3]?.querySelector("input")?.checked ? 1 : 0,
+      ia_ib: cells[startIndex + 4]?.querySelector("input")?.checked ? 1 : 0,
+      ic: cells[startIndex + 5]?.querySelector("input")?.checked ? 1 : 0,
+      toh_aoh: cells[startIndex + 6]?.querySelector("input")?.checked ? 1 : 0,
+      ioh_poh: cells[startIndex + 7]?.querySelector("input")?.checked ? 1 : 0,
+      station: document.getElementById("station").value,
+      loco: document.getElementById("loco").value
+    };
+
+    tableData.push(rowData);
+  });
+
+  fetch("save_module.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(tableData)
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message);
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error Saving Data");
+  });
+}

@@ -250,3 +250,7 @@ button:hover {
 .table-container::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.module-container {
+  display: none;
+}

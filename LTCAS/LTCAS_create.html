@@ -20,7 +20,7 @@
     <header class="top-header">
         <div><img src="hbl logo.jpg" alt="Logo" class="Logo"></div>
         <div class="title-section"><h1>LTCAS Maintenance</h1></div>
-        <div class="logout-section"><button id="logoutBtn">Logout</button></div>
+        <div class="logout-section"><button id="logoutBtn" onclick="window.location.href='../login.html'">Logout</button></div>
     </header>
 
     <!-- INFO SECTION -->
@@ -51,7 +51,7 @@
 
     <!-- 🔵 MODULE TABS -->
     <div class="modules-tabs">
-      <button class="tab-btn active" onclick="showModuleTab('module_locomotive')">LocoMotive</button>
+      <button class="tab-btn" onclick="showModuleTab('module_locomotive')">LocoMotive</button>
       <button class="tab-btn" onclick="showModuleTab('module_brakeInterface')">Brake Interface</button>
       <button class="tab-btn" onclick="showModuleTab('module_underFrame')">UnderFrame</button>
       <button class="tab-btn" onclick="showModuleTab('module_locomotiveAvail')">Locomotive(as per Availability)</button>
@@ -395,7 +395,7 @@
 
       <!-- ✅ ACTION BUTTON ROW (RIGHT ALIGNED) -->
       <div class="table-action-row">
-        <button class="btn btn-save">Save</button>
+        <button class="btn btn-save" onclick="saveModule('locomotive')">Save</button>
         <button class="btn btn-get-details" style="display:none;">Get Details</button>
         <button class="btn btn-update" style="display:none;">Update</button>
       </div>
