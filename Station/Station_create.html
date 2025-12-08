@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Station Maintenance</title>
+  <link rel="stylesheet" href="station_create.css">
+  <style>
+    /* tiny helper so modal works even without your CSS */
+    #imagePreviewModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; z-index:9999; }
+    #imagePreviewModal img { max-width:90vw; max-height:80vh; border-radius:6px; }
+    .image-collection { display:flex; gap:8px; align-items:center; flex-direction:column; }
+    .image-list { display:flex; gap:6px; flex-wrap:wrap; }
+    .image-box { position:relative; }
+    .image-box img { width:80px; height:60px; object-fit:cover; border-radius:4px; }
+    .image-box .remove-btn { position:absolute; top:-6px; right:-6px; background:#fff; border-radius:50%; border:1px solid #ccc; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <header class="top-header">
+    <div><img src="hbl logo.jpg" alt="Logo" class="Logo" style="height:40px"></div>
+    <div class="title-section"><h1>Station Maintenance</h1></div>
+    <div class="logout-section"><button id="logoutBtn">Logout</button></div>
+  </header>
+
+  <div class="info-section">
+    <div class="form-group"><label for="zone">Zone:</label><input type="text" id="zone" readonly></div>
+    <div class="form-group"><label for="station">Station:</label><input type="text" id="station" readonly></div>
+    <div class="form-group"><label for="date">Date:</label><input type="date" id="date"></div>
+
+    <button class="btn-save" id="btn-save">Save</button>
+    <button class="btn-save" id="btn-get" style="display:none;">Get Details</button>
+  </div>
+
+  <div class="main-container">
+    <div class="sidebar">
+      <h3>Maintenance Modules</h3>
+      <ul>
+        <li class="module-tab">Schedule Check – Quarterly</li>
+        <li class="module-tab">Maintenance Schedule – Daily & Monthly</li>
+        <li class="module-tab">Maintenance Schedule – Quarterly & Half Yearly</li>
+      </ul>
+    </div>
+
+    <div class="content-area" id="contentArea">
+      <p>Select a module from the sidebar to view details.</p>
+
+      <!-- QUARTERLY - fixed rows already inserted manually -->
+      <div id="quarterly_check" class="module-table" style="display:none;">
+        <h2>Schedule Check – Quarterly</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Details of the Equipment</th>
+                <th>Name/Number</th>
+                <th>Date of Commissioning</th>
+                <th>Required Value</th>
+                <th>Observed Value</th>
+                <th>Remarks</th>
+                <th>Images</th>
+              </tr>
+            </thead>
+            <tbody id="quarterlyCheckBody">
+              <!-- Row 1 -->
+              <tr>
+                <td>1</td>
+                <td><input type="text" placeholder="Details of the Equipment"></td>
+                <td><input type="text" placeholder="Name/Number"></td>
+                <td><input type="date"></td>
+                <td><input type="text" placeholder="Required Value"></td>
+                <td><input type="text" placeholder="Observed Value"></td>
+                <td><textarea placeholder="Remarks"></textarea></td>
+                <td><!-- image cell will be initialized by JS --><div class="image-collection-placeholder"><button type="button" onclick="openImageOptions(this)">Add Image</button></div></td>
+              </tr>
+              <!-- Row 2 -->
+              <tr>
+                <td>2</td>
+                <td><input type="text" placeholder="Details of the Equipment"></td>
+                <td><input type="text" placeholder="Name/Number"></td>
+                <td><input type="date"></td>
+                <td><input type="text" placeholder="Required Value"></td>
+                <td><input type="text" placeholder="Observed Value"></td>
+                <td><textarea placeholder="Remarks"></textarea></td>
+                <td><div class="image-collection-placeholder"><button type="button" onclick="openImageOptions(this)">Add Image</button></div></td>
+              </tr>
+              <!-- Row 3 -->
+              <tr>
+                <td>3</td>
+                <td><input type="text" placeholder="Details of the Equipment"></td>
+                <td><input type="text" placeholder="Name/Number"></td>
+                <td><input type="date"></td>
+                <td><input type="text" placeholder="Required Value"></td>
+                <td><input type="text" placeholder="Observed Value"></td>
+                <td><textarea placeholder="Remarks"></textarea></td>
+                <td><div class="image-collection-placeholder"><button type="button" onclick="openImageOptions(this)">Add Image</button></div></td>
+              </tr>
+              <!-- Row 4 -->
+              <tr>
+                <td>4</td>
+                <td><input type="text" placeholder="Details of the Equipment"></td>
+                <td><input type="text" placeholder="Name/Number"></td>
+                <td><input type="date"></td>
+                <td><input type="text" placeholder="Required Value"></td>
+                <td><input type="text" placeholder="Observed Value"></td>
+                <td><textarea placeholder="Remarks"></textarea></td>
+                <td><div class="image-collection-placeholder"><button type="button" onclick="openImageOptions(this)">Add Image</button></div></td>
+              </tr>
+              <!-- Row 5 -->
+              <tr>
+                <td>5</td>
+                <td><input type="text" placeholder="Details of the Equipment"></td>
+                <td><input type="text" placeholder="Name/Number"></td>
+                <td><input type="date"></td>
+                <td><input type="text" placeholder="Required Value"></td>
+                <td><input type="text" placeholder="Observed Value"></td>
+                <td><textarea placeholder="Remarks"></textarea></td>
+                <td><div class="image-collection-placeholder"><button type="button" onclick="openImageOptions(this)">Add Image</button></div></td>
+              </tr>
+              <!-- Row 6 -->
+              <tr>
+                <td>6</td>
+                <td><input type="text" placeholder="Details of the Equipment"></td>
+                <td><input type="text" placeholder="Name/Number"></td>
+                <td><input type="date"></td>
+                <td><input type="text" placeholder="Required Value"></td>
+                <td><input type="text" placeholder="Observed Value"></td>
+                <td><textarea placeholder="Remarks"></textarea></td>
+                <td><div class="image-collection-placeholder"><button type="button" onclick="openImageOptions(this)">Add Image</button></div></td>
+              </tr>
+              <!-- Row 7 -->
+              <tr>
+                <td>7</td>
+                <td><input type="text" placeholder="Details of the Equipment"></td>
+                <td><input type="text" placeholder="Name/Number"></td>
+                <td><input type="date"></td>
+                <td><input type="text" placeholder="Required Value"></td>
+                <td><input type="text" placeholder="Observed Value"></td>
+                <td><textarea placeholder="Remarks"></textarea></td>
+                <td><div class="image-collection-placeholder"><button type="button" onclick="openImageOptions(this)">Add Image</button></div></td>
+              </tr>
+              <!-- Row 8 -->
+              <tr>
+                <td>8</td>
+                <td><input type="text" placeholder="Details of the Equipment"></td>
+                <td><input type="text" placeholder="Name/Number"></td>
+                <td><input type="date"></td>
+                <td><input type="text" placeholder="Required Value"></td>
+                <td><input type="text" placeholder="Observed Value"></td>
+                <td><textarea placeholder="Remarks"></textarea></td>
+                <td><div class="image-collection-placeholder"><button type="button" onclick="openImageOptions(this)">Add Image</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <button class="btn-save" id="saveQuarterly">Save Quarterly Check</button>
+        <button class="btn-update" id="updateQuarterly" style="display:none;">Update Quarterly Check</button>
+      </div>
+
+      <!-- DAILY & MONTHLY -->
+      <div id="daily_monthly" class="module-table" style="display:none;">
+        <h2>Maintenance Schedule – Daily & Monthly</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>S.No</th><th>Details of the Equipment</th><th>Name/Number</th><th>Date of Commissioning</th>
+                <th>Required Value</th><th>Observed Value</th><th>Remarks</th><th>Images</th>
+              </tr>
+            </thead>
+            <tbody id="dailyMonthlyBody">
+              <!-- Add your fixed rows for this module -->
+            </tbody>
+          </table>
+        </div>
+
+        <button class="btn-save" id="saveDailyMonthly">Save Daily & Monthly</button>
+        <button class="btn-update" id="updateDailyMonthly" style="display:none;">Update</button>
+      </div>
+
+      <!-- QUARTERLY & HALF YEARLY -->
+      <div id="quarterly_half" class="module-table" style="display:none;">
+        <h2>Maintenance Schedule – Quarterly & Half Yearly</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>S.No</th><th>Details of the Equipment</th><th>Name/Number</th><th>Date of Commissioning</th>
+                <th>Required Value</th><th>Observed Value</th><th>Remarks</th><th>Images</th>
+              </tr>
+            </thead>
+            <tbody id="quarterlyHalfBody">
+              <!-- Add your fixed rows for this module -->
+            </tbody>
+          </table>
+        </div>
+
+        <button class="btn-save" id="saveQuarterlyHalf">Save Quarterly & Half Yearly</button>
+        <button class="btn-update" id="updateQuarterlyHalf" style="display:none;">Update</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Image preview modal -->
+  <div id="imagePreviewModal">
+    <div style="position:relative; padding:8px; background:#fff; border-radius:6px;">
+      <button class="close-preview" style="position:absolute;right:6px;top:6px;">✖</button>
+      <img id="imagePreviewElement" alt="preview">
+    </div>
+  </div>
+
+  <!-- Load JS last -->
+  <script src="station_create.js?v=1.1"></script>
+</body>
+</html>
