@@ -6,10 +6,10 @@
   <title>LTCAS Maintenance</title>
   <link rel="stylesheet" href="LTCAS_create.css">
   <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="libs/jquery-3.6.0.min.js"></script>
-  <script src="libs/zxing-browser.min.js"></script>
-  <script src="libs/jspdf.umd.min.js"></script>
-  <script src="libs/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/@zxing/browser@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@latest/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js"></script>
 </head>
@@ -396,8 +396,8 @@
       <!-- ✅ ACTION BUTTON ROW (RIGHT ALIGNED) -->
       <div class="table-action-row">
         <button class="btn btn-save" onclick="saveModule('locomotive')">Save</button>
-        <button class="btn btn-get-details" style="display:none;">Get Details</button>
-        <button class="btn btn-update" style="display:none;">Update</button>
+        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('locomotive')">Get Details</button>
+        <button class="btn btn-update" style="display:none;" onclick="updateModule('locomotive')">Update</button>
       </div>
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
@@ -642,9 +642,9 @@
 
       <!-- ✅ ACTION BUTTON ROW (RIGHT ALIGNED) -->
       <div class="table-action-row">
-        <button class="btn btn-save">Save</button>
-        <button class="btn btn-get-details" style="display:none;">Get Details</button>
-        <button class="btn btn-update" style="display:none;">Update</button>
+        <button class="btn btn-save" onclick="saveModule('brakeInterface')">Save</button>
+        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('brakeInterface')">Get Details</button>
+        <button class="btn btn-update" style="display:none;" onclick="updateModule('brakeInterface')">Update</button>
       </div>
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
@@ -749,9 +749,9 @@
       </div>
        <!-- ✅ ACTION BUTTON ROW (RIGHT ALIGNED) -->
       <div class="table-action-row">
-        <button class="btn btn-save">Save</button>
-        <button class="btn btn-get-details" style="display:none;">Get Details</button>
-        <button class="btn btn-update" style="display:none;">Update</button>
+        <button class="btn btn-save" onclick="saveModule('underFrame')">Save</button>
+        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('underFrame')">Get Details</button>
+        <button class="btn btn-update" style="display:none;" onclick="updateModule('underFrame')">Update</button>
       </div>
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
@@ -783,7 +783,7 @@
               <th>IOH/POH</th>
             </tr>
           </thead>
-          <tbody id="locomotiveAvail">
+          <tbody id="locomotiveAvailFullTableBody">
 
             <tr>
               <td>8.1.1</td>
@@ -1108,9 +1108,9 @@
         </table>
       </div>
        <div class="table-action-row">
-        <button class="btn btn-save">Save</button>
-        <button class="btn btn-get-details" style="display:none;">Get Details</button>
-        <button class="btn btn-update" style="display:none;">Update</button>
+        <button class="btn btn-save" onclick="saveModule('locomotiveAvail')">Save</button>
+        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('locomotiveAvail')">Get Details</button>
+        <button class="btn btn-update" style="display:none;" onclick="updateModule('locomotiveAvail')">Update</button>
       </div>
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
@@ -1227,9 +1227,9 @@
         </table>
       </div>
        <div class="table-action-row">
-        <button class="btn btn-save">Save</button>
-        <button class="btn btn-get-details" style="display:none;">Get Details</button>
-        <button class="btn btn-update" style="display:none;">Update</button>
+        <button class="btn btn-save" onclick="saveModule('underFrame2')">Save</button>
+        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('underFrame2')">Get Details</button>
+        <button class="btn btn-update" style="display:none;" onclick="updateModule('underFrame2')">Update</button>
       </div>
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
@@ -1455,9 +1455,9 @@
         </table>
       </div>
        <div class="table-action-row">
-        <button class="btn btn-save">Save</button>
-        <button class="btn btn-get-details" style="display:none;">Get Details</button>
-        <button class="btn btn-update" style="display:none;">Update</button>
+        <button class="btn btn-save" onclick="saveModule('roof')">Save</button>
+        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('roof')">Get Details</button>
+        <button class="btn btn-update" style="display:none;" onclick="updateModule('roof')">Update</button>
       </div>
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->

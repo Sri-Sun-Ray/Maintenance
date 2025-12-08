@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 04, 2025 at 08:16 AM
+-- Generation Time: Dec 08, 2025 at 02:19 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -95,6 +95,81 @@ CREATE TABLE `locomotive` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `locomotive`
+--
+
+INSERT INTO `locomotive` (`id`, `sno`, `description`, `parameter`, `cab1`, `cab2`, `remarks`, `trip`, `ia_ib`, `ic`, `toh_aoh`, `ioh_poh`, `station`, `loco`, `created_at`) VALUES
+(162, '1.1.1', 'LPOCIP', 'Cleanliness', '854124', '', '', 1, 1, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(163, '1.1.2', 'LPOCIP', 'Physical condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(164, '1.1.3', 'LPOCIP', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(165, '1.1.4', 'LPOCIP', 'Open all couplers and check the intactness of couplers and its pins.', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(166, '1.1.5', 'LPOCIP', 'Ensuring of correct wheel diameter as per the wheel diameter measurement carried out by shed.', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(167, '1.2.1', 'Cab Radio Display Unit (If applicable)', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(168, '1.2.2', 'Cab Radio Display Unit (If applicable)', 'Physical Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(169, '1.2.3', 'Cab Radio Display Unit (If applicable)', 'Fixing Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(170, '1.2.4', 'Cab Radio Display Unit (If applicable)', 'Open all couplers and check the intactness of couplers and its pins.', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(171, '2.1.1', 'Buzzer', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(172, '2.1.2', 'Buzzer', 'Physical Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(173, '3.1.1', 'Radio Unit', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(174, '3.1.2', 'Radio Unit', 'Physical Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(175, '3.1.3', 'Radio Unit', 'Intactness of Connectors and Couplers', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(176, '3.1.4', 'Radio Unit', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(177, '4.1.1', 'LTE Router-1 (Ifapplicable)', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(178, '4.1.2', 'LTE Router-1 (Ifapplicable)', 'Physical condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(179, '4.1.3', 'LTE Router-1 (Ifapplicable)', 'Intactness of Connectors and Couplers', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(180, '4.1.4', 'LTE Router-1 (Ifapplicable)', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(181, '5.1.1', 'LTE Router-2 (Ifapplicable)', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(182, '5.1.2', 'LTE Router-2 (Ifapplicable)', 'Physical condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(183, '5.1.3', 'LTE Router-2 (Ifapplicable)', 'Intactness of Connectors and Couplers', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:03'),
+(184, '5.1.4', 'LTE Router-2 (Ifapplicable)', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUE', '54124', '2025-12-08 01:08:04'),
+(185, '1.1.1', 'LPOCIP', 'Cleanliness', 'sdfsdfg', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(186, '1.1.2', 'LPOCIP', 'Physical condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(187, '1.1.3', 'LPOCIP', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(188, '1.1.4', 'LPOCIP', 'Open all couplers and check the intactness of couplers and its pins.', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(189, '1.1.5', 'LPOCIP', 'Ensuring of correct wheel diameter as per the wheel diameter measurement carried out by shed.', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(190, '1.2.1', 'Cab Radio Display Unit (If applicable)', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(191, '1.2.2', 'Cab Radio Display Unit (If applicable)', 'Physical Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(192, '1.2.3', 'Cab Radio Display Unit (If applicable)', 'Fixing Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(193, '1.2.4', 'Cab Radio Display Unit (If applicable)', 'Open all couplers and check the intactness of couplers and its pins.', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(194, '2.1.1', 'Buzzer', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(195, '2.1.2', 'Buzzer', 'Physical Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(196, '3.1.1', 'Radio Unit', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(197, '3.1.2', 'Radio Unit', 'Physical Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(198, '3.1.3', 'Radio Unit', 'Intactness of Connectors and Couplers', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(199, '3.1.4', 'Radio Unit', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(200, '4.1.1', 'LTE Router-1 (Ifapplicable)', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(201, '4.1.2', 'LTE Router-1 (Ifapplicable)', 'Physical condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(202, '4.1.3', 'LTE Router-1 (Ifapplicable)', 'Intactness of Connectors and Couplers', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(203, '4.1.4', 'LTE Router-1 (Ifapplicable)', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(204, '5.1.1', 'LTE Router-2 (Ifapplicable)', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(205, '5.1.2', 'LTE Router-2 (Ifapplicable)', 'Physical condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(206, '5.1.3', 'LTE Router-2 (Ifapplicable)', 'Intactness of Connectors and Couplers', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:05'),
+(207, '5.1.4', 'LTE Router-2 (Ifapplicable)', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '42487', '2025-12-08 01:10:06'),
+(208, '1.1.1', 'LPOCIP', 'Cleanliness', '44757', '67878', '', 1, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(209, '1.1.2', 'LPOCIP', 'Physical condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(210, '1.1.3', 'LPOCIP', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(211, '1.1.4', 'LPOCIP', 'Open all couplers and check the intactness of couplers and its pins.', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(212, '1.1.5', 'LPOCIP', 'Ensuring of correct wheel diameter as per the wheel diameter measurement carried out by shed.', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(213, '1.2.1', 'Cab Radio Display Unit (If applicable)', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(214, '1.2.2', 'Cab Radio Display Unit (If applicable)', 'Physical Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(215, '1.2.3', 'Cab Radio Display Unit (If applicable)', 'Fixing Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(216, '1.2.4', 'Cab Radio Display Unit (If applicable)', 'Open all couplers and check the intactness of couplers and its pins.', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(217, '2.1.1', 'Buzzer', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(218, '2.1.2', 'Buzzer', 'Physical Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(219, '3.1.1', 'Radio Unit', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(220, '3.1.2', 'Radio Unit', 'Physical Condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(221, '3.1.3', 'Radio Unit', 'Intactness of Connectors and Couplers', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(222, '3.1.4', 'Radio Unit', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(223, '4.1.1', 'LTE Router-1 (Ifapplicable)', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(224, '4.1.2', 'LTE Router-1 (Ifapplicable)', 'Physical condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(225, '4.1.3', 'LTE Router-1 (Ifapplicable)', 'Intactness of Connectors and Couplers', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(226, '4.1.4', 'LTE Router-1 (Ifapplicable)', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(227, '5.1.1', 'LTE Router-2 (Ifapplicable)', 'Cleanliness', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(228, '5.1.2', 'LTE Router-2 (Ifapplicable)', 'Physical condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(229, '5.1.3', 'LTE Router-2 (Ifapplicable)', 'Intactness of Connectors and Couplers', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50'),
+(230, '5.1.4', 'LTE Router-2 (Ifapplicable)', 'Fixing condition', '', '', '', 0, 0, 0, 0, 0, 'DDUD', '41245', '2025-12-08 01:15:50');
+
 -- --------------------------------------------------------
 
 --
@@ -109,6 +184,15 @@ CREATE TABLE `loco_info` (
   `date` varchar(20) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `loco_info`
+--
+
+INSERT INTO `loco_info` (`id`, `zone`, `station`, `loco`, `date`, `created_at`) VALUES
+(10, 'ECR', 'DDUE', '54124', '2025-12-08', '2025-12-08 01:07:56'),
+(11, 'ECR', 'DDUD', '42487', '2025-12-08', '2025-12-08 01:09:56'),
+(12, 'ECR', 'DDUD', '41245', '2025-12-08', '2025-12-08 01:15:44');
 
 -- --------------------------------------------------------
 
@@ -535,13 +619,13 @@ ALTER TABLE `earthing`
 -- AUTO_INCREMENT for table `locomotive`
 --
 ALTER TABLE `locomotive`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=231;
 
 --
 -- AUTO_INCREMENT for table `loco_info`
 --
 ALTER TABLE `loco_info`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `nms`
