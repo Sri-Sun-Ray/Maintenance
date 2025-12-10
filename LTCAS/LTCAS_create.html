@@ -52,10 +52,10 @@
     <!-- 🔵 MODULE TABS -->
     <div class="modules-tabs">
       <button class="tab-btn" onclick="showModuleTab('module_locomotive')">LocoMotive</button>
-      <button class="tab-btn" onclick="showModuleTab('module_brakeInterface')">Brake Interface</button>
-      <button class="tab-btn" onclick="showModuleTab('module_underFrame')">UnderFrame</button>
-      <button class="tab-btn" onclick="showModuleTab('module_locomotiveAvail')">Locomotive(as per Availability)</button>
-      <button class="tab-btn" onclick="showModuleTab('module_underFrame2')">UnderFrame II</button>
+      <button class="tab-btn" onclick="showModuleTab('module_brake_interface')">Brake Interface</button>
+      <button class="tab-btn" onclick="showModuleTab('module_underframe')">UnderFrame</button>
+      <button class="tab-btn" onclick="showModuleTab('module_locomotive_avail')">Locomotive(as per Availability)</button>
+      <button class="tab-btn" onclick="showModuleTab('module_underframe2')">UnderFrame II</button>
       <button class="tab-btn" onclick="showModuleTab('module_roof')">Roof</button>
     </div>
 
@@ -402,13 +402,13 @@
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
       <div class="report-row">
-        <button class="btn btn-report">Generate Report</button>
+        <button class="btn btn-report" onclick="generateReport()">Generate Report</button>
       </div>
 
     </div>
 
     <!-- 🔵 MODULE 2 -->
-    <div id="module_brakeInterface" class="module-container" style="display:none;">
+    <div id="module_brake_interface" class="module-container" style="display:none;">
       <div class="table-container">
         <table class="module-table-full">
           <thead>
@@ -432,7 +432,7 @@
             </tr>
           </thead>
 
-          <tbody id="brakeInterfaceFullTableBody">
+          <tbody id="brake_interfaceFullTableBody">
 
             <tr>
               <td>6.1.1</td>
@@ -642,19 +642,19 @@
 
       <!-- ✅ ACTION BUTTON ROW (RIGHT ALIGNED) -->
       <div class="table-action-row">
-        <button class="btn btn-save" onclick="saveModule('brakeInterface')">Save</button>
-        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('brakeInterface')">Get Details</button>
-        <button class="btn btn-update" style="display:none;" onclick="updateModule('brakeInterface')">Update</button>
+        <button class="btn btn-save" onclick="saveModule('brake_interface')">Save</button>
+        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('brake_interface')">Get Details</button>
+        <button class="btn btn-update" style="display:none;" onclick="updateModule('brake_interface')">Update</button>
       </div>
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
-      <div class="report-row">
-        <button class="btn btn-report">Generate Report</button>
+      <<div class="report-row">
+        <button class="btn btn-report" onclick="generateReport()">Generate Report</button>
       </div>
     </div>
 
     <!-- 🔵 MODULE 3 -->
-    <div id="module_underFrame" class="module-container" style="display:none;">
+    <div id="module_underframe" class="module-container" style="display:none;">
       <div class="table-container">
         <table class="module-table-full">
           <thead>
@@ -676,7 +676,7 @@
               <th>IOH/POH</th>
             </tr>
           </thead>
-          <tbody id="underFrameFullTableBody">
+          <tbody id="underframeFullTableBody">
 
             <tr>
               <td>7.1.1</td>
@@ -749,19 +749,19 @@
       </div>
        <!-- ✅ ACTION BUTTON ROW (RIGHT ALIGNED) -->
       <div class="table-action-row">
-        <button class="btn btn-save" onclick="saveModule('underFrame')">Save</button>
-        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('underFrame')">Get Details</button>
-        <button class="btn btn-update" style="display:none;" onclick="updateModule('underFrame')">Update</button>
+        <button class="btn btn-save" onclick="saveModule('underframe')">Save</button>
+        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('underframe')">Get Details</button>
+        <button class="btn btn-update" style="display:none;" onclick="updateModule('underframe')">Update</button>
       </div>
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
       <div class="report-row">
-        <button class="btn btn-report">Generate Report</button>
+        <button class="btn btn-report" onclick="generateReport()">Generate Report</button>
       </div>
     </div>
 
     <!-- 🔵 MODULE 4 -->
-    <div id="module_locomotiveAvail" class="module-container" style="display:none;">
+    <div id="module_locomotive_avail" class="module-container" style="display:none;">
       <div class="table-container">
         <table class="module-table-full">
           <thead>
@@ -783,7 +783,7 @@
               <th>IOH/POH</th>
             </tr>
           </thead>
-          <tbody id="locomotiveAvailFullTableBody">
+          <tbody id="locomotive_availFullTableBody">
 
             <tr>
               <td>8.1.1</td>
@@ -1079,19 +1079,6 @@
             </tr>
 
             <tr>
-              <td>10.1.2</td>
-              <td>Cleanliness </td>
-              <td><textarea placeholder="Cab1"></textarea></td>
-              <td><textarea placeholder="Cab2"></textarea></td>
-              <td><textarea placeholder="remarks"></textarea></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-              <td><input type="checkbox"></td>
-            </tr>
-
-            <tr>
               <td>10.1.3</td>
               <td>Physical condition</td>
               <td><textarea placeholder="Cab1"></textarea></td>
@@ -1103,24 +1090,23 @@
               <td><input type="checkbox"></td>
               <td><input type="checkbox"></td>
             </tr>
-
           </tbody>
         </table>
       </div>
        <div class="table-action-row">
-        <button class="btn btn-save" onclick="saveModule('locomotiveAvail')">Save</button>
-        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('locomotiveAvail')">Get Details</button>
-        <button class="btn btn-update" style="display:none;" onclick="updateModule('locomotiveAvail')">Update</button>
+        <button class="btn btn-save" onclick="saveModule('locomotive_avail')">Save</button>
+        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('locomotive_avail')">Get Details</button>
+        <button class="btn btn-update" style="display:none;" onclick="updateModule('locomotive_avail')">Update</button>
       </div>
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
       <div class="report-row">
-        <button class="btn btn-report">Generate Report</button>
+        <button class="btn btn-report" onclick="generateReport()">Generate Report</button>
       </div>
     </div>
 
     <!-- 🔵 MODULE 5 -->
-    <div id="module_underFrame2" class="module-container" style="display:none;">
+    <div id="module_underframe2" class="module-container" style="display:none;">
       <div class="table-container">
         <table class="module-table-full">
           <thead>
@@ -1142,7 +1128,7 @@
               <th>IOH/POH</th>
             </tr>
           </thead>
-          <tbody id="underFrame2FullTableBody">
+          <tbody id="underframe2FullTableBody">
 
             <tr>
               <td>11.1.1</td>
@@ -1227,14 +1213,14 @@
         </table>
       </div>
        <div class="table-action-row">
-        <button class="btn btn-save" onclick="saveModule('underFrame2')">Save</button>
-        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('underFrame2')">Get Details</button>
-        <button class="btn btn-update" style="display:none;" onclick="updateModule('underFrame2')">Update</button>
+        <button class="btn btn-save" onclick="saveModule('underframe2')">Save</button>
+        <button class="btn btn-get-details" style="display:none;" onclick="getModuleDetails('underframe2')">Get Details</button>
+        <button class="btn btn-update" style="display:none;" onclick="updateModule('underframe2')">Update</button>                                
       </div>
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
       <div class="report-row">
-        <button class="btn btn-report">Generate Report</button>
+        <button class="btn btn-report" onclick="generateReport()">Generate Report</button>
       </div>
     </div>
 
@@ -1462,9 +1448,11 @@
 
       <!-- ✅ REPORT BUTTON (NEXT ROW) -->
       <div class="report-row">
-        <button class="btn btn-report">Generate Report</button>
+        <button class="btn btn-report" onclick="generateReport()">Generate Report</button>
       </div>
     </div>
+
+    
 
 <script src="LTCAS_create.js"></script>
 

@@ -31,9 +31,9 @@ if (!$table || !$loco || !$station) {
 $allowedTables = [
   "locomotive",
   "brake_interface",
-  "underFrame",
-  "locomotiveAvail",
-  "underFrame2",
+  "underframe",
+  "locomotive_avail",
+  "underframe2",
   "roof"
 ];
 

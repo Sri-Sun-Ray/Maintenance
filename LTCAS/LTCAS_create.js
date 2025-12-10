@@ -2,10 +2,10 @@
 
 const moduleTableMap = {
   locomotive: "locomotive",
-  brakeInterface: "brake_interface",
-  underFrame: "underFrame",
-  locomotiveAvail: "locomotiveAvail",
-  underFrame2: "underFrame2",
+  brake_interface: "brake_interface",
+  underframe: "underframe",
+  locomotive_avail: "locomotive_avail",
+  underframe2: "underframe2",
   roof: "roof"
 };
 
@@ -50,11 +50,7 @@ function checkModuleDataStatus(moduleId) {
       station: station
     })
   })
-  .then(res => res.text())
-  .then(text => {
-    console.log("CHECK RAW RESPONSE:", text);   // ✅ SEE EXACT PHP OUTPUT
-    return JSON.parse(text);   // ✅ THEN PARSE SAFELY
-  })
+  .then(res => res.json())
   .then(data => {
 
     const moduleDiv = document.getElementById(`module_${moduleId}`) || document.getElementById(moduleId);
@@ -390,7 +386,10 @@ function saveModule(id) {
   fetch("/Maintenance/LTCAS/save_module.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(tableData)
+    body: JSON.stringify({
+    table: id,
+    tableData: tableData
+  })
   })
   .then(res => res.json())
   .then(data => {
@@ -405,6 +404,18 @@ function saveModule(id) {
     console.error(err);
     alert("Error Saving Data");
   });
+}
+
+function prepareReportSession() {
+  sessionStorage.setItem("zone", document.getElementById("zone").value);
+  sessionStorage.setItem("station", document.getElementById("station").value);
+  sessionStorage.setItem("loco", document.getElementById("loco").value);   // loco = riu number
+  sessionStorage.setItem("date", document.getElementById("date").value); // if same
+}
+
+function generateReport() {
+  prepareReportSession();   // store zone, station, loco
+  window.location.href = "./Observation/observations.html";
 }
 
 

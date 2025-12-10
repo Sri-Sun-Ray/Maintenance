@@ -17,13 +17,32 @@ if ($conn->connect_error) {
     exit;
 }
 
+$table=$data['table'] ?? '';
+$tableData = $data['tableData'] ?? [];
+
+$allowedTables = [
+  "locomotive",
+  "brake_interface",
+  "underframe",
+  "locomotive_avail",
+  "underframe2",
+  "roof"
+];
+
+if (!$table || !in_array($table, $allowedTables)) {
+    echo json_encode(["success" => false, "message" => "Invalid table"]);
+    exit;
+}
+
+
+
 $stmt = $conn->prepare(
-    "INSERT INTO locomotive 
+    "INSERT INTO $table 
     (sno, description, parameter, cab1, cab2, remarks, trip, ia_ib, ic, toh_aoh, ioh_poh, station, loco)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 );
 
-foreach ($data as $row) {
+foreach ($tableData as $row) {
 
     $stmt->bind_param(
         "ssssssiiiiiss",

@@ -24,9 +24,9 @@ $rows  = $data['data'] ?? [];
 $allowedTables = [
   "locomotive",
   "brake_interface",
-  "underFrame",
-  "locomotiveAvail",
-  "underFrame2",
+  "underframe",
+  "locomotive_avail",
+  "underframe2",
   "roof"
 ];
 
