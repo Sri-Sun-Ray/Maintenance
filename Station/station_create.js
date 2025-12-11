@@ -28,11 +28,11 @@ const API_ENDPOINTS = {
 };
 
 /* ---------------- DEFAULT VALUES CONFIGURATION ---------------- */
-/* 
+/*
  * IMPORTANT: Update the default values below for each module.
  * These values will be pre-filled and set to readonly.
  * Users only need to fill: Name/Number, Date of Commissioning, Observed Value, Remarks, and Images.
- * 
+ *
  * Format: { details: "Equipment Description", required_value: "Expected Value" }
  */
 const DEFAULT_VALUES = {
@@ -73,24 +73,24 @@ function initializeDefaultValues(moduleId, forceUpdate = false) {
   const map = { 'quarterly_check':'quarterlyCheckBody','daily_monthly':'dailyMonthlyBody','quarterly_half':'quarterlyHalfBody' };
   const tbody = document.getElementById(map[moduleId]);
   if (!tbody) return;
-  
+
   const defaults = DEFAULT_VALUES[moduleId];
   if (!defaults) return;
-  
+
   const rows = Array.from(tbody.querySelectorAll('tr'));
   rows.forEach((row, index) => {
     if (index < defaults.length) {
       const detailsInput = row.cells[1].querySelector('input');
       const requiredValueInput = row.cells[4].querySelector('input');
-      
+
       // Set details field - always set if forceUpdate is true, or if field is empty/placeholder
       if (detailsInput) {
         const currentValue = detailsInput.value.trim();
-        const isPlaceholder = !currentValue || 
-                              currentValue === '' || 
+        const isPlaceholder = !currentValue ||
+                              currentValue === '' ||
                               currentValue === 'Details of the Equipment' ||
                               (currentValue.startsWith('Equipment') && currentValue.includes('Details'));
-        
+
         if (forceUpdate || isPlaceholder) {
           detailsInput.value = defaults[index].details;
           detailsInput.readOnly = true;
@@ -98,15 +98,15 @@ function initializeDefaultValues(moduleId, forceUpdate = false) {
           detailsInput.style.cursor = 'not-allowed';
         }
       }
-      
+
       // Set required value field - always set if forceUpdate is true, or if field is empty/placeholder
       if (requiredValueInput) {
         const currentValue = requiredValueInput.value.trim();
-        const isPlaceholder = !currentValue || 
-                             currentValue === '' || 
+        const isPlaceholder = !currentValue ||
+                             currentValue === '' ||
                              currentValue === 'Required Value' ||
                              (currentValue.startsWith('Required Value') && /^\d+$/.test(currentValue.split(' ').pop()));
-        
+
         if (forceUpdate || isPlaceholder) {
           requiredValueInput.value = defaults[index].required_value;
           requiredValueInput.readOnly = true;
@@ -398,124 +398,238 @@ function getStationDetails() {
 }
 
 /* ------------- Save / Update module rows ------------- */
-function validateStationFields() {
-  const zone = document.getElementById('zone')?.value?.trim();
-  const station = document.getElementById('station')?.value?.trim();
-  const date = document.getElementById('date')?.value?.trim();
-  if (!zone || !station || !date) { alert('Please fill Zone, Station and Date before saving module data.'); return false; }
-  return true;
-}
-
 function saveModuleData(moduleId) {
+
   if (!validateStationFields()) return;
+
   const zone = document.getElementById('zone').value.trim();
   const station = document.getElementById('station').value.trim();
   const date = document.getElementById('date').value.trim();
 
-  const map = { 'quarterly_check':'quarterlyCheckBody','daily_monthly':'dailyMonthlyBody','quarterly_half':'quarterlyHalfBody' };
-  const tbody = document.getElementById(map[moduleId]);
-  if (!tbody) { alert('Module table not found: ' + moduleId); return; }
+  const map = {
+    quarterly_check: "quarterlyCheckBody",
+    daily_monthly: "dailyMonthlyBody",
+    quarterly_half: "quarterlyHalfBody"
+  };
 
-  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const tbody = document.getElementById(map[moduleId]);
+  if (!tbody) { alert("Module table not found: " + moduleId); return; }
+
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+
   let anyFilled = false;
   rows.forEach(r => {
-    const observed = r.cells[5].querySelector('input')?.value?.trim();
-    const remarks = r.cells[6].querySelector('textarea')?.value?.trim();
-    if ((observed && observed.length) || (remarks && remarks.length)) anyFilled = true;
+    const observed = r.cells[5].querySelector("input")?.value?.trim();
+    const remarks = r.cells[6].querySelector("textarea")?.value?.trim();
+    if (observed || remarks) anyFilled = true;
   });
-  if (!anyFilled && !confirm('No Observed Value / Remarks found. Save anyway?')) return;
+  if (!anyFilled && !confirm("No Observed Value / Remarks found. Save anyway?")) return;
 
   const fd = new FormData();
-  fd.append('zone', zone); fd.append('station', station); fd.append('date', date); fd.append('module', moduleId);
+  fd.append("zone", zone);
+  fd.append("station", station);
+  fd.append("date", date);
+  fd.append("module", moduleId);
 
   rows.forEach((row, idx) => {
+
     const s_no = row.cells[0].textContent.trim();
-    const details = row.cells[1].querySelector('input')?.value.trim() || '';
-    const name_number = row.cells[2].querySelector('input')?.value.trim() || '';
-    const date_commission = row.cells[3].querySelector('input')?.value || '';
-    const required_value = row.cells[4].querySelector('input')?.value.trim() || '';
-    const observed_value = row.cells[5].querySelector('input')?.value.trim() || '';
-    const remarks = row.cells[6].querySelector('textarea')?.value.trim() || '';
 
-    fd.append(`observations[${idx}][s_no]`, s_no);
-    fd.append(`observations[${idx}][details]`, details);
-    fd.append(`observations[${idx}][name_number]`, name_number);
-    fd.append(`observations[${idx}][date_commission]`, date_commission);
-    fd.append(`observations[${idx}][required_value]`, required_value);
-    fd.append(`observations[${idx}][observed_value]`, observed_value);
-    fd.append(`observations[${idx}][remarks]`, remarks);
+    /* -----------------------------
+       CASE 1: quarterly_check (OLD)
+       ----------------------------- */
+    if (moduleId === "quarterly_check") {
 
-    const imgTd = row.cells[7];
-    if (imgTd) {
-      if (Array.isArray(imgTd.existingImages)) imgTd.existingImages.forEach(p => fd.append(`observations[${idx}][existing_images][]`, p));
-      if (Array.isArray(imgTd.newImages)) imgTd.newImages.forEach(o => fd.append(`observations[${idx}][images][]`, o.file));
+      const details = row.cells[1].querySelector("input")?.value.trim() || "";
+      const name_number = row.cells[2].querySelector("input")?.value.trim() || "";
+      const date_commission = row.cells[3].querySelector("input")?.value || "";
+      const required_value = row.cells[4].querySelector("input")?.value.trim() || "";
+      const observed_value = row.cells[5].querySelector("input")?.value.trim() || "";
+      const remarks = row.cells[6].querySelector("textarea")?.value.trim() || "";
+
+      fd.append(`observations[${idx}][s_no]`, s_no);
+      fd.append(`observations[${idx}][details]`, details);
+      fd.append(`observations[${idx}][name_number]`, name_number);
+      fd.append(`observations[${idx}][date_commission]`, date_commission);
+      fd.append(`observations[${idx}][required_value]`, required_value);
+      fd.append(`observations[${idx}][observed_value]`, observed_value);
+      fd.append(`observations[${idx}][remarks]`, remarks);
     }
+
+    /* --------------------------------------------------
+       CASE 2: daily_monthly + quarterly_half (NEW FORMAT)
+       -------------------------------------------------- */
+    else {
+
+      const location = row.cells[1].textContent.trim();
+      const taskDescription = row.cells[2].textContent.trim();
+      const actionTaken = row.cells[3].textContent.trim();
+      const frequency = row.cells[4].textContent.trim();
+      const equipmentCondition = row.cells[5].querySelector("input")?.value.trim() || "";
+      const remarks = row.cells[6].querySelector("textarea")?.value.trim() || "";
+
+      fd.append(`observations[${idx}][s_no]`, s_no);
+      fd.append(`observations[${idx}][name_number]`, location);
+      fd.append(`observations[${idx}][details]`, taskDescription);
+      fd.append(`observations[${idx}][required_value]`, actionTaken);
+      fd.append(`observations[${idx}][date_commission]`, frequency);
+      fd.append(`observations[${idx}][observed_value]`, equipmentCondition);
+      fd.append(`observations[${idx}][remarks]`, remarks);
+    }
+
+    /* -----------------------------
+       IMAGES FOR ALL MODULES
+       ----------------------------- */
+    const imgTd = row.cells[7];
+
+    if (imgTd) {
+      if (Array.isArray(imgTd.existingImages)) {
+        imgTd.existingImages.forEach(p => {
+          fd.append(`observations[${idx}][existing_images][]`, p);
+        });
+      }
+
+      if (Array.isArray(imgTd.newImages)) {
+        imgTd.newImages.forEach(o => {
+          fd.append(`observations[${idx}][images][]`, o.file);
+        });
+      }
+    }
+
   });
 
-  fetch(API_ENDPOINTS.save, { method:'POST', body: fd })
+  fetch(API_ENDPOINTS.save, { method: "POST", body: fd })
     .then(res => parseJSONSafe(res))
     .then(result => {
-      if (result && result.success) {
-        alert('Module saved successfully.');
+      if (result.success) {
+        alert("Module saved successfully.");
         markModuleTabFilled(moduleId);
       } else {
-        alert('Save failed: ' + (result.message || JSON.stringify(result)));
+        alert("Save failed: " + (result.message || JSON.stringify(result)));
       }
     })
-    .catch(err => { console.error('Error saving module:', err); alert('Error saving module. See console.'); });
+    .catch(err => {
+      console.error("Error saving module:", err);
+      alert("Error saving module. See console.");
+    });
+
 }
 
 function updateModuleData(moduleId) {
+
   if (!validateStationFields()) return;
+
   const zone = document.getElementById('zone').value.trim();
   const station = document.getElementById('station').value.trim();
   const date = document.getElementById('date').value.trim();
 
-  const map = { 'quarterly_check':'quarterlyCheckBody','daily_monthly':'dailyMonthlyBody','quarterly_half':'quarterlyHalfBody' };
-  const tbody = document.getElementById(map[moduleId]);
-  if (!tbody) { alert('Module table not found: ' + moduleId); return; }
+  const map = {
+    quarterly_check: "quarterlyCheckBody",
+    daily_monthly: "dailyMonthlyBody",
+    quarterly_half: "quarterlyHalfBody"
+  };
 
-  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const tbody = document.getElementById(map[moduleId]);
+  if (!tbody) { alert("Module table not found: " + moduleId); return; }
+
+  const rows = Array.from(tbody.querySelectorAll("tr"));
   const fd = new FormData();
-  fd.append('zone', zone); fd.append('station', station); fd.append('date', date); fd.append('module', moduleId);
+
+  fd.append("zone", zone);
+  fd.append("station", station);
+  fd.append("date", date);
+  fd.append("module", moduleId);
 
   rows.forEach((row, idx) => {
+
     const s_no = row.cells[0].textContent.trim();
-    const details = row.cells[1].querySelector('input')?.value.trim() || '';
-    const name_number = row.cells[2].querySelector('input')?.value.trim() || '';
-    const date_commission = row.cells[3].querySelector('input')?.value || '';
-    const required_value = row.cells[4].querySelector('input')?.value.trim() || '';
-    const observed_value = row.cells[5].querySelector('input')?.value.trim() || '';
-    const remarks = row.cells[6].querySelector('textarea')?.value.trim() || '';
 
-    fd.append(`observations[${idx}][s_no]`, s_no);
-    fd.append(`observations[${idx}][details]`, details);
-    fd.append(`observations[${idx}][name_number]`, name_number);
-    fd.append(`observations[${idx}][date_commission]`, date_commission);
-    fd.append(`observations[${idx}][required_value]`, required_value);
-    fd.append(`observations[${idx}][observed_value]`, observed_value);
-    fd.append(`observations[${idx}][remarks]`, remarks);
+    /* ---------------------------------------
+       CASE 1: quarterly_check (OLD STRUCTURE)
+       --------------------------------------- */
+    if (moduleId === "quarterly_check") {
 
-    const imgTd = row.cells[7];
-    if (imgTd) {
-      if (Array.isArray(imgTd.existingImages)) imgTd.existingImages.forEach(p => fd.append(`observations[${idx}][existing_images][]`, p));
-      if (Array.isArray(imgTd.removedExistingImages)) imgTd.removedExistingImages.forEach(p => fd.append(`observations[${idx}][removed_images][]`, p));
-      if (Array.isArray(imgTd.newImages)) imgTd.newImages.forEach(o => fd.append(`observations[${idx}][images][]`, o.file));
+      const details = row.cells[1].querySelector("input")?.value.trim() || "";
+      const name_number = row.cells[2].querySelector("input")?.value.trim() || "";
+      const date_commission = row.cells[3].querySelector("input")?.value || "";
+      const required_value = row.cells[4].querySelector("input")?.value.trim() || "";
+      const observed_value = row.cells[5].querySelector("input")?.value.trim() || "";
+      const remarks = row.cells[6].querySelector("textarea")?.value.trim() || "";
+
+      fd.append(`observations[${idx}][s_no]`, s_no);
+      fd.append(`observations[${idx}][details]`, details);
+      fd.append(`observations[${idx}][name_number]`, name_number);
+      fd.append(`observations[${idx}][date_commission]`, date_commission);
+      fd.append(`observations[${idx}][required_value]`, required_value);
+      fd.append(`observations[${idx}][observed_value]`, observed_value);
+      fd.append(`observations[${idx}][remarks]`, remarks);
     }
+
+    /* ---------------------------------------------------
+       CASE 2: daily_monthly & quarterly_half (NEW FORMAT)
+       --------------------------------------------------- */
+    else {
+
+      const location = row.cells[1].textContent.trim();
+      const taskDescription = row.cells[2].textContent.trim();
+      const actionTaken = row.cells[3].textContent.trim();
+      const frequency = row.cells[4].textContent.trim();
+      const equipmentCondition = row.cells[5].querySelector("input")?.value.trim() || "";
+      const remarks = row.cells[6].querySelector("textarea")?.value.trim() || "";
+
+      fd.append(`observations[${idx}][s_no]`, s_no);
+      fd.append(`observations[${idx}][name_number]`, location);
+      fd.append(`observations[${idx}][details]`, taskDescription);
+      fd.append(`observations[${idx}][required_value]`, actionTaken);
+      fd.append(`observations[${idx}][date_commission]`, frequency);
+      fd.append(`observations[${idx}][observed_value]`, equipmentCondition);
+      fd.append(`observations[${idx}][remarks]`, remarks);
+    }
+
+    /* ---------------------------------------
+       IMAGE HANDLING FOR ALL MODULES
+       --------------------------------------- */
+    const imgTd = row.cells[7];
+
+    if (imgTd) {
+      if (Array.isArray(imgTd.existingImages)) {
+        imgTd.existingImages.forEach(p => {
+          fd.append(`observations[${idx}][existing_images][]`, p);
+        });
+      }
+
+      if (Array.isArray(imgTd.removedExistingImages)) {
+        imgTd.removedExistingImages.forEach(p => {
+          fd.append(`observations[${idx}][removed_images][]`, p);
+        });
+      }
+
+      if (Array.isArray(imgTd.newImages)) {
+        imgTd.newImages.forEach(o => {
+          fd.append(`observations[${idx}][images][]`, o.file);
+        });
+      }
+    }
+
   });
 
-  fetch(API_ENDPOINTS.update, { method:'POST', body: fd })
+  fetch(API_ENDPOINTS.update, { method: "POST", body: fd })
     .then(res => parseJSONSafe(res))
     .then(result => {
       if (result && result.success) {
-        alert('Module updated successfully.');
+        alert("Module updated successfully.");
         markModuleTabFilled(moduleId);
       } else {
-        alert('Update failed: ' + (result.message || JSON.stringify(result)));
+        alert("Update failed: " + (result.message || JSON.stringify(result)));
       }
     })
-    .catch(err => { console.error('Error updating module:', err); alert('Error updating module. See console.'); });
+    .catch(err => {
+      console.error("Error updating module:", err);
+      alert("Error updating module. See console.");
+    });
+
 }
+
 
 /* ------------- Load module data ------------- */
 function loadModuleData(moduleId) {
@@ -549,7 +663,7 @@ function populateModuleFromServer(moduleId, serverRows) {
 
     const detailsInput = matched.cells[1].querySelector('input');
     const requiredValueInput = matched.cells[4].querySelector('input');
-    
+
     // Populate details (keep readonly if it was set)
     if (detailsInput) {
       detailsInput.value = rowData.details || '';
@@ -562,10 +676,10 @@ function populateModuleFromServer(moduleId, serverRows) {
         }
       }
     }
-    
+
     matched.cells[2].querySelector('input').value = rowData.name_number || '';
     if (rowData.date_commission) matched.cells[3].querySelector('input').value = rowData.date_commission;
-    
+
     // Populate required value (keep readonly if it was set)
     if (requiredValueInput) {
       requiredValueInput.value = rowData.required_value || '';
@@ -578,7 +692,7 @@ function populateModuleFromServer(moduleId, serverRows) {
         }
       }
     }
-    
+
     matched.cells[5].querySelector('input').value = rowData.observed_value || '';
     matched.cells[6].querySelector('textarea').value = rowData.remarks || '';
 
