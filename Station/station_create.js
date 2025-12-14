@@ -9,10 +9,12 @@ function showModule(moduleId) {
   if (el) el.style.display = 'block';
   // ensure image cells in that module are initialized
   attachMetadataToRows(moduleId);
-  // Initialize default values first (before loading saved data)
-  initializeDefaultValues(moduleId, false);
-  // Load module data if available (this will override defaults if data exists)
-  loadModuleData(moduleId);
+  // Initialize default values first (force update to ensure they're set)
+  setTimeout(() => {
+    initializeDefaultValues(moduleId, true);
+    // Load module data if available (this will override defaults if data exists)
+    loadModuleData(moduleId);
+  }, 100);
 }
 
 function loadAllModuleData() {
@@ -89,9 +91,12 @@ function initializeDefaultValues(moduleId, forceUpdate = false) {
         const isPlaceholder = !currentValue ||
                               currentValue === '' ||
                               currentValue === 'Details of the Equipment' ||
-                              (currentValue.startsWith('Equipment') && currentValue.includes('Details'));
+                              (currentValue.startsWith('Equipment') && currentValue.includes('Details')) ||
+                              (currentValue.startsWith('Daily Equipment')) ||
+                              (currentValue.startsWith('Quarterly Equipment'));
 
-        if (forceUpdate || isPlaceholder) {
+        // Always set if forceUpdate, or if empty/placeholder and not readonly (meaning it hasn't been set yet)
+        if (forceUpdate || (isPlaceholder && !detailsInput.readOnly)) {
           detailsInput.value = defaults[index].details;
           detailsInput.readOnly = true;
           detailsInput.style.backgroundColor = '#f5f5f5';
@@ -105,9 +110,12 @@ function initializeDefaultValues(moduleId, forceUpdate = false) {
         const isPlaceholder = !currentValue ||
                              currentValue === '' ||
                              currentValue === 'Required Value' ||
-                             (currentValue.startsWith('Required Value') && /^\d+$/.test(currentValue.split(' ').pop()));
+                             (currentValue.startsWith('Required Value')) ||
+                             (currentValue.startsWith('Daily Required')) ||
+                             (currentValue.startsWith('Quarterly Required'));
 
-        if (forceUpdate || isPlaceholder) {
+        // Always set if forceUpdate, or if empty/placeholder and not readonly (meaning it hasn't been set yet)
+        if (forceUpdate || (isPlaceholder && !requiredValueInput.readOnly)) {
           requiredValueInput.value = defaults[index].required_value;
           requiredValueInput.readOnly = true;
           requiredValueInput.style.backgroundColor = '#f5f5f5';
@@ -398,8 +406,18 @@ function getStationDetails() {
 }
 
 /* ------------- Save / Update module rows ------------- */
-function saveModuleData(moduleId) {
+function validateStationFields() {
+  const zone = document.getElementById('zone')?.value?.trim();
+  const station = document.getElementById('station')?.value?.trim();
+  const date = document.getElementById('date')?.value?.trim();
+  if (!zone || !station || !date) { 
+    alert('Please fill Zone, Station and Date before saving module data.'); 
+    return false; 
+  }
+  return true;
+}
 
+function saveModuleData(moduleId) {
   if (!validateStationFields()) return;
 
   const zone = document.getElementById('zone').value.trim();
@@ -439,11 +457,18 @@ function saveModuleData(moduleId) {
        CASE 1: quarterly_check (OLD)
        ----------------------------- */
     if (moduleId === "quarterly_check") {
-
-      const details = row.cells[1].querySelector("input")?.value.trim() || "";
+      // For quarterly_check, details and required_value might be text (defaults) or input
+      const detailsCell = row.cells[1];
+      const detailsInput = detailsCell.querySelector("input");
+      const details = detailsInput ? detailsInput.value.trim() : detailsCell.textContent.trim();
+      
       const name_number = row.cells[2].querySelector("input")?.value.trim() || "";
       const date_commission = row.cells[3].querySelector("input")?.value || "";
-      const required_value = row.cells[4].querySelector("input")?.value.trim() || "";
+      
+      const requiredValueCell = row.cells[4];
+      const requiredValueInput = requiredValueCell.querySelector("input");
+      const required_value = requiredValueInput ? requiredValueInput.value.trim() : requiredValueCell.textContent.trim();
+      
       const observed_value = row.cells[5].querySelector("input")?.value.trim() || "";
       const remarks = row.cells[6].querySelector("textarea")?.value.trim() || "";
 
@@ -504,6 +529,11 @@ function saveModuleData(moduleId) {
       if (result.success) {
         alert("Module saved successfully.");
         markModuleTabFilled(moduleId);
+        // Toggle buttons after save
+        const saveBtn = getSaveButtonForModule(moduleId);
+        const updateBtn = getUpdateButtonForModule(moduleId);
+        if (saveBtn) saveBtn.style.display = 'none';
+        if (updateBtn) updateBtn.style.display = 'inline-block';
       } else {
         alert("Save failed: " + (result.message || JSON.stringify(result)));
       }
@@ -548,11 +578,18 @@ function updateModuleData(moduleId) {
        CASE 1: quarterly_check (OLD STRUCTURE)
        --------------------------------------- */
     if (moduleId === "quarterly_check") {
-
-      const details = row.cells[1].querySelector("input")?.value.trim() || "";
+      // For quarterly_check, details and required_value might be text (defaults) or input
+      const detailsCell = row.cells[1];
+      const detailsInput = detailsCell.querySelector("input");
+      const details = detailsInput ? detailsInput.value.trim() : detailsCell.textContent.trim();
+      
       const name_number = row.cells[2].querySelector("input")?.value.trim() || "";
       const date_commission = row.cells[3].querySelector("input")?.value || "";
-      const required_value = row.cells[4].querySelector("input")?.value.trim() || "";
+      
+      const requiredValueCell = row.cells[4];
+      const requiredValueInput = requiredValueCell.querySelector("input");
+      const required_value = requiredValueInput ? requiredValueInput.value.trim() : requiredValueCell.textContent.trim();
+      
       const observed_value = row.cells[5].querySelector("input")?.value.trim() || "";
       const remarks = row.cells[6].querySelector("textarea")?.value.trim() || "";
 
@@ -619,6 +656,11 @@ function updateModuleData(moduleId) {
       if (result && result.success) {
         alert("Module updated successfully.");
         markModuleTabFilled(moduleId);
+        // Ensure update button stays visible
+        const saveBtn = getSaveButtonForModule(moduleId);
+        const updateBtn = getUpdateButtonForModule(moduleId);
+        if (saveBtn) saveBtn.style.display = 'none';
+        if (updateBtn) updateBtn.style.display = 'inline-block';
       } else {
         alert("Update failed: " + (result.message || JSON.stringify(result)));
       }
@@ -666,14 +708,19 @@ function populateModuleFromServer(moduleId, serverRows) {
 
     // Populate details (keep readonly if it was set)
     if (detailsInput) {
-      detailsInput.value = rowData.details || '';
-      // If it's a default value, keep it readonly
-      if (detailsInput.readOnly && !rowData.details) {
-        const defaults = DEFAULT_VALUES[moduleId];
-        const rowIndex = parseInt(sNo) - 1;
-        if (defaults && defaults[rowIndex]) {
-          detailsInput.value = defaults[rowIndex].details;
-        }
+      // If details is empty in DB, use default value
+      const defaults = DEFAULT_VALUES[moduleId];
+      const rowIndex = parseInt(sNo) - 1;
+      const defaultDetails = (defaults && defaults[rowIndex]) ? defaults[rowIndex].details : '';
+      const dbDetails = rowData.details || '';
+      
+      if (dbDetails) {
+        detailsInput.value = dbDetails;
+      } else if (defaultDetails) {
+        detailsInput.value = defaultDetails;
+        detailsInput.readOnly = true;
+        detailsInput.style.backgroundColor = '#f5f5f5';
+        detailsInput.style.cursor = 'not-allowed';
       }
     }
 
@@ -682,14 +729,19 @@ function populateModuleFromServer(moduleId, serverRows) {
 
     // Populate required value (keep readonly if it was set)
     if (requiredValueInput) {
-      requiredValueInput.value = rowData.required_value || '';
-      // If it's a default value, keep it readonly
-      if (requiredValueInput.readOnly && !rowData.required_value) {
-        const defaults = DEFAULT_VALUES[moduleId];
-        const rowIndex = parseInt(sNo) - 1;
-        if (defaults && defaults[rowIndex]) {
-          requiredValueInput.value = defaults[rowIndex].required_value;
-        }
+      // If required_value is empty in DB, use default value
+      const defaults = DEFAULT_VALUES[moduleId];
+      const rowIndex = parseInt(sNo) - 1;
+      const defaultRequired = (defaults && defaults[rowIndex]) ? defaults[rowIndex].required_value : '';
+      const dbRequired = rowData.required_value || '';
+      
+      if (dbRequired) {
+        requiredValueInput.value = dbRequired;
+      } else if (defaultRequired) {
+        requiredValueInput.value = defaultRequired;
+        requiredValueInput.readOnly = true;
+        requiredValueInput.style.backgroundColor = '#f5f5f5';
+        requiredValueInput.style.cursor = 'not-allowed';
       }
     }
 
@@ -754,6 +806,26 @@ function getUpdateButtonForModule(moduleId) {
 }
 function markModuleTabFilled(moduleId) { const li = findSidebarLiForModule(moduleId); if (li) li.classList.add('filled'); }
 
+/* ------------- Generate Report ------------- */
+function generateReport() {
+  const zone = document.getElementById('zone')?.value?.trim();
+  const station = document.getElementById('station')?.value?.trim();
+  const date = document.getElementById('date')?.value?.trim();
+
+  if (!zone || !station || !date) {
+    alert('Please fill Zone, Station and Date before generating report.');
+    return;
+  }
+
+  // Store in sessionStorage
+  sessionStorage.setItem('zone', zone);
+  sessionStorage.setItem('station', station);
+  sessionStorage.setItem('date', date);
+
+  // Redirect to observations page
+  window.location.href = 'observations.html';
+}
+
 /* ------------- Init ------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize defaults for all modules on page load
@@ -772,6 +844,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('updateDailyMonthly')?.addEventListener('click', () => updateModuleData('daily_monthly'));
   document.getElementById('saveQuarterlyHalf')?.addEventListener('click', () => saveModuleData('quarterly_half'));
   document.getElementById('updateQuarterlyHalf')?.addEventListener('click', () => updateModuleData('quarterly_half'));
+
+  document.getElementById('generateReportBtn')?.addEventListener('click', generateReport);
 
   document.querySelectorAll('.sidebar ul li').forEach(li => li.addEventListener('click', () => {
     const text = li.textContent.trim();

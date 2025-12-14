@@ -145,65 +145,34 @@ foreach ($observations as $index => $obs) {
     $imageJson = $imagePaths ? json_encode($imagePaths) : null;
     $createdAt = date('Y-m-d H:i:s');
 
-    /* --------------------------
-       INSERT LOGIC — NEW STRUCTURE
-       for: daily_monthly & quarterly_half
-    --------------------------- */
-    if ($module == "daily_monthly" || $module == "quarterly_half") {
+    // All modules use the same structure
+    $details      = htmlspecialchars($obs['details'] ?? '');
+    $nameNumber   = htmlspecialchars($obs['name_number'] ?? '');
+    $dateComm     = !empty($obs['date_commission'])
+                        ? htmlspecialchars($obs['date_commission'])
+                        : null;
+    $reqValue     = htmlspecialchars($obs['required_value'] ?? '');
+    $obsValue     = htmlspecialchars($obs['observed_value'] ?? '');
 
-        $location        = htmlspecialchars($obs['name_number'] ?? '');
-        $taskDescription = htmlspecialchars($obs['details'] ?? '');
-        $actionTaken     = htmlspecialchars($obs['required_value'] ?? '');
-        $frequency       = htmlspecialchars($obs['date_commission'] ?? '');
-        $equipment       = htmlspecialchars($obs['observed_value'] ?? '');
+    $sql = "
+        INSERT INTO {$tableName}
+        (s_no, station_info_id, module, details, name_number, date_commission,
+         required_value, observed_value, remarks, image_path, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ";
 
-        $sql = "
-            INSERT INTO {$tableName}
-            (s_no, station_info_id, module, location, maintenance_task_description, 
-             action_taken, frequency, equipment_condition, remarks, image_path, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param(
-            "iisssssssss",
-            $sNo, $stationInfoId, $module,
-            $location, $taskDescription, $actionTaken,
-            $frequency, $equipment,
-            $remarks, $imageJson, $createdAt
-        );
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        die(json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]));
     }
 
-    /* --------------------------
-       INSERT LOGIC — OLD STRUCTURE
-       for: quarterly_check
-    --------------------------- */
-    else if ($module == "quarterly_check") {
-
-        $details      = htmlspecialchars($obs['details'] ?? '');
-        $nameNumber   = htmlspecialchars($obs['name_number'] ?? '');
-        $dateComm     = !empty($obs['date_commission'])
-                            ? htmlspecialchars($obs['date_commission'])
-                            : null;
-        $reqValue     = htmlspecialchars($obs['required_value'] ?? '');
-        $obsValue     = htmlspecialchars($obs['observed_value'] ?? '');
-
-        $sql = "
-            INSERT INTO quarterly_check
-            (s_no, station_info_id, module, details, name_number, date_commission,
-             required_value, observed_value, remarks, image_path, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param(
-            "iisssssssss",
-            $sNo, $stationInfoId, $module,
-            $details, $nameNumber, $dateComm,
-            $reqValue, $obsValue,
-            $remarks, $imageJson, $createdAt
-        );
-    }
+    $stmt->bind_param(
+        "iisssssssss",
+        $sNo, $stationInfoId, $module,
+        $details, $nameNumber, $dateComm,
+        $reqValue, $obsValue,
+        $remarks, $imageJson, $createdAt
+    );
 
     if (!$stmt->execute()) {
         die(json_encode(['success' => false, 'message' => 'Insert Error: ' . $stmt->error]));

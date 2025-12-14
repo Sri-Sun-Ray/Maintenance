@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Generated Report - Station Maintenance</title>
+    <style>
+        body {
+            font-family: Segoe UI, Roboto, sans-serif;
+            background: linear-gradient(180deg, #eef2f7 0%, #ffffff 100%);
+            margin: 0;
+            padding: 24px
+        }
+
+        .container {
+            width: 100%;
+            max-width: none;
+            margin: 0 auto;
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        h1 {
+            font-size: 26px;
+            margin: 0 0 16px;
+            color: #0b3a66;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .meta-table-4col {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 18px;
+        }
+
+        .meta-table-4col td {
+            border: 1px solid black;
+            padding: 8px 10px;
+        }
+
+        .meta-table-4col .label {
+            font-weight: 600;
+            width: 22%;
+            background: none !important;
+        }
+
+        .module-section {
+            background: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 25px 0 !important;
+        }
+
+        .module-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: black;
+            padding: 0;
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+        }
+
+        .obs-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid black;
+        }
+
+        .obs-table th {
+            border: 2px solid black;
+            padding: 8px;
+            font-size: 15px;
+            background: none !important;
+            color: black;
+            font-weight: 600;
+        }
+
+        .obs-table td {
+            border: 1.5px solid black;
+            padding: 6px;
+            font-size: 14px;
+            color: black;
+        }
+
+        .img-thumb {
+            max-width: 90px;
+            max-height: 70px;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #fff;
+            background: #007bff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn.print {
+            background: #16a34a;
+        }
+
+        .note {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .empty {
+            padding: 24px;
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+        }
+
+        #imageModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #imageModal > div {
+            position: relative;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        #imageModal img {
+            max-width: 95vw;
+            max-height: 90vh;
+            border-radius: 4px;
+        }
+
+        #imageModal span {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 32px;
+            cursor: pointer;
+            color: #333;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container" id="app">
+        <h1>Station Maintenance Report (Generated)</h1>
+        <div id="metaArea"></div>
+        <div id="obsArea"></div>
+        <div class="controls">
+            <button class="btn" id="backBtn">Back</button>
+            <button class="btn print" id="createPdfBtn">Create PDF</button>
+        </div>
+        <div class="note">If data is missing, go back to the create page and Save the station details first.</div>
+    </div>
+
+    <script>
+        (function () {
+            const zone = sessionStorage.getItem('zone') || '';
+            const station = sessionStorage.getItem('station') || '';
+            const date = sessionStorage.getItem('date') || '';
+
+            const metaArea = document.getElementById('metaArea');
+            const obsArea = document.getElementById('obsArea');
+            const createBtn = document.getElementById('createPdfBtn');
+
+            function escapeHtml(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+            function renderMeta(info) {
+                metaArea.innerHTML = `
+                    <table class="meta-table-4col">
+                        <tr>
+                            <td class="label">Zone</td>
+                            <td>${escapeHtml(info.zone || '--')}</td>
+                            <td class="label">Station</td>
+                            <td>${escapeHtml(info.station || '--')}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Date</td>
+                            <td colspan="3">${escapeHtml(info.date || '--')}</td>
+                        </tr>
+                    </table>
+                `;
+            }
+
+            function renderObservations(observations) {
+                if (!observations || observations.length === 0) {
+                    obsArea.innerHTML = '<div class="empty">No observations found for this station entry.</div>';
+                    return;
+                }
+
+                const CLEAN_NAME = {
+                    'quarterly_check': 'SCHEDULE CHECK – QUARTERLY',
+                    'daily_monthly': 'MAINTENANCE SCHEDULE – DAILY & MONTHLY',
+                    'quarterly_half': 'MAINTENANCE SCHEDULE – QUARTERLY & HALF YEARLY'
+                };
+
+                const groups = {};
+                observations.forEach(obs => {
+                    const raw = (obs.module || '').toString().trim().toLowerCase();
+                    const moduleName = CLEAN_NAME[raw] || raw.toUpperCase();
+                    if (!groups[moduleName]) groups[moduleName] = [];
+                    groups[moduleName].push(obs);
+                });
+
+                let tableHtml = '';
+                const displayOrder = ['SCHEDULE CHECK – QUARTERLY', 'MAINTENANCE SCHEDULE – DAILY & MONTHLY', 'MAINTENANCE SCHEDULE – QUARTERLY & HALF YEARLY'];
+
+                displayOrder.forEach(name => {
+                    if (!groups[name]) return;
+
+                    // Determine headers based on module name
+                    let headers, cellMapping;
+                    if (name === 'SCHEDULE CHECK – QUARTERLY') {
+                        headers = ['S.No', 'Details of Equipment', 'Name/Number', 'Date of Commissioning', 'Required Value', 'Observed Value', 'Remarks', 'Images'];
+                        cellMapping = {
+                            s_no: 's_no',
+                            col1: 'details',
+                            col2: 'name_number',
+                            col3: 'date_commission',
+                            col4: 'required_value',
+                            col5: 'observed_value',
+                            col6: 'remarks'
+                        };
+                    } else {
+                        // For daily_monthly and quarterly_half
+                        headers = ['S.No', 'Location', 'Maintenance Task Description', 'Action taken/Range of Voltage levels', 'Frequency', 'Equipment condition', 'Remarks', 'Images'];
+                        cellMapping = {
+                            s_no: 's_no',
+                            col1: 'name_number',  // Location
+                            col2: 'details',      // Maintenance Task Description
+                            col3: 'required_value', // Action taken/Range
+                            col4: 'date_commission', // Frequency
+                            col5: 'observed_value', // Equipment condition
+                            col6: 'remarks'
+                        };
+                    }
+
+                    tableHtml += `<div class="module-section">
+                        <div class="module-title">${escapeHtml(name)}</div>
+                        <div style="overflow-x:auto;">
+                            <table class="obs-table">
+                                <thead>
+                                    <tr>
+                                        ${headers.map(h => `<th style="width:${h === 'S.No' ? '5%' : h === 'Images' ? '10%' : '12%'}">${escapeHtml(h)}</th>`).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                    groups[name].forEach(obs => {
+                        const images = Array.isArray(obs.image_paths) ? obs.image_paths.filter(Boolean)
+                                   : (obs.image_path ? [obs.image_path] : []);
+                        const imgHtml = images.length
+                            ? images.map(p => `<img src="${escapeHtml(p)}" class="img-thumb" onclick="openImageModal('${escapeHtml(p)}')">`).join('')
+                            : 'N/A';
+
+                        tableHtml += `<tr>
+                            <td>${escapeHtml(obs[cellMapping.s_no] || '')}</td>
+                            <td>${escapeHtml(obs[cellMapping.col1] || '')}</td>
+                            <td>${escapeHtml(obs[cellMapping.col2] || '')}</td>
+                            <td>${escapeHtml(obs[cellMapping.col3] || '')}</td>
+                            <td>${escapeHtml(obs[cellMapping.col4] || '')}</td>
+                            <td>${escapeHtml(obs[cellMapping.col5] || '')}</td>
+                            <td>${escapeHtml(obs[cellMapping.col6] || '')}</td>
+                            <td style="text-align:center">${imgHtml}</td>
+                        </tr>`;
+                    });
+
+                    tableHtml += `</tbody></table></div></div>`;
+                });
+
+                obsArea.innerHTML = tableHtml + `
+                    <div id="imageModal">
+                        <div style="position:relative;background:white;padding:14px;border-radius:8px;">
+                            <span onclick="closeImageModal()" style="position:absolute;top:8px;right:12px;cursor:pointer;">×</span>
+                            <img id="modalImage" src="" style="max-width:95vw;max-height:90vh;">
+                        </div>
+                    </div>`;
+            }
+
+            function openImageModal(imagePath) {
+                document.getElementById('modalImage').src = imagePath;
+                document.getElementById('imageModal').style.display = 'flex';
+            }
+
+            function closeImageModal() {
+                document.getElementById('imageModal').style.display = 'none';
+            }
+            window.openImageModal = openImageModal;
+            window.closeImageModal = closeImageModal;
+
+            function showError(msg) {
+                metaArea.innerHTML = `<div class="empty">${escapeHtml(msg)}</div>`;
+                obsArea.innerHTML = '';
+            }
+
+            if (!zone || !station || !date) {
+                showError('Station metadata is missing from session. Please go back to the create page and Save the station details first.');
+                createBtn.disabled = true;
+            } else {
+                fetch('get_observations.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ zone: zone, station: station, date: date })
+                })
+                    .then(r => r.json())
+                    .then(json => {
+                        if (json.station_info) renderMeta(json.station_info);
+                        else renderMeta({ zone, station, date });
+                        renderObservations(json.observations || []);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showError('Failed to load data. Check network and server.');
+                        createBtn.disabled = true;
+                    });
+            }
+
+            document.getElementById('backBtn').addEventListener('click', function () { history.back(); });
+            createBtn.addEventListener('click', createPDF);
+
+            async function createPDF() {
+                if (!zone || !station || !date) {
+                    alert('Station metadata missing. Please go back and save station details.');
+                    return;
+                }
+
+                createBtn.disabled = true;
+                createBtn.innerText = 'Creating...';
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+                const contentWidth = 520;
+                const startX = 40;
+
+                // Collect observations
+                const obsRows = document.querySelectorAll('.obs-table tbody tr');
+                const observations = [];
+                obsRows.forEach(row => {
+                    const cells = row.children;
+                    const imgElements = cells[7]?.querySelectorAll('img') || [];
+                    observations.push({
+                        s_no: cells[0]?.innerText || '',
+                        details: cells[1]?.innerText || '',
+                        name_number: cells[2]?.innerText || '',
+                        date_commission: cells[3]?.innerText || '',
+                        required_value: cells[4]?.innerText || '',
+                        observed_value: cells[5]?.innerText || '',
+                        remarks: cells[6]?.innerText || '',
+                        image_paths: Array.from(imgElements).map(img => img.src)
+                    });
+                });
+
+                // Page 1 - Header
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(18);
+                doc.text('Station Maintenance Report', doc.internal.pageSize.getWidth() / 2, 30, { align: 'center' });
+
+                // Station Info Table
+                doc.autoTable({
+                    startY: 50,
+                    head: [['Zone', 'Station', 'Date']],
+                    body: [[zone || '--', station || '--', date || '--']],
+                    theme: 'grid',
+                    styles: { fontSize: 13, cellPadding: 10, lineColor: [0,0,0], lineWidth: 1.2 },
+                    headStyles: { fillColor: [30,60,120], textColor: 255, fontStyle: 'bold', fontSize: 13 },
+                    margin: { left: startX, right: startX }
+                });
+
+                let currentY = doc.lastAutoTable.finalY + 25;
+
+                // Render each module
+                document.querySelectorAll('.module-section').forEach(section => {
+                    const moduleTitle = section.querySelector('.module-title')?.innerText || '';
+                    const table = section.querySelector('.obs-table');
+                    if (!table) return;
+
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(15);
+                    doc.text(moduleTitle, startX, currentY);
+                    currentY += 15;
+
+                    // Get headers from the table
+                    const headerRow = table.querySelector('thead tr');
+                    const headers = Array.from(headerRow?.cells || []).map(th => th.innerText.trim());
+
+                    const tableBody = [];
+                    table.querySelectorAll('tbody tr').forEach(row => {
+                        const cells = row.cells;
+                        tableBody.push([
+                            cells[0]?.innerText || '',
+                            cells[1]?.innerText || '',
+                            cells[2]?.innerText || '',
+                            cells[3]?.innerText || '',
+                            cells[4]?.innerText || '',
+                            cells[5]?.innerText || '',
+                            cells[6]?.innerText || '',
+                            (cells[7]?.querySelectorAll('img').length > 0) ? '✓ Image' : 'N/A'
+                        ]);
+                    });
+
+                    doc.autoTable({
+                        startY: currentY,
+                        head: [headers],
+                        body: tableBody,
+                        theme: 'grid',
+                        styles: { fontSize: 8, cellPadding: 4, lineColor: [0,0,0], lineWidth: 0.8 },
+                        headStyles: { fillColor: [30,60,120], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+                        margin: { left: startX, right: startX },
+                        tableWidth: contentWidth
+                    });
+
+                    currentY = doc.lastAutoTable.finalY + 20;
+
+                    if (currentY > doc.internal.pageSize.getHeight() - 50) {
+                        doc.addPage();
+                        currentY = 50;
+                    }
+                });
+
+                // Footer
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text('Generated on: ' + new Date().toLocaleDateString('en-IN') + ' at ' + new Date().toLocaleTimeString('en-IN'),
+                    doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - 20, { align: 'center' });
+
+                // Save PDF
+                const fileName = `Station_${zone}_${station}_${date.replace(/\//g, '-')}_${Date.now()}.pdf`;
+                doc.save(fileName);
+
+                createBtn.disabled = false;
+                createBtn.innerText = 'Create PDF';
+                alert('PDF Created Successfully.');
+            }
+        })();
+    </script>
+</body>
+</html>
+
