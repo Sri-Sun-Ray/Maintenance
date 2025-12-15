@@ -3,41 +3,39 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 header('Content-Type: application/json');
 
-/* --------------------------
-    REQUIRED POST VALUES
---------------------------- */
+/* -------------------------- REQUIRED POST VALUES --------------------------- */
 $zone    = $_POST['zone'] ?? null;
 $station = $_POST['station'] ?? null;
 $date    = $_POST['date'] ?? null;
 $module  = $_POST['module'] ?? null;
 
 if (!$zone || !$station || !$date || !$module) {
-    die(json_encode(['success' => false, 'message' => 'Missing required fields']));
+    echo json_encode(['success' => false, 'message' => 'Missing required fields']);
+    exit;
 }
 
-/* --------------------------
-    MAP MODULE → TABLE
---------------------------- */
+/* -------------------------- MAP MODULE → TABLE --------------------------- */
 function resolveModuleTable($module) {
-    $map = [
+    return match (strtolower($module)) {
         'quarterly_check' => 'quarterly_check',
         'daily_monthly'   => 'daily_monthly',
-        'quarterly_half'  => 'quarterly_half'
-    ];
-    return $map[strtolower($module)] ?? null;
+        'quarterly_half'  => 'quarterly_half',
+        default           => null
+    };
 }
 
 $tableName = resolveModuleTable($module);
 if (!$tableName) {
-    die(json_encode(['success' => false, 'message' => 'Unsupported module']));
+    echo json_encode(['success' => false, 'message' => 'Unsupported module']);
+    exit;
 }
 
-/* --------------------------
-    IMAGE HANDLING HELPERS
---------------------------- */
+/* -------------------------- IMAGE HELPERS --------------------------- */
 function ensureImageDirectory($relativePath) {
     $absolutePath = __DIR__ . '/' . $relativePath;
-    if (!is_dir($absolutePath)) mkdir($absolutePath, 0755, true);
+    if (!is_dir($absolutePath)) {
+        mkdir($absolutePath, 0755, true);
+    }
     return rtrim($absolutePath, '/') . '/';
 }
 
@@ -59,10 +57,9 @@ function moveUploadedImage($tmp, $name, $meta, $folderRel, $folderAbs) {
         uniqid()
     ]) . "_{$safeBase}.{$ext}";
 
-    if (move_uploaded_file($tmp, $folderAbs . $filename)) {
-        return $folderRel . $filename;
-    }
-    return null;
+    return move_uploaded_file($tmp, $folderAbs . $filename)
+        ? $folderRel . $filename
+        : null;
 }
 
 function collectUploadedImagesForRow($files, $rowIndex, $meta, $folderRel, $folderAbs) {
@@ -72,57 +69,52 @@ function collectUploadedImagesForRow($files, $rowIndex, $meta, $folderRel, $fold
     foreach ($files['name'][$rowIndex]['images'] as $i => $originalName) {
         if (!$originalName) continue;
 
-        $tmp = $files['tmp_name'][$rowIndex]['images'][$i] ?? null;
-        $err = $files['error'][$rowIndex]['images'][$i] ?? UPLOAD_ERR_NO_FILE;
-        if ($err !== UPLOAD_ERR_OK) continue;
+        if (($files['error'][$rowIndex]['images'][$i] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            continue;
+        }
 
+        $tmp = $files['tmp_name'][$rowIndex]['images'][$i] ?? null;
         $stored = moveUploadedImage($tmp, $originalName, $meta, $folderRel, $folderAbs);
         if ($stored) $output[] = $stored;
     }
     return $output;
 }
 
-/* --------------------------
-    DATABASE CONNECTION
---------------------------- */
+/* -------------------------- DB CONNECTION --------------------------- */
 $conn = new mysqli("localhost", "root", "Hbl@1234", "maintainance");
 if ($conn->connect_error) {
-    die(json_encode(['success' => false, 'message' => 'DB Error: ' . $conn->connect_error]));
+    echo json_encode(['success' => false, 'message' => $conn->connect_error]);
+    exit;
 }
 
-/* --------------------------
-    FETCH station_info_id
---------------------------- */
+/* -------------------------- FETCH station_info_id --------------------------- */
 $stmt = $conn->prepare("SELECT id FROM station_info WHERE zone=? AND station=? AND date=?");
 $stmt->bind_param("sss", $zone, $station, $date);
 $stmt->execute();
 $res = $stmt->get_result();
-if ($res->num_rows == 0) {
-    die(json_encode(['success' => false, 'message' => 'Station Info not found. Save station info first.']));
+
+if ($res->num_rows === 0) {
+    echo json_encode(['success' => false, 'message' => 'Station info not found']);
+    exit;
 }
+
 $stationInfoId = $res->fetch_assoc()['id'];
 $stmt->close();
 
-/* --------------------------
-    CREATE IMAGE FOLDER
---------------------------- */
+/* -------------------------- IMAGE DIRECTORY --------------------------- */
 $imageFolder    = "uploads/images/";
 $imageFolderAbs = ensureImageDirectory($imageFolder);
 
-/* --------------------------
-   FINAL OBSERVATION PROCESSING
---------------------------- */
+/* -------------------------- PROCESS OBSERVATIONS --------------------------- */
 $observations = $_POST['observations'] ?? [];
 $fileBag      = $_FILES['observations'] ?? null;
 
 foreach ($observations as $index => $obs) {
+    $sNo       = (int)$obs['s_no'];
+    $remarks   = htmlspecialchars($obs['remarks'] ?? '');
+    $createdAt = date('Y-m-d H:i:s');
 
-    $sNo   = intval($obs['s_no']);
-    $remarks = htmlspecialchars($obs['remarks'] ?? '');
-
-    /* --------------------------
-        IMAGE MERGE
-    --------------------------- */
+    /* ---- Merge images ---- */
     $imagePaths = [];
 
     if (!empty($obs['existing_images']) && is_array($obs['existing_images'])) {
@@ -132,54 +124,75 @@ foreach ($observations as $index => $obs) {
     }
 
     if ($fileBag) {
-        $newImages = collectUploadedImagesForRow(
-            $fileBag,
-            $index,
-            ['zone' => $zone, 'station' => $station, 'date' => $date, 's_no' => $sNo],
-            $imageFolder,
-            $imageFolderAbs
+        $imagePaths = array_merge(
+            $imagePaths,
+            collectUploadedImagesForRow(
+                $fileBag,
+                $index,
+                ['zone'=>$zone,'station'=>$station,'date'=>$date,'s_no'=>$sNo],
+                $imageFolder,
+                $imageFolderAbs
+            )
         );
-        $imagePaths = array_merge($imagePaths, $newImages);
     }
 
     $imageJson = $imagePaths ? json_encode($imagePaths) : null;
-    $createdAt = date('Y-m-d H:i:s');
 
-    // All modules use the same structure
-    $details      = htmlspecialchars($obs['details'] ?? '');
-    $nameNumber   = htmlspecialchars($obs['name_number'] ?? '');
-    $dateComm     = !empty($obs['date_commission'])
-                        ? htmlspecialchars($obs['date_commission'])
-                        : null;
-    $reqValue     = htmlspecialchars($obs['required_value'] ?? '');
-    $obsValue     = htmlspecialchars($obs['observed_value'] ?? '');
+    /* -------------------------- MODULE-WISE INSERT --------------------------- */
+    if ($module === 'quarterly_check') {
+        $details      = htmlspecialchars($obs['details'] ?? '');
+        $nameNumber   = htmlspecialchars($obs['name_number'] ?? '');
+        $dateComm     = !empty($obs['date_commission']) ? $obs['date_commission'] : null;
+        $reqValue     = htmlspecialchars($obs['required_value'] ?? '');
+        $obsValue     = htmlspecialchars($obs['observed_value'] ?? '');
 
-    $sql = "
-        INSERT INTO {$tableName}
-        (s_no, station_info_id, module, details, name_number, date_commission,
-         required_value, observed_value, remarks, image_path, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ";
+        $sql = "INSERT INTO quarterly_check
+            (s_no, station_info_id, module, details, name_number, date_commission,
+             required_value, observed_value, remarks, image_path, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        die(json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]));
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param(
+            "iisssssssss",
+            $sNo, $stationInfoId, $module,
+            $details, $nameNumber, $dateComm,
+            $reqValue, $obsValue,
+            $remarks, $imageJson, $createdAt
+        );
+
+    } else {
+        $location    = htmlspecialchars($obs['location'] ?? '');
+        $taskDesc    = htmlspecialchars($obs['maintenance_task_description'] ?? '');
+        $actionTaken = htmlspecialchars($obs['action_taken'] ?? '');
+        $frequency   = htmlspecialchars($obs['frequency'] ?? '');
+        $condition   = htmlspecialchars($obs['equipment_condition'] ?? '');
+
+        $sql = "INSERT INTO {$tableName}
+            (s_no, station_info_id, module, location,
+             maintenance_task_description, action_taken,
+             frequency, equipment_condition,
+             remarks, image_path, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param(
+            "iisssssssss",
+            $sNo, $stationInfoId, $module,
+            $location, $taskDesc, $actionTaken,
+            $frequency, $condition,
+            $remarks, $imageJson, $createdAt
+        );
     }
-
-    $stmt->bind_param(
-        "iisssssssss",
-        $sNo, $stationInfoId, $module,
-        $details, $nameNumber, $dateComm,
-        $reqValue, $obsValue,
-        $remarks, $imageJson, $createdAt
-    );
 
     if (!$stmt->execute()) {
-        die(json_encode(['success' => false, 'message' => 'Insert Error: ' . $stmt->error]));
+        echo json_encode(['success' => false, 'message' => $stmt->error]);
+        exit;
     }
+
     $stmt->close();
 }
 
 $conn->close();
+
 echo json_encode(['success' => true, 'message' => 'Module data saved successfully']);
 ?>

@@ -50,17 +50,18 @@ CREATE TABLE IF NOT EXISTS daily_monthly (
     s_no INT NOT NULL,
     station_info_id INT NOT NULL,
     module VARCHAR(50),
-    details VARCHAR(255),
-    name_number VARCHAR(255),
-    date_commission DATE,
-    required_value VARCHAR(255),
-    observed_value VARCHAR(255),
+    location VARCHAR(255),
+    maintenance_task_description VARCHAR(255),
+    action_taken VARCHAR(255),
+    frequency VARCHAR(255),
+    equipment_condition VARCHAR(255),
     remarks TEXT,
     image_path TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (station_info_id) REFERENCES station_info(id) ON DELETE CASCADE,
     UNIQUE KEY unique_row (station_info_id, s_no, module)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- ============================================
 -- Table: quarterly_half
@@ -71,11 +72,11 @@ CREATE TABLE IF NOT EXISTS quarterly_half (
     s_no INT NOT NULL,
     station_info_id INT NOT NULL,
     module VARCHAR(50),
-    details VARCHAR(255),
-    name_number VARCHAR(255),
-    date_commission DATE,
-    required_value VARCHAR(255),
-    observed_value VARCHAR(255),
+    location VARCHAR(255),
+    maintenance_task_description VARCHAR(255),
+    action_taken VARCHAR(255),
+    frequency VARCHAR(255),
+    equipment_condition VARCHAR(255),
     remarks TEXT,
     image_path TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -91,9 +92,9 @@ CREATE TABLE IF NOT EXISTS quarterly_half (
 -- SELECT * FROM station_info ORDER BY created_at DESC;
 
 -- View quarterly check data for a specific station
--- SELECT q.*, s.zone, s.station, s.date 
--- FROM quarterly_check q 
--- JOIN station_info s ON q.station_info_id = s.id 
+-- SELECT q.*, s.zone, s.station, s.date
+-- FROM quarterly_check q
+-- JOIN station_info s ON q.station_info_id = s.id
 -- WHERE s.zone = 'Zone1' AND s.station = 'Station1' AND s.date = '2024-01-01';
 
 -- View all module data for a station

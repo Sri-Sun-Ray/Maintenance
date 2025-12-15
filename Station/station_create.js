@@ -410,9 +410,9 @@ function validateStationFields() {
   const zone = document.getElementById('zone')?.value?.trim();
   const station = document.getElementById('station')?.value?.trim();
   const date = document.getElementById('date')?.value?.trim();
-  if (!zone || !station || !date) { 
-    alert('Please fill Zone, Station and Date before saving module data.'); 
-    return false; 
+  if (!zone || !station || !date) {
+    alert('Please fill Zone, Station and Date before saving module data.');
+    return false;
   }
   return true;
 }
@@ -461,14 +461,14 @@ function saveModuleData(moduleId) {
       const detailsCell = row.cells[1];
       const detailsInput = detailsCell.querySelector("input");
       const details = detailsInput ? detailsInput.value.trim() : detailsCell.textContent.trim();
-      
+
       const name_number = row.cells[2].querySelector("input")?.value.trim() || "";
       const date_commission = row.cells[3].querySelector("input")?.value || "";
-      
+
       const requiredValueCell = row.cells[4];
       const requiredValueInput = requiredValueCell.querySelector("input");
       const required_value = requiredValueInput ? requiredValueInput.value.trim() : requiredValueCell.textContent.trim();
-      
+
       const observed_value = row.cells[5].querySelector("input")?.value.trim() || "";
       const remarks = row.cells[6].querySelector("textarea")?.value.trim() || "";
 
@@ -582,14 +582,14 @@ function updateModuleData(moduleId) {
       const detailsCell = row.cells[1];
       const detailsInput = detailsCell.querySelector("input");
       const details = detailsInput ? detailsInput.value.trim() : detailsCell.textContent.trim();
-      
+
       const name_number = row.cells[2].querySelector("input")?.value.trim() || "";
       const date_commission = row.cells[3].querySelector("input")?.value || "";
-      
+
       const requiredValueCell = row.cells[4];
       const requiredValueInput = requiredValueCell.querySelector("input");
       const required_value = requiredValueInput ? requiredValueInput.value.trim() : requiredValueCell.textContent.trim();
-      
+
       const observed_value = row.cells[5].querySelector("input")?.value.trim() || "";
       const remarks = row.cells[6].querySelector("textarea")?.value.trim() || "";
 
@@ -672,7 +672,6 @@ function updateModuleData(moduleId) {
 
 }
 
-
 /* ------------- Load module data ------------- */
 function loadModuleData(moduleId) {
   const zone = document.getElementById('zone')?.value?.trim();
@@ -686,16 +685,25 @@ function loadModuleData(moduleId) {
     body: JSON.stringify({ zone, station, date, module: moduleId })
   })
   .then(res => res.json())
-  .then(result => { if (result && result.success && Array.isArray(result.data)) populateModuleFromServer(moduleId, result.data); })
+  .then(result => {
+    if (result && result.success && Array.isArray(result.data)) {
+      populateModuleFromServer(moduleId, result.data);
+    } else {
+      console.error('Error loading data:', result.message);
+    }
+  })
   .catch(err => console.error('Error loading module data:', err));
 }
 
 function populateModuleFromServer(moduleId, serverRows) {
-  const map = { 'quarterly_check':'quarterlyCheckBody','daily_monthly':'dailyMonthlyBody','quarterly_half':'quarterlyHalfBody' };
+  const map = {
+    'quarterly_check': 'quarterlyCheckBody',
+    'daily_monthly': 'dailyMonthlyBody',
+    'quarterly_half': 'quarterlyHalfBody'
+  };
+
   const tbody = document.getElementById(map[moduleId]);
   if (!tbody) return;
-
-  attachMetadataToRows(moduleId);
 
   serverRows.forEach(rowData => {
     const sNo = String(rowData.s_no || rowData.sl_no || rowData.sno || '').trim();
@@ -708,20 +716,8 @@ function populateModuleFromServer(moduleId, serverRows) {
 
     // Populate details (keep readonly if it was set)
     if (detailsInput) {
-      // If details is empty in DB, use default value
-      const defaults = DEFAULT_VALUES[moduleId];
-      const rowIndex = parseInt(sNo) - 1;
-      const defaultDetails = (defaults && defaults[rowIndex]) ? defaults[rowIndex].details : '';
       const dbDetails = rowData.details || '';
-      
-      if (dbDetails) {
-        detailsInput.value = dbDetails;
-      } else if (defaultDetails) {
-        detailsInput.value = defaultDetails;
-        detailsInput.readOnly = true;
-        detailsInput.style.backgroundColor = '#f5f5f5';
-        detailsInput.style.cursor = 'not-allowed';
-      }
+      detailsInput.value = dbDetails || '';
     }
 
     matched.cells[2].querySelector('input').value = rowData.name_number || '';
@@ -729,20 +725,8 @@ function populateModuleFromServer(moduleId, serverRows) {
 
     // Populate required value (keep readonly if it was set)
     if (requiredValueInput) {
-      // If required_value is empty in DB, use default value
-      const defaults = DEFAULT_VALUES[moduleId];
-      const rowIndex = parseInt(sNo) - 1;
-      const defaultRequired = (defaults && defaults[rowIndex]) ? defaults[rowIndex].required_value : '';
       const dbRequired = rowData.required_value || '';
-      
-      if (dbRequired) {
-        requiredValueInput.value = dbRequired;
-      } else if (defaultRequired) {
-        requiredValueInput.value = defaultRequired;
-        requiredValueInput.readOnly = true;
-        requiredValueInput.style.backgroundColor = '#f5f5f5';
-        requiredValueInput.style.cursor = 'not-allowed';
-      }
+      requiredValueInput.value = dbRequired || '';
     }
 
     matched.cells[5].querySelector('input').value = rowData.observed_value || '';

@@ -236,30 +236,53 @@
 
                     // Determine headers based on module name
                     let headers, cellMapping;
-                    if (name === 'SCHEDULE CHECK – QUARTERLY') {
-                        headers = ['S.No', 'Details of Equipment', 'Name/Number', 'Date of Commissioning', 'Required Value', 'Observed Value', 'Remarks', 'Images'];
-                        cellMapping = {
-                            s_no: 's_no',
-                            col1: 'details',
-                            col2: 'name_number',
-                            col3: 'date_commission',
-                            col4: 'required_value',
-                            col5: 'observed_value',
-                            col6: 'remarks'
-                        };
-                    } else {
-                        // For daily_monthly and quarterly_half
-                        headers = ['S.No', 'Location', 'Maintenance Task Description', 'Action taken/Range of Voltage levels', 'Frequency', 'Equipment condition', 'Remarks', 'Images'];
-                        cellMapping = {
-                            s_no: 's_no',
-                            col1: 'name_number',  // Location
-                            col2: 'details',      // Maintenance Task Description
-                            col3: 'required_value', // Action taken/Range
-                            col4: 'date_commission', // Frequency
-                            col5: 'observed_value', // Equipment condition
-                            col6: 'remarks'
-                        };
-                    }
+                   if (name === 'SCHEDULE CHECK – QUARTERLY') {
+
+    headers = [
+        'S.No',
+        'Details of Equipment',
+        'Name/Number',
+        'Date of Commissioning',
+        'Required Value',
+        'Observed Value',
+        'Remarks',
+        'Images'
+    ];
+
+    cellMapping = {
+        s_no: 's_no',
+        col1: 'details',
+        col2: 'name_number',
+        col3: 'date_commission',
+        col4: 'required_value',
+        col5: 'observed_value',
+        col6: 'remarks'
+    };
+
+} else {
+
+    headers = [
+        'S.No',
+        'Location',
+        'Maintenance Task Description',
+        'Action taken / Voltage Range',
+        'Frequency',
+        'Equipment Condition',
+        'Remarks',
+        'Images'
+    ];
+
+    cellMapping = {
+        s_no: 's_no',
+        col1: 'location',
+        col2: 'maintenance_task_description',
+        col3: 'action_taken',
+        col4: 'frequency',
+        col5: 'equipment_condition',
+        col6: 'remarks'
+    };
+}
+
 
                     tableHtml += `<div class="module-section">
                         <div class="module-title">${escapeHtml(name)}</div>
