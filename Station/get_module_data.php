@@ -61,10 +61,46 @@ if ($result->num_rows > 0) {
 $stmt->close();
 
 // Get module data
-$stmt = $conn->prepare("SELECT s_no, details, name_number, date_commission, required_value, observed_value, remarks, image_path 
-    FROM {$tableName} 
-    WHERE station_info_id = ? AND module = ? 
-    ORDER BY s_no ASC");
+// Build SELECT per table to align new schemas with the front-end expectations
+// Front-end expects keys: s_no, details, name_number, date_commission, required_value, observed_value, remarks, image_paths[]
+if ($tableName === 'quarterly_check') {
+    $sql = "
+        SELECT 
+            s_no,
+            details,
+            name_number,
+            date_commission,
+            required_value,
+            observed_value,
+            remarks,
+            image_path
+        FROM quarterly_check
+        WHERE station_info_id = ? AND module = ?
+        ORDER BY s_no ASC
+    ";
+} elseif ($tableName === 'daily_monthly' || $tableName === 'quarterly_half') {
+    // New structure: location, maintenance_task_description, action_taken, frequency, equipment_condition
+    // Map them back to the generic names the JS/report code already uses
+    $sql = "
+        SELECT 
+            s_no,
+            maintenance_task_description AS details,
+            location AS name_number,
+            frequency AS date_commission,
+            action_taken AS required_value,
+            equipment_condition AS observed_value,
+            remarks,
+            image_path
+        FROM {$tableName}
+        WHERE station_info_id = ? AND module = ?
+        ORDER BY s_no ASC
+    ";
+} else {
+    echo json_encode(['success' => false, 'message' => 'Unsupported module/table mapping']);
+    exit;
+}
+
+$stmt = $conn->prepare($sql);
 $stmt->bind_param("is", $stationInfoId, $module);
 $stmt->execute();
 $result = $stmt->get_result();

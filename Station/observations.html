@@ -43,7 +43,7 @@
 
         .meta-table-4col .label {
             font-weight: 600;
-            width: 22%;
+            width: 16%;
             background: none !important;
         }
 
@@ -175,6 +175,9 @@
         <div class="controls">
             <button class="btn" id="backBtn">Back</button>
             <button class="btn print" id="createPdfBtn">Create PDF</button>
+            <button id="viewReportsBtn" class="btn" style="display:none;background:#6c5ce7;margin-left:10px;" disabled>
+                View Reports
+            </button>
         </div>
         <div class="note">If data is missing, go back to the create page and Save the station details first.</div>
     </div>
@@ -188,10 +191,12 @@
             const metaArea = document.getElementById('metaArea');
             const obsArea = document.getElementById('obsArea');
             const createBtn = document.getElementById('createPdfBtn');
+            const viewBtn = document.getElementById('viewReportsBtn');
 
             function escapeHtml(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
             function renderMeta(info) {
+                // Single-row header: Zone, Station, Date
                 metaArea.innerHTML = `
                     <table class="meta-table-4col">
                         <tr>
@@ -199,10 +204,8 @@
                             <td>${escapeHtml(info.zone || '--')}</td>
                             <td class="label">Station</td>
                             <td>${escapeHtml(info.station || '--')}</td>
-                        </tr>
-                        <tr>
                             <td class="label">Date</td>
-                            <td colspan="3">${escapeHtml(info.date || '--')}</td>
+                            <td>${escapeHtml(info.date || '--')}</td>
                         </tr>
                     </table>
                 `;
@@ -228,6 +231,89 @@
                     groups[moduleName].push(obs);
                 });
 
+                // ----- Summary: Total Points & Closed Points (similar to RIU) -----
+                const totalPoints = observations.length;
+                // Consider a point "closed" if there is any observed_value or remarks
+                let closedPoints = 0;
+                observations.forEach(o => {
+                    const hasObserved = (o.observed_value || '').toString().trim() !== '';
+                    const hasRemarks = (o.remarks || '').toString().trim() !== '';
+                    if (hasObserved || hasRemarks) closedPoints++;
+                });
+                const openPoints = Math.max(0, totalPoints - closedPoints);
+                const statusText = openPoints === 0 && totalPoints > 0 ? 'Completed' : 'Not Completed';
+
+                // Update heading with status like RIU page
+                const h1 = document.querySelector('h1');
+                if (h1) {
+                    h1.textContent = `Station Maintenance Report (Generated) — ${statusText}`;
+                }
+
+                // Build per-module open/closed status table (like RIU)
+                const moduleStatuses = [];
+                const moduleOrder = [
+                    'SCHEDULE CHECK – QUARTERLY',
+                    'MAINTENANCE SCHEDULE – DAILY & MONTHLY',
+                    'MAINTENANCE SCHEDULE – QUARTERLY & HALF YEARLY'
+                ];
+
+                moduleOrder.forEach(name => {
+                    const rows = groups[name] || [];
+                    if (!rows.length) {
+                        moduleStatuses.push({
+                            name,
+                            status: 'Not yet started'
+                        });
+                        return;
+                    }
+                    let moduleClosed = 0;
+                    rows.forEach(o => {
+                        const hasObs = (o.observed_value || '').toString().trim() !== '';
+                        const hasRem = (o.remarks || '').toString().trim() !== '';
+                        if (hasObs || hasRem) moduleClosed++;
+                    });
+                    const moduleOpen = Math.max(0, rows.length - moduleClosed);
+                    let status;
+                    if (moduleOpen === 0) status = 'Completed';
+                    else status = `Open points: ${moduleOpen}`;
+                    moduleStatuses.push({ name, status });
+                });
+
+                // Append overall + per-module summary block under meta table
+                let summaryHtml = `
+                    <div class="module-section">
+                        <div class="module-title">Summary</div>
+                        <table class="meta-table-4col">
+                            <tr>
+                                <td class="label">Total Points</td>
+                                <td>${totalPoints}</td>
+                                <td class="label">Closed Points</td>
+                                <td>${closedPoints}</td>
+                            </tr>
+                        </table>
+                        ${openPoints > 0 ? `<div style="margin-top:8px;"><em>${openPoints} point(s) still open overall.</em></div>` : ''}
+                        <div style="margin-top:12px;">
+                            <table class="meta-table-4col">
+                                <tr>
+                                    <td class="label">Module</td>
+                                    <td colspan="3"><strong>Status</strong></td>
+                                </tr>`;
+
+                moduleStatuses.forEach(ms => {
+                    summaryHtml += `
+                                <tr>
+                                    <td class="label">${escapeHtml(ms.name)}</td>
+                                    <td colspan="3">${escapeHtml(ms.status)}</td>
+                                </tr>`;
+                });
+
+                summaryHtml += `
+                            </table>
+                        </div>
+                    </div>`;
+
+                metaArea.innerHTML += summaryHtml;
+
                 let tableHtml = '';
                 const displayOrder = ['SCHEDULE CHECK – QUARTERLY', 'MAINTENANCE SCHEDULE – DAILY & MONTHLY', 'MAINTENANCE SCHEDULE – QUARTERLY & HALF YEARLY'];
 
@@ -236,53 +322,30 @@
 
                     // Determine headers based on module name
                     let headers, cellMapping;
-                   if (name === 'SCHEDULE CHECK – QUARTERLY') {
-
-    headers = [
-        'S.No',
-        'Details of Equipment',
-        'Name/Number',
-        'Date of Commissioning',
-        'Required Value',
-        'Observed Value',
-        'Remarks',
-        'Images'
-    ];
-
-    cellMapping = {
-        s_no: 's_no',
-        col1: 'details',
-        col2: 'name_number',
-        col3: 'date_commission',
-        col4: 'required_value',
-        col5: 'observed_value',
-        col6: 'remarks'
-    };
-
-} else {
-
-    headers = [
-        'S.No',
-        'Location',
-        'Maintenance Task Description',
-        'Action taken / Voltage Range',
-        'Frequency',
-        'Equipment Condition',
-        'Remarks',
-        'Images'
-    ];
-
-    cellMapping = {
-        s_no: 's_no',
-        col1: 'location',
-        col2: 'maintenance_task_description',
-        col3: 'action_taken',
-        col4: 'frequency',
-        col5: 'equipment_condition',
-        col6: 'remarks'
-    };
-}
-
+                    if (name === 'SCHEDULE CHECK – QUARTERLY') {
+                        headers = ['S.No', 'Details of Equipment', 'Name/Number', 'Date of Commissioning', 'Required Value', 'Observed Value', 'Remarks', 'Images'];
+                        cellMapping = {
+                            s_no: 's_no',
+                            col1: 'details',
+                            col2: 'name_number',
+                            col3: 'date_commission',
+                            col4: 'required_value',
+                            col5: 'observed_value',
+                            col6: 'remarks'
+                        };
+                    } else {
+                        // For daily_monthly and quarterly_half
+                        headers = ['S.No', 'Location', 'Maintenance Task Description', 'Action taken/Range of Voltage levels', 'Frequency', 'Equipment condition', 'Remarks', 'Images'];
+                        cellMapping = {
+                            s_no: 's_no',
+                            col1: 'name_number',  // Location
+                            col2: 'details',      // Maintenance Task Description
+                            col3: 'required_value', // Action taken/Range
+                            col4: 'date_commission', // Frequency
+                            col5: 'observed_value', // Equipment condition
+                            col6: 'remarks'
+                        };
+                    }
 
                     tableHtml += `<div class="module-section">
                         <div class="module-title">${escapeHtml(name)}</div>
@@ -366,6 +429,11 @@
 
             document.getElementById('backBtn').addEventListener('click', function () { history.back(); });
             createBtn.addEventListener('click', createPDF);
+            if (viewBtn) {
+                viewBtn.addEventListener('click', function () {
+                    window.location.href = 'viewReports.php';
+                });
+            }
 
             async function createPDF() {
                 if (!zone || !station || !date) {
@@ -381,7 +449,7 @@
                 const contentWidth = 520;
                 const startX = 40;
 
-                // Collect observations
+                // Collect observations (used for PDF body and to determine completion status)
                 const obsRows = document.querySelectorAll('.obs-table tbody tr');
                 const observations = [];
                 obsRows.forEach(row => {
@@ -398,6 +466,17 @@
                         image_paths: Array.from(imgElements).map(img => img.src)
                     });
                 });
+
+                // Work out completion status for file name (similar criteria as summary)
+                let closedPoints = 0;
+                observations.forEach(o => {
+                    const hasObs = (o.observed_value || '').toString().trim() !== '';
+                    const hasRem = (o.remarks || '').toString().trim() !== '';
+                    if (hasObs || hasRem) closedPoints++;
+                });
+                const totalPoints = observations.length;
+                const openPoints = Math.max(0, totalPoints - closedPoints);
+                const statusForName = (openPoints === 0 && totalPoints > 0) ? 'Completed' : 'NotCompleted';
 
                 // Page 1 - Header
                 doc.setFont('helvetica', 'bold');
@@ -417,7 +496,7 @@
 
                 let currentY = doc.lastAutoTable.finalY + 25;
 
-                // Render each module
+                // Render each module table exactly as on screen
                 document.querySelectorAll('.module-section').forEach(section => {
                     const moduleTitle = section.querySelector('.module-title')?.innerText || '';
                     const table = section.querySelector('.obs-table');
@@ -428,7 +507,6 @@
                     doc.text(moduleTitle, startX, currentY);
                     currentY += 15;
 
-                    // Get headers from the table
                     const headerRow = table.querySelector('thead tr');
                     const headers = Array.from(headerRow?.cells || []).map(th => th.innerText.trim());
 
@@ -472,13 +550,56 @@
                 doc.text('Generated on: ' + new Date().toLocaleDateString('en-IN') + ' at ' + new Date().toLocaleTimeString('en-IN'),
                     doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - 20, { align: 'center' });
 
-                // Save PDF
-                const fileName = `Station_${zone}_${station}_${date.replace(/\//g, '-')}_${Date.now()}.pdf`;
-                doc.save(fileName);
+                // Create a server-friendly file name with status and timestamp
+                function formatTs(d) {
+                    const pad = (n) => String(n).padStart(2, '0');
+                    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+                }
+                const nowTs = formatTs(new Date());
+                const safeZone = (zone || '--').toString().replace(/\s+/g, '_');
+                const safeStation = (station || '--').toString().replace(/\s+/g, '_');
+                const safeDate = (date || '--').toString().replace(/\//g, '-');
+                const reportName = `STATION_${safeZone}_${safeStation}_${safeDate}_${statusForName}_${nowTs}.pdf`;
 
-                createBtn.disabled = false;
-                createBtn.innerText = 'Create PDF';
-                alert('PDF Created Successfully.');
+                try {
+                    // Export PDF as base64 and send to backend for storage & versioning
+                    const dataUri = doc.output('datauristring');
+                    const base64 = dataUri.split(',')[1];
+
+                    const payload = {
+                        zone,
+                        station,
+                        date,
+                        pdf_base64: base64,
+                        report_name: reportName
+                    };
+
+                    const resp = await fetch('generate_pdf.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const json = await resp.json();
+                    if (!json || !json.success) {
+                        throw new Error(json && json.message ? json.message : 'Server error while saving PDF');
+                    }
+
+                    createBtn.disabled = false;
+                    createBtn.innerText = 'Created';
+                    alert('PDF Created & Saved Successfully.');
+
+                    // Enable "View Reports" button now that at least one report exists
+                    if (viewBtn) {
+                        viewBtn.style.display = 'inline-block';
+                        viewBtn.disabled = false;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    createBtn.disabled = false;
+                    createBtn.innerText = 'Create PDF';
+                    alert('Failed to save PDF to server.');
+                }
             }
         })();
     </script>

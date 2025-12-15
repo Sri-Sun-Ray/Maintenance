@@ -247,10 +247,26 @@ function downloadReport(path) {
 
 function editReport(button) {
   const item = JSON.parse(button.getAttribute('data-item'));
-  localStorage.setItem("editStation", item.station);
-  localStorage.setItem("editRiu", item.riu_no);
-  localStorage.setItem("editEquip", item.riu_equip_no);
-  window.location.href = "../station_create.html";
+  // For Station dashboard we only care about zone, station and date
+  const zone = item.zone || "";
+  const station = item.station || "";
+  const date = item.report_date || item.last_updated || "";
+
+  if (zone) {
+    localStorage.setItem("zone", zone);
+    sessionStorage.setItem("zone", zone);
+  }
+  if (station) {
+    localStorage.setItem("selectedStation", station);
+    sessionStorage.setItem("station", station);
+  }
+  if (date) {
+    localStorage.setItem("date", date);
+    sessionStorage.setItem("date", date);
+  }
+  // Flag edit mode so Station_create can hide Save and show Get Details
+  localStorage.setItem("stationEditMode", "1");
+  window.location.href = "../Station_create.html";
 }
 
 

@@ -83,7 +83,6 @@ CREATE TABLE IF NOT EXISTS quarterly_half (
     FOREIGN KEY (station_info_id) REFERENCES station_info(id) ON DELETE CASCADE,
     UNIQUE KEY unique_row (station_info_id, s_no, module)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 -- ============================================
 -- Sample Queries
 -- ============================================
@@ -92,9 +91,9 @@ CREATE TABLE IF NOT EXISTS quarterly_half (
 -- SELECT * FROM station_info ORDER BY created_at DESC;
 
 -- View quarterly check data for a specific station
--- SELECT q.*, s.zone, s.station, s.date
--- FROM quarterly_check q
--- JOIN station_info s ON q.station_info_id = s.id
+-- SELECT q.*, s.zone, s.station, s.date 
+-- FROM quarterly_check q 
+-- JOIN station_info s ON q.station_info_id = s.id 
 -- WHERE s.zone = 'Zone1' AND s.station = 'Station1' AND s.date = '2024-01-01';
 
 -- View all module data for a station
