@@ -136,6 +136,7 @@ function getModuleDetails(moduleId)
       const ic     = cells[startIndex + 5]?.querySelector("input");
       const toh    = cells[startIndex + 6]?.querySelector("input");
       const ioh    = cells[startIndex + 7]?.querySelector("input");
+      
 
       // ✅ ASSIGN VALUES SAFELY
       if (cab1)     cab1.value = dbRow.cab1 ?? "";
@@ -377,7 +378,8 @@ function saveModule(id) {
       toh_aoh: cells[startIndex + 6]?.querySelector("input")?.checked ? 1 : 0,
       ioh_poh: cells[startIndex + 7]?.querySelector("input")?.checked ? 1 : 0,
       station: document.getElementById("station").value,
-      loco: document.getElementById("loco").value
+      loco: document.getElementById("loco").value,
+      module: id
     };
 
     tableData.push(rowData);
@@ -415,7 +417,7 @@ function prepareReportSession() {
 
 function generateReport() {
   prepareReportSession();   // store zone, station, loco
-  window.location.href = "./Observation/observations.html";
+  window.location.href = "./LTCAS_Observation/observation.html";
 }
 
 

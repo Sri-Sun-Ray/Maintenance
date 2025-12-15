@@ -5,19 +5,14 @@ header("Content-Type: application/json");
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$host = "localhost";
-$user = "root";
-$password = "Hbl@1234";
-$db = "maintainance";
-
-$conn = new mysqli($host, $user, $password, $db);
+$conn = new mysqli("localhost", "root", "Hbl@1234", "maintainance");
 
 if ($conn->connect_error) {
-    echo json_encode(["message" => "DB connection failed"]);
+    echo json_encode(["success" => false, "message" => "DB connection failed"]);
     exit;
 }
 
-$table=$data['table'] ?? '';
+$table = $data['table'] ?? '';
 $tableData = $data['tableData'] ?? [];
 
 $allowedTables = [
@@ -29,23 +24,24 @@ $allowedTables = [
   "roof"
 ];
 
-if (!$table || !in_array($table, $allowedTables)) {
+if (!in_array($table, $allowedTables)) {
     echo json_encode(["success" => false, "message" => "Invalid table"]);
     exit;
 }
 
+$sql = "
+INSERT INTO $table
+(sno, description, parameter, cab1, cab2, remarks,
+ trip, ia_ib, ic, toh_aoh, ioh_poh, station, loco, module)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+";
 
-
-$stmt = $conn->prepare(
-    "INSERT INTO $table 
-    (sno, description, parameter, cab1, cab2, remarks, trip, ia_ib, ic, toh_aoh, ioh_poh, station, loco)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-);
+$stmt = $conn->prepare($sql);
 
 foreach ($tableData as $row) {
 
     $stmt->bind_param(
-        "ssssssiiiiiss",
+        "ssssssiiiiisss",
         $row["sno"],
         $row["description"],
         $row["parameter"],
@@ -58,7 +54,8 @@ foreach ($tableData as $row) {
         $row["toh_aoh"],
         $row["ioh_poh"],
         $row["station"],
-        $row["loco"]
+        $row["loco"],
+        $row["module"]   // ✅ FIXED
     );
 
     $stmt->execute();
@@ -67,5 +64,7 @@ foreach ($tableData as $row) {
 $stmt->close();
 $conn->close();
 
-echo json_encode(["message" => "Data saved successfully"]);
-?>
+echo json_encode([
+  "success" => true,
+  "message" => "Data saved successfully"
+]);

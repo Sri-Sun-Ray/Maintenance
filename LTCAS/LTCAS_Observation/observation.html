@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Monthly Maintenance Report</title>
+  <link rel="stylesheet" href="observation.css" />
+</head>
+<body>
+
+  <!-- 1️⃣ Heading -->
+  <h2 class="page-title">
+    Monthly Maintenance Report – LTCAS Generated
+  </h2>
+
+  <!-- 2️⃣ Zone / Station / Loco Box -->
+  <div class="info-box">
+    <div><strong>Zone:</strong> <span id="zone"></span></div>
+    <div><strong>Station:</strong> <span id="station"></span></div>
+    <div><strong>Loco:</strong> <span id="loco"></span></div>
+  </div>
+
+  <!-- 3️⃣ Summary Box -->
+  <div class="summary-box">
+    <div class="summary-item">
+      <span class="label">Total Points</span>
+      <span class="value" id="totalPoints">0</span>
+    </div>
+    <div class="summary-item">
+      <span class="label">Open Points</span>
+      <span class="value open" id="openPoints">0</span>
+    </div>
+  </div>
+
+  <!-- 4️⃣ Module-wise Status Table -->
+  <table class="status-table">
+    <thead>
+      <tr>
+        <th>Module</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="moduleStatusBody">
+      <!-- Filled by JS -->
+    </tbody>
+  </table>
+
+    <div id="moduleTablesContainer"></div>
+
+      <div class="print-actions">
+    <button onclick="window.print()">Print Report</button>
+  </div>
+
+  <script src="observation.js"></script>
+</body>
+</html>
