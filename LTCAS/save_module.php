@@ -29,36 +29,42 @@ if (!in_array($table, $allowedTables)) {
     exit;
 }
 
+// INSERT only the columns that exist in the module tables (no `module` column)
 $sql = "
 INSERT INTO $table
 (sno, description, parameter, cab1, cab2, remarks,
- trip, ia_ib, ic, toh_aoh, ioh_poh, station, loco, module)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ trip, ia_ib, ic, toh_aoh, ioh_poh, station, loco)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ";
 
 $stmt = $conn->prepare($sql);
 
+if (!$stmt) {
+  echo json_encode(["success" => false, "message" => "SQL prepare failed: " . $conn->error]);
+  $conn->close();
+  exit;
+}
+
 foreach ($tableData as $row) {
 
-    $stmt->bind_param(
-        "ssssssiiiiisss",
-        $row["sno"],
-        $row["description"],
-        $row["parameter"],
-        $row["cab1"],
-        $row["cab2"],
-        $row["remarks"],
-        $row["trip"],
-        $row["ia_ib"],
-        $row["ic"],
-        $row["toh_aoh"],
-        $row["ioh_poh"],
-        $row["station"],
-        $row["loco"],
-        $row["module"]   // ✅ FIXED
-    );
+  $stmt->bind_param(
+    "ssssssiiiiiss",
+    $row["sno"],
+    $row["description"],
+    $row["parameter"],
+    $row["cab1"],
+    $row["cab2"],
+    $row["remarks"],
+    $row["trip"],
+    $row["ia_ib"],
+    $row["ic"],
+    $row["toh_aoh"],
+    $row["ioh_poh"],
+    $row["station"],
+    $row["loco"]
+  );
 
-    $stmt->execute();
+  $stmt->execute();
 }
 
 $stmt->close();
