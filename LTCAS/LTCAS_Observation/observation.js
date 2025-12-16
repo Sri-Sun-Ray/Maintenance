@@ -1,10 +1,17 @@
 document.addEventListener("DOMContentLoaded", initObservation);
 
+/* ===============================
+   GLOBAL STORES (for PDF)
+================================ */
+let allObservations = [];
+let moduleStatusMap = {};
+
+/* ===============================
+   INIT
+================================ */
 async function initObservation() {
 
-  /* ===============================
-     1️⃣ Read Zone / Station / Loco
-     =============================== */
+  /* 1️⃣ Read Zone / Station / Loco */
   const zone = localStorage.getItem("zone") || "-";
   const station = localStorage.getItem("selectedStation") || "-";
   const loco = localStorage.getItem("loco") || "-";
@@ -13,68 +20,39 @@ async function initObservation() {
   document.getElementById("station").textContent = station;
   document.getElementById("loco").textContent = loco;
 
-  const moduleTablesContainer =
-    document.getElementById("moduleTablesContainer");
+  /* 2️⃣ Load Summary + Module Status */
+  const summaryResponse = await fetch(
+    "/Maintenance/LTCAS/LTCAS_Observation/get_monthly_summary.php",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ zone, station, loco })
+    }
+  );
 
-  if (!moduleTablesContainer) {
-    console.error("moduleTablesContainer not found in HTML");
-    return;
-  }
+  const summaryData = await summaryResponse.json();
+  if (!summaryData.success) return;
 
-  /* ===============================
-     2️⃣ Load Summary + Module Status
-     =============================== */
-  let summaryResponse;
-  try {
-    summaryResponse = await fetch(
-      "/Maintenance/LTCAS/LTCAS_Observation/get_monthly_summary.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ zone, station, loco })
-      }
-    );
-  } catch (err) {
-    console.error("Summary fetch failed", err);
-    alert("Server error while loading observation summary");
-    return;
-  }
+  document.getElementById("totalPoints").textContent = summaryData.totalPoints;
+  document.getElementById("openPoints").textContent = summaryData.openPoints;
 
-  const data = await summaryResponse.json();
-
-  if (!data.success) {
-    alert("Failed to load observation summary");
-    return;
-  }
-
-  /* 🔹 Summary */
-  document.getElementById("totalPoints").textContent = data.totalPoints;
-  document.getElementById("openPoints").textContent = data.openPoints;
-
-  /* 🔹 Module Status Table */
   const tbody = document.getElementById("moduleStatusBody");
   tbody.innerHTML = "";
 
-  data.modules.forEach(mod => {
+  summaryData.modules.forEach(mod => {
+    const statusText = mod.status === "Closed" ? "Closed" : "Not Completed";
+    moduleStatusMap[mod.module] = statusText;
 
-    const statusText =
-      mod.status === "Closed"
-        ? "Closed (0)"
-        : `Open (${mod.openPoints})`;
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${mod.module}</td>
-      <td class="${mod.status === "Open" ? "status-open" : "status-closed"}">
-        ${statusText}
-      </td>
-    `;
-    tbody.appendChild(tr);
+    tbody.innerHTML += `
+      <tr>
+        <td>${mod.module}</td>
+        <td class="${mod.status === "Open" ? "status-open" : "status-closed"}">
+          ${statusText}
+        </td>
+      </tr>`;
   });
 
-  /* ===============================
-     3️⃣ Load Module Tables (ORDERED)
-     =============================== */
+  /* 3️⃣ Load Module Tables */
   const MODULES = [
     "locomotive",
     "brake_interface",
@@ -84,16 +62,16 @@ async function initObservation() {
     "roof"
   ];
 
-  moduleTablesContainer.innerHTML = "";
+  document.getElementById("moduleTablesContainer").innerHTML = "";
 
   for (const module of MODULES) {
     await loadModuleTable(module, station, loco);
   }
 }
 
-/* =====================================================
-   Load & Render One Module Table (SEQUENTIAL & CLEAN)
-   ===================================================== */
+/* ===============================
+   LOAD EACH MODULE
+================================ */
 async function loadModuleTable(module, station, loco) {
 
   const res = await fetch(
@@ -105,34 +83,31 @@ async function loadModuleTable(module, station, loco) {
     }
   );
 
-  const data = await res.json();
-  if (!data.success || !data.data.length) return;
+  const result = await res.json();
+  if (!result.success || !result.data.length) return;
 
+  result.data.forEach(r => {
+    r.__module = module;
+    allObservations.push(r);
+  });
+
+  /* UI Rendering (unchanged) */
   const container = document.getElementById("moduleTablesContainer");
 
-  // 🔹 GROUP ROWS BY DESCRIPTION
   const grouped = {};
-  data.data.forEach(row => {
-    if (!grouped[row.description]) {
-      grouped[row.description] = [];
-    }
+  result.data.forEach(row => {
+    if (!grouped[row.description]) grouped[row.description] = [];
     grouped[row.description].push(row);
   });
 
   let tableRowsHTML = "";
 
-  Object.keys(grouped).forEach(description => {
-    const rows = grouped[description];
-    const rowspan = rows.length;
-
-    rows.forEach((r, index) => {
+  Object.entries(grouped).forEach(([desc, rows]) => {
+    rows.forEach((r, i) => {
       tableRowsHTML += `
         <tr>
           <td>${r.sno}</td>
-          ${index === 0
-            ? `<td rowspan="${rowspan}">${description}</td>`
-            : ""
-          }
+          ${i === 0 ? `<td rowspan="${rows.length}">${desc}</td>` : ""}
           <td>${r.parameter}</td>
           <td>${r.cab1 || ""}</td>
           <td>${r.cab2 || ""}</td>
@@ -142,19 +117,14 @@ async function loadModuleTable(module, station, loco) {
           <td>${r.ic == 1 ? "✔" : ""}</td>
           <td>${r.toh_aoh == 1 ? "✔" : ""}</td>
           <td>${r.ioh_poh == 1 ? "✔" : ""}</td>
-        </tr>
-      `;
+        </tr>`;
     });
   });
 
   const section = document.createElement("div");
   section.className = "module-section";
-
   section.innerHTML = `
-    <h3 class="module-title">
-      ${module.replace(/_/g, " ").toUpperCase()}
-    </h3>
-
+    <h3 class="module-title">${module.replace(/_/g, " ").toUpperCase()}</h3>
     <table class="print-table">
       <thead>
         <tr>
@@ -171,11 +141,63 @@ async function loadModuleTable(module, station, loco) {
           <th>IOH/POH</th>
         </tr>
       </thead>
-      <tbody>
-        ${tableRowsHTML}
-      </tbody>
+      <tbody>${tableRowsHTML}</tbody>
     </table>
   `;
-
   container.appendChild(section);
+}
+
+/* ===============================
+   PDF HELPERS
+================================ */
+function tick(v) {
+  return v == 1 ? "✓" : "";
+}
+
+/* ===============================
+   CREATE PDF (FIXED)
+================================ */
+function createPDF() {
+
+  const pdfEl = document.getElementById("ltcas-pdf");
+
+  /* Fill PDF data FIRST */
+  document.getElementById("pdf-loco").textContent =
+    localStorage.getItem("loco") || "-";
+  document.getElementById("pdf-zone").textContent =
+    localStorage.getItem("zone") || "-";
+  document.getElementById("pdf-station").textContent =
+    localStorage.getItem("selectedStation") || "-";
+  document.getElementById("pdf-date").textContent =
+    new Date().toLocaleDateString();
+  document.getElementById("pdf-generated").textContent =
+    new Date().toLocaleString();
+
+  /* TEMPORARILY SHOW PDF CONTENT */
+  pdfEl.style.display = "block";
+
+  html2pdf()
+    .set({
+      margin: 10,
+      filename: `LTCAS_Maintenance_${Date.now()}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        windowWidth: pdfEl.scrollWidth
+      },
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "landscape"
+      },
+      pagebreak: {
+        mode: ["avoid-all", "css"]
+      }
+    })
+    .from(pdfEl)
+    .save()
+    .then(() => {
+      /* HIDE IT AGAIN */
+      pdfEl.style.display = "none";
+    });
 }

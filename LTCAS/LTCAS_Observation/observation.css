@@ -142,3 +142,11 @@ body {
   }
 }
 
+#ltcas-pdf table {
+  page-break-inside: avoid;
+}
+
+#ltcas-pdf tr {
+  page-break-inside: avoid;
+}
+

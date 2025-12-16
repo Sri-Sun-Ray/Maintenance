@@ -3,23 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <title>Monthly Maintenance Report</title>
+
   <link rel="stylesheet" href="observation.css" />
+
+  <!-- PDF Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
+
 <body>
 
-  <!-- 1️⃣ Heading -->
+  <!-- =========================
+       UI VIEW (SCREEN)
+  ========================== -->
+
   <h2 class="page-title">
-    Monthly Maintenance Report – LTCAS Generated
+    Monthly Maintenance Report – LTCAS
   </h2>
 
-  <!-- 2️⃣ Zone / Station / Loco Box -->
   <div class="info-box">
     <div><strong>Zone:</strong> <span id="zone"></span></div>
     <div><strong>Station:</strong> <span id="station"></span></div>
     <div><strong>Loco:</strong> <span id="loco"></span></div>
   </div>
 
-  <!-- 3️⃣ Summary Box -->
   <div class="summary-box">
     <div class="summary-item">
       <span class="label">Total Points</span>
@@ -31,7 +37,6 @@
     </div>
   </div>
 
-  <!-- 4️⃣ Module-wise Status Table -->
   <table class="status-table">
     <thead>
       <tr>
@@ -39,15 +44,84 @@
         <th>Status</th>
       </tr>
     </thead>
-    <tbody id="moduleStatusBody">
-      <!-- Filled by JS -->
-    </tbody>
+    <tbody id="moduleStatusBody"></tbody>
   </table>
 
-    <div id="moduleTablesContainer"></div>
+  <div id="moduleTablesContainer"></div>
 
-      <div class="print-actions">
-    <button onclick="window.print()">Print Report</button>
+  <div class="print-actions">
+    <button onclick="window.location.href='../LTCAS_create.html'">Back</button>
+    <button onclick="createPDF()">Create PDF</button>
+  </div>
+
+  <!-- =========================
+       PDF VIEW (OFF-SCREEN, RENDERABLE)
+  ========================== -->
+
+  <div
+    id="ltcas-pdf"
+    style="
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      width: 1400px;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      background: white;
+    "
+  >
+
+    <h3 style="text-align:center; margin-bottom:10px;">
+      Maintenance activities during minor/major schedules<br>
+      in locomotives equipped with Kavach (LTCAS)
+    </h3>
+
+    <table border="1" width="100%" cellpadding="6" cellspacing="0" style="margin-bottom:10px;">
+      <tr>
+        <td><b>Loco No:</b> <span id="pdf-loco"></span></td>
+        <td><b>Date:</b> <span id="pdf-date"></span></td>
+        <td><b>Zone:</b> <span id="pdf-zone"></span></td>
+        <td><b>Station:</b> <span id="pdf-station"></span></td>
+      </tr>
+    </table>
+
+    <table border="1" width="50%" cellpadding="6" cellspacing="0" style="margin-bottom:12px;">
+      <thead>
+        <tr>
+          <th>Module</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="pdf-module-status"></tbody>
+    </table>
+
+    <table border="1" width="100%" cellpadding="4" cellspacing="0">
+      <thead>
+        <tr>
+          <th rowspan="2">Sl.No</th>
+          <th rowspan="2">Description of the Equipment</th>
+          <th rowspan="2">Parameter for quality check</th>
+          <th colspan="2">Details of work done</th>
+          <th rowspan="2">Remarks</th>
+          <th rowspan="2">Trip</th>
+          <th rowspan="2">IA/IB</th>
+          <th rowspan="2">IC</th>
+          <th rowspan="2">TOH/AOH</th>
+          <th rowspan="2">IOH/POH</th>
+        </tr>
+        <tr>
+          <th>Cab-1</th>
+          <th>Cab-2</th>
+        </tr>
+      </thead>
+      <tbody id="pdf-observations"></tbody>
+    </table>
+
+    <p style="margin-top:10px; font-size:11px;">
+      Generated on: <span id="pdf-generated"></span>
+    </p>
+
   </div>
 
   <script src="observation.js"></script>
