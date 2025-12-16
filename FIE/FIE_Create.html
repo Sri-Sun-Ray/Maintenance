@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIE Maintenance</title>
+    <link rel="stylesheet" href="FIE_Create.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="libs/jquery-3.6.0.min.js"></script>
+    <script src="libs/zxing-browser.min.js"></script>
+    <script src="libs/jspdf.umd.min.js"></script>
+    <script src="libs/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@latest/dist/xlsx.full.min.js"></script>
+             <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js"></script>
+   <style>
+    /* tiny helper so modal works even without your CSS */
+    #imagePreviewModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; z-index:9999; }
+    #imagePreviewModal img { max-width:90vw; max-height:80vh; border-radius:6px; }
+    .image-collection { display:flex; gap:8px; align-items:center; flex-direction:column; }
+    .image-list { display:flex; gap:6px; flex-wrap:wrap; }
+    .image-box { position:relative; }
+    .image-box img { width:80px; height:60px; object-fit:cover; border-radius:4px; }
+    .image-box .remove-btn { position:absolute; top:-6px; right:-6px; background:#fff; border-radius:50%; border:1px solid #ccc; cursor:pointer; }
+  </style>
+</head>
+<body>
+
+
+  <!-- Header -->
+  <header class="top-header">
+    <div>
+      <img src="hbl logo.jpg" alt="Logo" class="Logo">
+    </div>
+
+    <div class="title-section">
+      <h1>FIE Maintenance</h1>
+    </div>
+
+    <div class="logout-section">
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <!-- Info Section -->
+  <div class="info-section">
+    <div class="form-group">
+      <label for="zone">Zone:</label>
+      <input type="text" id="zone" placeholder="Enter Zone" readonly>
+    </div>
+
+    <div class="form-group">
+      <label for="station">Station:</label>
+      <input type="text" id="station" placeholder="Enter Station" readonly>
+    </div>
+
+   <div class="form-group scan-box">
+  <label for="fie">FIE:</label>
+  <input type="text" id="fie" placeholder="Enter FIE">
+  <span class="scan-icon" onclick="startScan('fie')">📷</span>
+</div>
+
+<div class="form-group scan-box">
+  <label for="equipNo">Equipment No:</label>
+  <input type="text" id="equipNo" placeholder="Enter Equipment No">
+  <span class="scan-icon" onclick="startScan('equipNo')">📷</span>
+</div>
+
+    <button class="btn btn-save" onclick="saveInfo()" id="btn-save">Save</button>
+    <button class="btn btn-get_details" onclick="get()" id="btn-get_details" style="display: none;">Get Details</button>
+    <!-- <button class="btn btn-update" onclick="getDetailsForUpdate()">Get Details</button> -->
+  </div>
+
+  <div id="scannerModal" class="scanner-modal">
+    <div id="qr-reader" style="width: 300px"></div>
+    <button class="btn-cancel" onclick="stopScan()">Close Scanner</button>
+  </div>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar" style="pointer-events: none; opacity: 1;">
+      <h3>Sections</h3>
+      <ul>
+        <li onclick="showModule('verification')" id="verification-tab" class="module-tab">Verification Checks</li>
+        <li onclick="showModule('monthly')" id="monthly-tab" class="module-tab">Monthly Maintenance</li>
+        <li onclick="showModule('components')" id="components-tab" class="module-tab">Component Replacement</li>
+      </ul>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area" id="contentArea">
+      <p>Select a section from the sidebar to view details.</p>
+
+      <!-- Verification Checks (Page 1 style) -->
+      <div id="verification" class="module-table">
+        <h2>Verification Checks</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Details of the Equipment</th>
+                <th>Name/Number</th>
+                <th>Date of Commissioning</th>
+                <th>Required Value</th>
+                <th>Observed Value</th>
+                <th>Remarks (OK/Not OK)</th>
+                <th>Image</th>
+              </tr>
+            </thead>
+            <tbody id="verificationTableBody">
+              <tr>
+                <td>Signaling and Interlocking Plan</td>
+                <td><input type="text"></td>
+                <td><input type="date"></td>
+                <td>There shall not be any change in the SIP No.</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>RFID Tag Layout</td>
+                <td><input type="text"></td>
+                <td><input type="date"></td>
+                <td>The RFID Tag layout shall be based on the SIP layout number as mentioned above.<br>Date of Commissioning on RFID Tag shall not be earlier than the date of Commissioning as indicated in SIP</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>Selection Table (TOC)</td>
+                <td><input type="text"></td>
+                <td><input type="date"></td>
+                <td>There shall not be any change in Selection Table Number</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>TCAS Table of Control</td>
+                <td><input type="text"></td>
+                <td><input type="date"></td>
+                <td>The modified stationary TCAS control table as per field inputs from FIEs shall be based on Selection Table as mentioned above.<br>The date of the modified TCAS control table shall not be earlier than the date as indicated in the Selection Table of the Station</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>Relay wiring Circuit diagram</td>
+                <td><input type="text"></td>
+                <td><input type="date"></td>
+                <td>The updated Relay wiring circuit of FIE shall be approved. There shall not be any unauthorized changes in these Relay wiring circuit diagrams.</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>FIE Wiring Circuit diagram</td>
+                <td><input type="text"></td>
+                <td><input type="date"></td>
+                <td>The FIE wiring diagrams shall be an integral part of station wiring sheets.<br>FIE wiring diagram shall be separately located in a sealed transparent covers</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>Is there any noticeable change in the relay wiring</td>
+                <td><input type="text"></td>
+                <td></td>
+                <td>There shall not be any changes in the approved relay wiring done at the site.</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>Is there any noticeable change in Power Supply equipment</td>
+                <td><input type="text"></td>
+                <td></td>
+                <td>There shall not be any changes in the power supply equipment.</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>Working time table no.</td>
+                <td><input type="text"></td>
+                <td></td>
+                <td></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>PSR in the up direction as per working time table</td>
+                <td><input type="text"></td>
+                <td></td>
+                <td></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>PSR in Down direction as per working time table</td>
+                <td><input type="text"></td>
+                <td></td>
+                <td></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>PSR towards branch line as per working time table</td>
+                <td><input type="text"></td>
+                <td></td>
+                <td></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align: center; margin-top: 15px;">
+          <button class="btn btn-save" onclick="saveModuleData('verification')">Save Verification Data</button>
+          <button class="btn btn-update" style="display: none;" onclick="updateModuleData('verification')">Update Verification Data</button>
+        </div>
+      </div>
+
+      <!-- Monthly Maintenance (Pages 2-3) -->
+      <div id="monthly" class="module-table">
+        <h2>Monthly Maintenance Schedule</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Item No</th>
+                <th>Location</th>
+                <th>Maintenance Task Description</th>
+                <th>Action taken/Range of Voltage levels</th>
+                <th>Frequency</th>
+                <th>Equipment condition</th>
+                <th>Remarks (OK/Not OK)</th>
+                <th>Image</th>
+              </tr>
+            </thead>
+            <tbody id="monthlyTableBody">
+              <tr>
+                <td>1.</td>
+                <td>NMS PC (For Future Installations)</td>
+                <td>Ensure E1 network is always healthy and all FIEs connected to its station communication is Healthy on line<br>Ensure all TCAS stations are in working condition and verify this through NMS</td>
+                <td>Daily SMS shall be generated by NMS.</td>
+                <td>Daily</td>
+                <td><textarea placeholder="Condition"></textarea></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>2.</td>
+                <td>FIE Equipment</td>
+                <td>Check the communication status of the RIU COM1 & RIU COM2 Modules</td>
+                <td>LEDs should be Glow/Blink</td>
+                <td>M</td>
+                <td>
+                  COM1 COM2 COM1 COM2<br>
+                  PWR LED <input type="text"><br>
+                  MHLT LED <input type="text"><br>
+                  WHLT LED <input type="text"><br>
+                  DATA1 LED <input type="text"><br>
+                  DATA2 LED <input type="text"><br>
+                  CH1/LINK1 LED <input type="text"><br>
+                  CH2/LINK2 LED <input type="text"><br>
+                  BMS LED <input type="text"><br>
+                  CNS LED <input type="text"><br>
+                  BHLT LED <input type="text">
+                </td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>3.</td>
+                <td>FIE – FSC Module</td>
+                <td></td>
+                <td>LEDs should be Glow/Blink</td>
+                <td>M</td>
+                <td>
+                  FSC1 FSC2 FSC1 FSC2<br>
+                  PWR LED <input type="text"><br>
+                  SCS LED <input type="text"><br>
+                  WHLT LED <input type="text"><br>
+                  ADC LED <input type="text"><br>
+                  MHLT LED <input type="text">
+                </td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>4.</td>
+                <td>FIE – PS Module</td>
+                <td></td>
+                <td>LEDs should be Glow/Blink</td>
+                <td>M</td>
+                <td>
+                  PS1 PS2 PS1 PS2<br>
+                  PWR LED <input type="text"><br>
+                  CAN LED <input type="text"><br>
+                  ISO LED <input type="text">
+                </td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>5.</td>
+                <td></td>
+                <td>Visually examine all PS, communication cables are tighten all the connections /Terminations / Wago terminals</td>
+                <td>Ensure the tightness of the cables connectors.</td>
+                <td>M</td>
+                <td><textarea placeholder="Condition"></textarea></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>6.</td>
+                <td></td>
+                <td>Clean the TCAS equipment</td>
+                <td>Equipment shall be dust free.</td>
+                <td>M</td>
+                <td><textarea placeholder="Condition"></textarea></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>7.</td>
+                <td>Earthing</td>
+                <td>Measure the Resistance of the STCAS Earth If possible, fill water in the Earth Pits to keep low soil resistance</td>
+                <td>Resistance Should be &lt;2Ω (Ohm)</td>
+                <td>M</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>8.</td>
+                <td>FIE Relays in equipment room</td>
+                <td>Check the Voltage levels at 110VDC Input voltage to 24V DCDC modules</td>
+                <td>97 to 140 V DC</td>
+                <td>M</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>9.</td>
+                <td></td>
+                <td>Ensure Charger / DC-DC Modules indication should Glow.</td>
+                <td>LED Indications should glow.</td>
+                <td>M</td>
+                <td><textarea placeholder="Condition"></textarea></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>10.</td>
+                <td></td>
+                <td>Check the Power voltages at Equipment End of Ch-A & Ch-B</td>
+                <td>The voltage shall be in the range of 22V to 26.5V</td>
+                <td>M</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>11.</td>
+                <td>RFID Fitments</td>
+                <td>The fitment of the RFID in the station section and block section is intact.</td>
+                <td>RFID tags shall be firmly installed as per drawings given in the Station TCAS I&C manual and as per latest TAN.</td>
+                <td>M</td>
+                <td><textarea placeholder="Condition"></textarea></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>12.</td>
+                <td>FIE Equipment and Relays LB</td>
+                <td>Relay output voltage to be checked in Tapping Relay</td>
+                <td>Shall be greater than >22 Volt (Attach separate sheet if required)</td>
+                <td>M</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <tr>
+                <td>13.</td>
+                <td></td>
+                <td>Relay coil voltage to be checked in Tapping Relay</td>
+                <td>Shall be greater than >22 Volt (Attach separate sheet if required)</td>
+                <td>M</td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align: center; margin-top: 15px;">
+          <button class="btn btn-save" onclick="saveModuleData('monthly')">Save Monthly Maintenance Data</button>
+          <button class="btn btn-update" style="display: none;" onclick="updateModuleData('monthly')">Update Monthly Data</button>
+        </div>
+      </div>
+
+      <!-- Component Replacement -->
+      <div id="components" class="module-table">
+        <h2>Component Replaced during Preventive Maintenance</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Component Name</th>
+                <th>Qty</th>
+                <th>Reason for replacement</th>
+                <th>Remarks</th>
+                <th>Image</th>
+              </tr>
+            </thead>
+            <tbody id="componentsTableBody">
+              <tr>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><button onclick="openImageOptions(this)">Add Image</button></td>
+              </tr>
+              <!-- Add more rows dynamically if needed -->
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Note:</strong> M – Means Monthly</p>
+        <div style="text-align: center; margin-top: 15px;">
+          <button class="btn btn-save" onclick="saveModuleData('components')">Save Component Data</button>
+          <button class="btn btn-update" style="display: none;" onclick="updateModuleData('components')">Update Component Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signatures (can be added at bottom or per section) -->
+  <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+    <div>
+      <p>Attended on Date: <input type="date"></p>
+      <p>(Name) <input type="text"></p>
+      <p>Signature of the Firm Representative ____________________</p>
+    </div>
+    <div>
+      <p>(Name) <input type="text"></p>
+      <p>Signature of the Railway Representative S&T ____________________</p>
+    </div>
+  </div>
+
+  <!-- Generate Report Button -->
+  <button id="generateReportBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; padding: 12px 24px; font-size: 16px; border-radius: 6px;" onclick="generateReport()">
+    Generate Report
+  </button>
+
+  <div id="imagePreviewModal" class="image-preview-modal">
+    <div class="image-preview-content">
+      <span class="close-preview" onclick="closeImagePreview()">&times;</span>
+      <img id="imagePreviewElement" src="" alt="Preview">
+    </div>
+  </div>
+
+  <script src="FIE_Create.js"></script>
+  <script>
+    function generateReport() {
+      const zone = document.getElementById('zone').value;
+      const station = document.getElementById('station').value;
+      const fie = document.getElementById('fie').value;
+      const equipNo = document.getElementById('equipNo').value;
+
+      if (!zone || !station || !fie || !equipNo) {
+        alert('Please fill all required fields (Zone, Station, FIE No, Equipment Sl. No) before generating report.');
+        return;
+      }
+
+      sessionStorage.setItem('zone', zone);
+      sessionStorage.setItem('station', station);
+      sessionStorage.setItem('fieNo', fie);
+      sessionStorage.setItem('equipNo', equipNo);
+
+      window.location.href = 'observations.html'; // or your report page
+    }
+  </script>
+</body>
+</html>
