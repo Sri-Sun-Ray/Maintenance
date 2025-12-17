@@ -151,53 +151,238 @@ async function loadModuleTable(module, station, loco) {
    PDF HELPERS
 ================================ */
 function tick(v) {
-  return v == 1 ? "✓" : "";
+  return v == 1 ? "✔" : "";
 }
 
 /* ===============================
    CREATE PDF (FIXED)
 ================================ */
-function createPDF() {
 
-  const pdfEl = document.getElementById("ltcas-pdf");
+async function fetchModuleStatusFromPHP() {
+  const station = localStorage.getItem("selectedStation");
+  const loco = localStorage.getItem("loco");
 
-  /* Fill PDF data FIRST */
-  document.getElementById("pdf-loco").textContent =
-    localStorage.getItem("loco") || "-";
-  document.getElementById("pdf-zone").textContent =
-    localStorage.getItem("zone") || "-";
-  document.getElementById("pdf-station").textContent =
-    localStorage.getItem("selectedStation") || "-";
-  document.getElementById("pdf-date").textContent =
-    new Date().toLocaleDateString();
-  document.getElementById("pdf-generated").textContent =
-    new Date().toLocaleString();
+  const response = await fetch(
+    "/Maintenance/LTCAS/LTCAS_Observation/get_monthly_summary.php",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ station, loco })
+    }
+  );
 
-  /* TEMPORARILY SHOW PDF CONTENT */
-  pdfEl.style.display = "block";
+  const result = await response.json();
 
-  html2pdf()
-    .set({
-      margin: 10,
-      filename: `LTCAS_Maintenance_${Date.now()}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        windowWidth: pdfEl.scrollWidth
-      },
-      jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "landscape"
-      },
-      pagebreak: {
-        mode: ["avoid-all", "css"]
-      }
-    })
-    .from(pdfEl)
-    .save()
-    .then(() => {
-      /* HIDE IT AGAIN */
-      pdfEl.style.display = "none";
+  if (!result.success) {
+    throw new Error(result.message || "Module status fetch failed");
+  }
+
+  return result; // full response
+}
+
+
+function groupByModule(observations) {
+  const grouped = {};
+  observations.forEach(o => {
+    if (!grouped[o.__module]) {
+      grouped[o.__module] = [];
+    }
+    grouped[o.__module].push(o);
+  });
+  return grouped;
+}
+
+
+
+async function createPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  const zone = localStorage.getItem("zone") || "-";
+  const station = localStorage.getItem("selectedStation") || "-";
+  const loco = localStorage.getItem("loco") || "-";
+
+  /* =========================
+     HEADER
+  ========================= */
+  doc.setFillColor(0, 51, 102);
+  doc.rect(0, 0, pageWidth, 28, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(255, 255, 255);
+  doc.text("Monthly Maintenance Report - LTCAS", pageWidth / 2, 18, { align: "center" });
+
+  doc.setTextColor(0, 0, 0);
+
+  /* =========================
+     ZONE TABLE
+  ========================= */
+  const zoneWidth = 120;
+  doc.autoTable({
+    startY: 35,
+    head: [["Zone", "Station", "Loco"]],
+    body: [[zone, station, loco]],
+    theme: "grid",
+    tableWidth: zoneWidth,
+    margin: { left: (pageWidth - zoneWidth) / 2 },
+    headStyles: {
+      fillColor: [0, 51, 102],
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+      halign: "center"
+    },
+    styles: { halign: "center", fontSize: 11 }
+  });
+
+  /* =========================
+     MODULE STATUS TABLE
+  ========================= */
+  const moduleResult = await fetchModuleStatusFromPHP();
+
+  const moduleWidth = 140;
+  doc.autoTable({
+    startY: doc.lastAutoTable.finalY + 10,
+    head: [["Module", "Status", "Open Points"]],
+    body: moduleResult.modules.map(m => [m.module, m.status, m.openPoints]),
+    theme: "grid",
+    tableWidth: moduleWidth,
+    margin: { left: (pageWidth - moduleWidth) / 2 },
+    headStyles: {
+      fillColor: [0, 51, 102],
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+      halign: "center"
+    },
+    styles: { halign: "center", fontSize: 11 }
+  });
+
+  /* =========================
+     COMPLETION CHECKBOXES
+  ========================= */
+  const isAllCompleted = moduleResult.modules.every(m => m.status === "Closed");
+
+  const boxY = doc.lastAutoTable.finalY + 15;
+  const boxSize = 6;
+  const centerX = pageWidth / 2;
+
+  const completedX = centerX - 45;
+  const notCompletedX = centerX + 15;
+
+  doc.rect(completedX, boxY, boxSize, boxSize);
+  doc.text("Completed", completedX + boxSize + 4, boxY + 5);
+
+  doc.rect(notCompletedX, boxY, boxSize, boxSize);
+  doc.text("Not Completed", notCompletedX + boxSize + 4, boxY + 5);
+
+  function drawTick(x, y, color) {
+    doc.setDrawColor(...color);
+    doc.setLineWidth(1.5);
+    doc.line(x + 1, y + 3, x + 3, y + 5);
+    doc.line(x + 3, y + 5, x + 6, y + 1);
+    doc.setDrawColor(0, 0, 0);
+  }
+
+  if (isAllCompleted) {
+    drawTick(completedX, boxY, [0, 150, 0]);
+  } else {
+    drawTick(notCompletedX, boxY, [200, 0, 0]);
+  }
+
+  /* =========================
+     OBSERVATIONS – MODULE WISE
+  ========================= */
+
+  const grouped = groupByModule(allObservations);
+  let currentY = boxY + 12;
+
+  Object.entries(grouped).forEach(([moduleKey, rows]) => {
+
+    if (currentY > 230) {
+      doc.addPage();
+      currentY = 20;
+    }
+
+    // MODULE TITLE
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.text(moduleKey.replace(/_/g, " ").toUpperCase(), 14, currentY);
+
+    let lastDescription = "";
+
+    const body = rows.map(r => {
+      const showDesc = r.description !== lastDescription;
+      lastDescription = r.description;
+
+      return [
+        r.sno,
+        showDesc ? r.description : "",
+        r.parameter,
+        r.cab1 || "",
+        r.cab2 || "",
+        r.remarks || "",
+        r.trip,
+        r.ia_ib,
+        r.ic,
+        r.toh_aoh,
+        r.ioh_poh
+      ];
     });
+
+    doc.autoTable({
+      startY: currentY + 5,
+      head: [[
+        "S.No", "Description", "Parameter",
+        "Cab1", "Cab2", "Remarks",
+        "Trip", "IA/IB", "IC", "TOH/AOH", "IOH/POH"
+      ]],
+      body,
+      theme: "grid",
+
+      headStyles: {
+        fillColor: [0, 51, 102],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        fontSize: 8,
+        halign: "center"
+      },
+
+      styles: { fontSize: 7, valign: "middle" },
+
+      columnStyles: {
+        0: { cellWidth: 8 },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 28 },
+        3: { cellWidth: 10 },
+        4: { cellWidth: 10 },
+        5: { cellWidth: 22 },
+        6: { cellWidth: 10 },
+        7: { cellWidth: 10 },
+        8: { cellWidth: 8 },
+        9: { cellWidth: 12 },
+        10:{ cellWidth: 12 }
+      },
+
+      didDrawCell: function (data) {
+        const tickCols = [6,7,8,9,10];
+        if (
+          data.section === "body" &&
+          tickCols.includes(data.column.index) &&
+          data.cell.raw == 1
+        ) {
+          const x = data.cell.x + data.cell.width / 2;
+          const y = data.cell.y + data.cell.height / 2;
+          doc.setLineWidth(1.2);
+          doc.line(x - 2, y, x - 0.5, y + 2);
+          doc.line(x - 0.5, y + 2, x + 2.5, y - 2);
+        }
+      }
+    });
+
+    currentY = doc.lastAutoTable.finalY + 15;
+  });
+
+  window.open(doc.output("bloburl"), "_blank");
 }
