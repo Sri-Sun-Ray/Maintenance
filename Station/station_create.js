@@ -254,7 +254,14 @@ async function startCameraInCell(rowId, facingMode, td) {
   const video = document.getElementById(`camera-${rowId}`);
   if (!video) return;
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode }, audio: false });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: facingMode } },
+      audio: false
+    }).catch(() => {
+        // Fallback to any camera
+        return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    });
+
     video.srcObject = stream;
     activeCellCameras[rowId] = stream;
     cameraCellMap[rowId] = td;
