@@ -1,160 +1,102 @@
 <?php
+/**
+ * update_module_data.php
+ */
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 header('Content-Type: application/json');
 
-$zone = isset($_POST['zone']) ? htmlspecialchars($_POST['zone']) : null;
-$station = isset($_POST['station']) ? htmlspecialchars($_POST['station']) : null;
-$date = isset($_POST['date']) ? htmlspecialchars($_POST['date']) : null;
-$module = isset($_POST['module']) ? htmlspecialchars($_POST['module']) : null;
-
-if (!$zone || !$station || !$date || !$module) {
-    die(json_encode(['success' => false, 'message' => 'Missing required fields']));
-}
-
-function resolveModuleTable($module)
-{
-    $map = [
-        'quarterly_check' => 'quarterly_check',
-        'daily_monthly' => 'daily_monthly',
-        'quarterly_half' => 'quarterly_half'
-    ];
-
-    $key = strtolower($module);
-    return $map[$key] ?? null;
-}
-
-$tableName = resolveModuleTable($module);
-if (!$tableName) {
-    die(json_encode(['success' => false, 'message' => 'Unsupported module']));
-}
-
-function ensureImageDirectory($relativePath)
-{
+function ensureImageDirectory($relativePath) {
     $absolutePath = rtrim(__DIR__ . '/' . $relativePath, '/') . '/';
-    if (!is_dir($absolutePath)) {
-        mkdir($absolutePath, 0755, true);
+    if (!file_exists($absolutePath)) {
+        mkdir($absolutePath, 0777, true);
     }
     return $absolutePath;
 }
 
-function sanitizeFileSegment($value)
-{
-    $sanitized = preg_replace('/[^a-zA-Z0-9_-]/', '_', $value);
-    return $sanitized === '' ? 'file' : $sanitized;
+function sanitizeFileSegment($value) {
+    return preg_replace('/[^a-zA-Z0-9_-]/', '_', $value ?: 'file');
 }
 
-function moveUploadedImage($tmpName, $originalName, $metaParts, $folderRel, $folderAbs)
-{
-    if (!$tmpName || !is_uploaded_file($tmpName)) {
-        return null;
-    }
-
-    $safeOriginal = sanitizeFileSegment(pathinfo($originalName ?? 'image.png', PATHINFO_FILENAME));
-    $extension = pathinfo($originalName ?? '', PATHINFO_EXTENSION);
-    $extPart = $extension ? '.' . preg_replace('/[^a-zA-Z0-9]/', '', $extension) : '.png';
-
+function moveUploadedImage($tmp, $name, $meta, $folderRel, $folderAbs) {
+    if (!$tmp || !is_uploaded_file($tmp)) return null;
+    $ext = pathinfo($name, PATHINFO_EXTENSION);
+    $safeBase = sanitizeFileSegment(pathinfo($name, PATHINFO_FILENAME));
     $fileName = implode('_', [
-        sanitizeFileSegment($metaParts['zone']),
-        sanitizeFileSegment($metaParts['station']),
-        sanitizeFileSegment($metaParts['date']),
-        sanitizeFileSegment($metaParts['s_no']),
+        sanitizeFileSegment($meta['zone']),
+        sanitizeFileSegment($meta['station']),
+        sanitizeFileSegment($meta['date']),
+        sanitizeFileSegment($meta['s_no']),
         uniqid()
-    ]) . '_' . $safeOriginal . $extPart;
+    ]) . "_{$safeBase}.{$ext}";
 
-    $destinationAbs = $folderAbs . $fileName;
-    if (move_uploaded_file($tmpName, $destinationAbs)) {
+    if (move_uploaded_file($tmp, $folderAbs . $fileName)) {
         return str_replace('\\', '/', $folderRel . $fileName);
     }
-
     return null;
 }
 
-function collectUploadedImagesForRow($filesRoot, $rowIndex, $metaParts, $folderRel, $folderAbs)
-{
-    $collected = [];
-    if (!$filesRoot || !isset($filesRoot['name'][$rowIndex])) {
-        return $collected;
-    }
-
-    if (isset($filesRoot['name'][$rowIndex]['images'])) {
-        foreach ($filesRoot['name'][$rowIndex]['images'] as $imgIdx => $originalName) {
-            if (!$originalName) {
-                continue;
-            }
-
-            $errorCode = $filesRoot['error'][$rowIndex]['images'][$imgIdx] ?? UPLOAD_ERR_NO_FILE;
-            $tmpName = $filesRoot['tmp_name'][$rowIndex]['images'][$imgIdx] ?? null;
-            if ($errorCode !== UPLOAD_ERR_OK || !$tmpName) {
-                continue;
-            }
-
-            $stored = moveUploadedImage($tmpName, $originalName, $metaParts, $folderRel, $folderAbs);
-            if ($stored) {
-                $collected[] = $stored;
-            }
+function collectUploadedImagesForRow($filesRoot, $rowIndex, $metaParts, $folderRel, $folderAbs) {
+    $output = [];
+    if (!isset($filesRoot['name'][$rowIndex]['images'])) return $output;
+    foreach ($filesRoot['name'][$rowIndex]['images'] as $i => $originalName) {
+        if (!$originalName) continue;
+        $tmp = $filesRoot['tmp_name'][$rowIndex]['images'][$i] ?? null;
+        $err = $filesRoot['error'][$rowIndex]['images'][$i] ?? UPLOAD_ERR_NO_FILE;
+        if ($err === UPLOAD_ERR_OK && $tmp) {
+            $stored = moveUploadedImage($tmp, $originalName, $metaParts, $folderRel, $folderAbs);
+            if ($stored) $output[] = $stored;
         }
     }
-
-    return $collected;
+    return $output;
 }
 
-// Database connection
+// 1. Inputs
+$zone    = isset($_POST['zone']) ? htmlspecialchars($_POST['zone']) : null;
+$station = isset($_POST['station']) ? htmlspecialchars($_POST['station']) : null;
+$date    = isset($_POST['date']) ? htmlspecialchars($_POST['date']) : null;
+$module  = $_POST['module'] ?? null;
+
+if (!$zone || !$station || !$date || !$module) {
+    die(json_encode(['success' => false, 'message' => 'Missing Zone, Station, Date or Module ID.']));
+}
+
+$observations = $_POST['observations'] ?? [];
+$fileBag      = $_FILES['observations'] ?? null;
+
+// 2. DB Connection
 $servername = "localhost";
-$username = "root";
-$password = "Hbl@1234";
-$dbname = "maintainance";
+$username   = "root";
+$password   = "Hbl@1234";
+$dbname     = "maintainance";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die(json_encode(['success' => false, 'message' => 'Connection failed: ' . $conn->connect_error]));
 }
 
-// Get the station_info_id
-$stmt = $conn->prepare("SELECT id FROM station_info WHERE zone = ? AND station = ? AND date = ?");
+// 3. Find station_info_id
+$stmt = $conn->prepare("SELECT id FROM station_info WHERE zone=? AND station=? AND date=?");
 $stmt->bind_param("sss", $zone, $station, $date);
 $stmt->execute();
-$result = $stmt->get_result();
-$stationInfoId = null;
-
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $stationInfoId = $row['id'];
-} else {
-    echo json_encode(['success' => false, 'message' => 'Station Info not found. Please save station info first.']);
-    exit;
+$res = $stmt->get_result();
+if ($res->num_rows == 0) {
+    die(json_encode(['success' => false, 'message' => 'Station Info not found for ' . $zone . '/' . $station . '/' . $date]));
 }
+$row = $res->fetch_assoc();
+$stationInfoId = $row['id'];
 $stmt->close();
 
-// Create image folder if not exists
 $imageFolder = 'uploads/images/';
 $imageFolderAbs = ensureImageDirectory($imageFolder);
 
-// Process observations: $_POST['observations'] contains text fields, files are in $_FILES['observations']
-$observations = isset($_POST['observations']) ? $_POST['observations'] : [];
-$fileBag = isset($_FILES['observations']) ? $_FILES['observations'] : null;
-
+$count = 0;
 foreach ($observations as $index => $obs) {
     $sNo = intval($obs['s_no']);
-
-    // Common incoming fields from the front-end
-    // For daily_monthly & quarterly_half these represent:
-    //   name_number   -> location
-    //   details       -> maintenance_task_description
-    //   required_value-> action_taken
-    //   date_commission -> frequency (stored as VARCHAR in new schema)
-    //   observed_value-> equipment_condition
-    $details = isset($obs['details']) ? htmlspecialchars($obs['details']) : '';
-    $nameNumber = isset($obs['name_number']) ? htmlspecialchars($obs['name_number']) : '';
-    $dateCommRaw = $obs['date_commission'] ?? '';
-    $requiredValue = isset($obs['required_value']) ? htmlspecialchars($obs['required_value']) : '';
-    $observedValue = isset($obs['observed_value']) ? htmlspecialchars($obs['observed_value']) : '';
-    $dateCommission = !empty($dateCommRaw) ? htmlspecialchars($dateCommRaw) : null;
-    $remarks = isset($obs['remarks']) ? htmlspecialchars($obs['remarks']) : '';
-    
     $imagePaths = [];
-    
-    // Handle existing images (from previous saves)
+
+    // Existing images
     if (isset($obs['existing_images']) && is_array($obs['existing_images'])) {
         foreach ($obs['existing_images'] as $existingImg) {
             if (!empty($existingImg)) {
@@ -163,7 +105,7 @@ foreach ($observations as $index => $obs) {
         }
     }
 
-    // Handle removed images
+    // Removed images
     if (isset($obs['removed_images']) && is_array($obs['removed_images'])) {
         foreach ($obs['removed_images'] as $removedImg) {
             if (!empty($removedImg)) {
@@ -175,121 +117,72 @@ foreach ($observations as $index => $obs) {
         }
     }
 
-    // Handle new uploaded images
+    // New uploads
     if ($fileBag) {
         $newImages = collectUploadedImagesForRow(
             $fileBag,
             $index,
             ['zone' => $zone, 'station' => $station, 'date' => $date, 's_no' => $sNo],
-            $imageFolder,
+            $imageFolder, 
             $imageFolderAbs
         );
         $imagePaths = array_merge($imagePaths, $newImages);
     }
 
-    $imageJson = !empty($imagePaths) ? json_encode($imagePaths) : null;
+    $imageJson = $imagePaths ? json_encode($imagePaths) : null;
+    $createdAt = date('Y-m-d H:i:s');
+    $tableName = ($module === 'quarterly_check') ? 'quarterly_check' : (($module === 'daily_monthly') ? 'daily_monthly' : 'quarterly_half');
 
-    // Check if record exists
-    $checkStmt = $conn->prepare("SELECT id FROM {$tableName} WHERE station_info_id = ? AND s_no = ? AND module = ?");
-    $checkStmt->bind_param("iis", $stationInfoId, $sNo, $module);
-    $checkStmt->execute();
-    $checkResult = $checkStmt->get_result();
-    
-    if ($checkResult->num_rows > 0) {
-        // Update existing record
-        if ($tableName === 'quarterly_check') {
-            $updateStmt = $conn->prepare("UPDATE quarterly_check 
-                SET details = ?, name_number = ?, date_commission = ?, required_value = ?, observed_value = ?, remarks = ?, image_path = ? 
-                WHERE station_info_id = ? AND s_no = ? AND module = ?");
-            $updateStmt->bind_param(
-                "sssssssiss",
-                $details, $nameNumber, $dateCommission,
-                $requiredValue, $observedValue,
-                $remarks, $imageJson,
-                $stationInfoId, $sNo, $module
-            );
-        } elseif ($tableName === 'daily_monthly' || $tableName === 'quarterly_half') {
-            // Map generic variables to new column meanings
-            $location    = $nameNumber;
-            $taskDesc    = $details;
-            $actionTaken = $requiredValue;
-            $frequency   = $dateCommission;
-            $equipCond   = $observedValue;
+    if ($module === 'quarterly_check') {
+        $details    = htmlspecialchars($obs['details'] ?? '');
+        $nameNumber = htmlspecialchars($obs['name_number'] ?? '');
+        $dateComm   = !empty($obs['date_commission']) ? htmlspecialchars($obs['date_commission']) : null;
+        $reqValue   = htmlspecialchars($obs['required_value'] ?? '');
+        $obsValue   = htmlspecialchars($obs['observed_value'] ?? '');
+        $remarks    = htmlspecialchars($obs['remarks'] ?? '');
 
-            $updateStmt = $conn->prepare("UPDATE {$tableName} 
-                SET location = ?, maintenance_task_description = ?, action_taken = ?, 
-                    frequency = ?, equipment_condition = ?, remarks = ?, image_path = ? 
-                WHERE station_info_id = ? AND s_no = ? AND module = ?");
-            $updateStmt->bind_param(
-                "sssssssiss",
-                $location, $taskDesc, $actionTaken,
-                $frequency, $equipCond,
-                $remarks, $imageJson,
-                $stationInfoId, $sNo, $module
-            );
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Unsupported table: ' . $tableName]);
-            exit;
-        }
-
-        if (!$updateStmt->execute()) {
-            echo json_encode(['success' => false, 'message' => 'Error updating data: ' . $updateStmt->error]);
-            exit;
-        }
-        $updateStmt->close();
+        $sql = "INSERT INTO quarterly_check 
+                (s_no, station_info_id, module, details, name_number, date_commission, required_value, observed_value, remarks, image_path, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE 
+                details=VALUES(details), 
+                name_number=VALUES(name_number), 
+                date_commission=VALUES(date_commission), 
+                required_value=VALUES(required_value), 
+                observed_value=VALUES(observed_value), 
+                remarks=VALUES(remarks), 
+                image_path=VALUES(image_path)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iisssssssss", $sNo, $stationInfoId, $module, $details, $nameNumber, $dateComm, $reqValue, $obsValue, $remarks, $imageJson, $createdAt);
     } else {
-        // Insert new record (mirror logic from save_module_data.php)
-        $createdAt = date('Y-m-d H:i:s');
+        $location   = htmlspecialchars($obs['location'] ?? $obs['name_number'] ?? '');
+        $taskDesc   = htmlspecialchars($obs['task_description'] ?? $obs['details'] ?? '');
+        $actionTaken= htmlspecialchars($obs['action_taken'] ?? $obs['required_value'] ?? '');
+        $frequency  = htmlspecialchars($obs['frequency'] ?? $obs['date_commission'] ?? '');
+        $equipCond  = htmlspecialchars($obs['equipment_condition'] ?? $obs['observed_value'] ?? '');
+        $remarks    = htmlspecialchars($obs['remarks'] ?? '');
 
-        if ($tableName === 'quarterly_check') {
-            $insertStmt = $conn->prepare("INSERT INTO quarterly_check 
-                (s_no, station_info_id, module, details, name_number, date_commission, required_value, observed_value, remarks, image_path, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-            $insertStmt->bind_param(
-                "iisssssssss",
-                $sNo, $stationInfoId, $module,
-                $details, $nameNumber, $dateCommission,
-                $requiredValue, $observedValue,
-                $remarks, $imageJson, $createdAt
-            );
-        } elseif ($tableName === 'daily_monthly' || $tableName === 'quarterly_half') {
-            $location    = $nameNumber;
-            $taskDesc    = $details;
-            $actionTaken = $requiredValue;
-            $frequency   = $dateCommission;
-            $equipCond   = $observedValue;
-
-            $insertStmt = $conn->prepare("INSERT INTO {$tableName} 
-                (s_no, station_info_id, module, 
-                 location, maintenance_task_description, action_taken,
-                 frequency, equipment_condition,
-                 remarks, image_path, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-            $insertStmt->bind_param(
-                "iisssssssss",
-                $sNo, $stationInfoId, $module,
-                $location, $taskDesc, $actionTaken,
-                $frequency, $equipCond,
-                $remarks, $imageJson, $createdAt
-            );
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Unsupported table: ' . $tableName]);
-            exit;
-        }
-
-        if (!$insertStmt->execute()) {
-            echo json_encode(['success' => false, 'message' => 'Error inserting data: ' . $insertStmt->error]);
-            exit;
-        }
-        $insertStmt->close();
+        $sql = "INSERT INTO {$tableName} 
+                (s_no, station_info_id, module, location, maintenance_task_description, action_taken, frequency, equipment_condition, remarks, image_path, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE 
+                location=VALUES(location), 
+                maintenance_task_description=VALUES(maintenance_task_description), 
+                action_taken=VALUES(action_taken), 
+                frequency=VALUES(frequency), 
+                equipment_condition=VALUES(equipment_condition), 
+                remarks=VALUES(remarks), 
+                image_path=VALUES(image_path)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iisssssssss", $sNo, $stationInfoId, $module, $location, $taskDesc, $actionTaken, $frequency, $equipCond, $remarks, $imageJson, $createdAt);
     }
-    
-    $checkStmt->close();
+
+    if ($stmt->execute()) {
+        $count++;
+    }
+    $stmt->close();
 }
 
 $conn->close();
-echo json_encode(['success' => true, 'message' => 'Module data updated successfully']);
+echo json_encode(['success' => true, 'message' => "Update/Save successful. $count rows processed."]);
 ?>
-

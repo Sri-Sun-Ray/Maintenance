@@ -850,7 +850,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeDefaultValues(m, true);
   });
 
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '../login.html';
+  });
   document.getElementById('btn-save')?.addEventListener('click', saveStationInfo);
+
   document.getElementById('btn-get')?.addEventListener('click', getStationDetails);
 
   document.getElementById('saveQuarterly')?.addEventListener('click', () => saveModuleData('quarterly_check'));

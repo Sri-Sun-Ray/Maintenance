@@ -29,8 +29,8 @@ try {
 // Optional zone filter ?zone=ER
 $filterZone = isset($_GET['zone']) ? trim($_GET['zone']) : '';
 
-// If no explicit zone provided and user is not admin, attempt to read user's zone from users table
-if ($filterZone === '' && strtolower($role) !== 'admin') {
+// If no explicit zone provided and user is not an admin, attempt to read user's zone from users table
+if ($filterZone === '' && stripos($role, 'admin') === false) {
     try {
         $uStmt = $pdo->prepare("SELECT zone FROM users WHERE username = ? LIMIT 1");
         $uStmt->execute([$username]);
@@ -42,6 +42,7 @@ if ($filterZone === '' && strtolower($role) !== 'admin') {
         // ignore – keep $filterZone unchanged if lookup fails
     }
 }
+
 
 // Ensure station_reports table exists
 $pdo->exec("CREATE TABLE IF NOT EXISTS station_reports (
@@ -63,16 +64,17 @@ try {
             SELECT id, zone, station, report_date, file_name, version, created_at, file_path
             FROM station_reports
             WHERE LOWER(zone) = LOWER(?)
-            ORDER BY zone, station, report_date DESC, version DESC, created_at DESC";
+            ORDER BY created_at DESC, zone, station, report_date DESC, version DESC";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$filterZone]);
     } else {
         $sql = "
             SELECT id, zone, station, report_date, file_name, version, created_at, file_path
             FROM station_reports
-            ORDER BY zone, station, report_date DESC, version DESC, created_at DESC";
+            ORDER BY created_at DESC, zone, station, report_date DESC, version DESC";
         $stmt = $pdo->query($sql);
     }
+
     $reports = $stmt->fetchAll();
 } catch (Exception $e) {
     $reports = [];

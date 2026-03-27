@@ -247,26 +247,10 @@ function downloadReport(path) {
 
 function editReport(button) {
   const item = JSON.parse(button.getAttribute('data-item'));
-  // For Station dashboard we only care about zone, station and date
-  const zone = item.zone || "";
-  const station = item.station || "";
-  const date = item.report_date || item.last_updated || "";
-
-  if (zone) {
-    localStorage.setItem("zone", zone);
-    sessionStorage.setItem("zone", zone);
-  }
-  if (station) {
-    localStorage.setItem("selectedStation", station);
-    sessionStorage.setItem("station", station);
-  }
-  if (date) {
-    localStorage.setItem("date", date);
-    sessionStorage.setItem("date", date);
-  }
-  // Flag edit mode so Station_create can hide Save and show Get Details
-  localStorage.setItem("stationEditMode", "1");
-  window.location.href = "../Station_create.html";
+  localStorage.setItem("editStation", item.station);
+  localStorage.setItem("editRiu", item.riu_no);
+  localStorage.setItem("editEquip", item.riu_equip_no);
+  window.location.href = "../RIU_create.html";
 }
 
 
@@ -277,18 +261,10 @@ function createNewReport() {
   const selectedStation = stationDropdown.value;
   if (selectedStation) {
     localStorage.setItem("selectedStation", selectedStation);
-    window.location.href = "../Station_index.html";
+    window.location.href = "../LTCAS_index.html";
   } else {
     confirm("Continue without selecting station?")
-      ? window.location.href = "../Station_index.html"
+      ? window.location.href = "../LTCAS_index.html"
       : alert("Please select a station.");
   }
 }
-
-// === LOGOUT ===
-document.querySelector(".logout-btn")?.addEventListener("click", () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.href = "../login.html";
-});
-

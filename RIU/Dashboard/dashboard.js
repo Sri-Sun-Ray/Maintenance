@@ -268,3 +268,11 @@ function createNewReport() {
       : alert("Please select a station.");
   }
 }
+
+// === LOGOUT ===
+document.querySelector(".logout-btn")?.addEventListener("click", () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = "../login.html";
+});
+

@@ -29,8 +29,10 @@ function populateStationDropdown(zone) {
 // === Logout ===
 document.getElementById("logoutBtn").addEventListener("click", () => {
   localStorage.clear();
-  window.location.href = "login.html";
+  sessionStorage.clear();
+  window.location.href = "../login.html";
 });
+
 
 // === Save Info ===
 function saveInfo() {
@@ -91,7 +93,7 @@ function saveInfo() {
 
 window.addEventListener("DOMContentLoaded", function() {
   // Check if user is refreshing the page
-  const isRefresh = performance.navigation.type === 1 || 
+  const isRefresh = performance.navigation.type === 1 ||
                     (performance.getEntriesByType("navigation")[0]?.type === "reload");
 
   // Load stored zone and station first (don't clear these)
@@ -112,20 +114,20 @@ window.addEventListener("DOMContentLoaded", function() {
   if (isRefresh) {
     // Show confirmation dialog only for RIU data, not zone/station
     const shouldClear = confirm("Do you want to clear RIU data and start a new report?\n\nZone and Station will be retained.");
-    
+
     if (shouldClear) {
       // Clear only session and RIU/Equipment data
       sessionStorage.clear();
-      
+
       // Clear ONLY RIU and Equipment fields
       document.getElementById("riu").value = '';
       document.getElementById("equipNo").value = '';
-      
+
       // Remove RIU-specific localStorage items ONLY (keep zone/station)
       localStorage.removeItem("riuNo");
       localStorage.removeItem("equipNo");
       // DON'T remove selectedStation - keep it!
-      
+
       // Show Save button for new report
       document.getElementById('btn-save').style.display = 'block';
       document.getElementById('btn-get_details').style.display = 'none';
@@ -322,9 +324,9 @@ function showModule(moduleId) {
 function attachMetadataToRows(moduleId) {
   const tableBodyId = moduleId + 'TableBody';
   const tableBody = document.getElementById(tableBodyId);
-  
+
   if (!tableBody) return;
-  
+
   const rows = tableBody.querySelectorAll('tr');
   rows.forEach(row => {
     const cells = row.querySelectorAll('td');
@@ -849,13 +851,13 @@ function get() {
 
             // Check modules with data and highlight sidebar
             checkModulesWithData(zone, station, riu, equipNo);
-            
+
             // Load data for all modules
             loadAllModuleData();
-            
+
             // Enable sidebar
             document.querySelector('.sidebar').style.pointerEvents = 'auto';
-            
+
             if (result.success) {
                 alert("✔️ New RIU Saved!");
             } else {

@@ -511,8 +511,27 @@
                     const headers = Array.from(headerRow?.cells || []).map(th => th.innerText.trim());
 
                     const tableBody = [];
-                    table.querySelectorAll('tbody tr').forEach(row => {
-                        const cells = row.cells;
+                    const trs = table.querySelectorAll('tbody tr');
+                    for (let tr of trs) {
+                        const cells = tr.cells;
+                        const imgs = Array.from(cells[7]?.querySelectorAll('img') || []);
+                        const b64List = [];
+                        
+                        imgs.forEach(img => {
+                            try {
+                                if (img.src && (img.complete || img.naturalWidth > 0)) {
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = img.naturalWidth || img.width;
+                                    canvas.height = img.naturalHeight || img.height;
+                                    if (canvas.width > 0 && canvas.height > 0) {
+                                        const ctx = canvas.getContext('2d');
+                                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                        b64List.push(canvas.toDataURL('image/jpeg', 0.8));
+                                    }
+                                }
+                            } catch(err) { console.warn("Image capture failed for PDF", err); }
+                        });
+
                         tableBody.push([
                             cells[0]?.innerText || '',
                             cells[1]?.innerText || '',
@@ -521,19 +540,47 @@
                             cells[4]?.innerText || '',
                             cells[5]?.innerText || '',
                             cells[6]?.innerText || '',
-                            (cells[7]?.querySelectorAll('img').length > 0) ? '✓ Image' : 'N/A'
+                            b64List
                         ]);
-                    });
+                    }
 
                     doc.autoTable({
                         startY: currentY,
                         head: [headers],
                         body: tableBody,
                         theme: 'grid',
-                        styles: { fontSize: 8, cellPadding: 4, lineColor: [0,0,0], lineWidth: 0.8 },
+                        styles: { fontSize: 8, cellPadding: 4, lineColor: [0,0,0], lineWidth: 0.8, valign: 'middle' },
                         headStyles: { fillColor: [30,60,120], textColor: 255, fontStyle: 'bold', fontSize: 9 },
                         margin: { left: startX, right: startX },
-                        tableWidth: contentWidth
+                        tableWidth: contentWidth,
+                        columnStyles: {
+                            7: { cellWidth: 80 } 
+                        },
+                        didParseCell: function(data) {
+                            if (data.column.index === 7 && data.section === 'body') {
+                                data.cell.text = ''; 
+                                if (Array.isArray(data.cell.raw) && data.cell.raw.length > 0) {
+                                    data.cell.styles.minCellHeight = 60; 
+                                }
+                            }
+                        },
+                        didDrawCell: function(data) {
+                            if (data.column.index === 7 && data.section === 'body' && Array.isArray(data.cell.raw)) {
+                                const b64s = data.cell.raw;
+                                let x = data.cell.x + 2;
+                                let y = data.cell.y + 2;
+                                b64s.forEach(b64 => {
+                                    if (x + 35 > data.cell.x + data.cell.width) {
+                                        x = data.cell.x + 2;
+                                        y += 28;
+                                    }
+                                    try {
+                                        doc.addImage(b64, 'JPEG', x, y, 35, 25);
+                                        x += 38;
+                                    } catch(e) {}
+                                });
+                            }
+                        }
                     });
 
                     currentY = doc.lastAutoTable.finalY + 20;
@@ -543,6 +590,9 @@
                         currentY = 50;
                     }
                 });
+
+
+
 
                 // Footer
                 doc.setFontSize(10);
