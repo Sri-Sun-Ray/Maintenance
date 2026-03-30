@@ -81,16 +81,49 @@
 
         .obs-table td {
             border: 1.5px solid black;
-            padding: 6px;
-            font-size: 14px;
+            padding: 8px;
+            font-size: 16px;
             color: black;
         }
 
+        /* Thicker black borders for meta and summary tables */
+        .meta-table-4col td, .summary-table td, .summary-table th {
+            border: 2px solid black !important;
+        }
+
+        .status-block-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .status-block-table td {
+            border: 2px solid black;
+            padding: 12px;
+            vertical-align: middle;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .status-block-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .status-block-table td {
+            border: 2px solid black;
+            padding: 12px;
+            vertical-align: middle;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
         .img-thumb {
-            max-width: 90px;
-            max-height: 70px;
-            border: 1px solid black;
+            max-width: 150px;
+            max-height: 120px;
+            border: 1px solid #333;
             cursor: pointer;
+            margin: 2px;
+            border-radius: 4px;
         }
 
         .controls {
@@ -192,11 +225,14 @@
             const obsArea = document.getElementById('obsArea');
             const createBtn = document.getElementById('createPdfBtn');
             const viewBtn = document.getElementById('viewReportsBtn');
+            let fullObservations = []; // maintain full data for summaries
+            let startedAtDate = '';
+            let updatedAtDate = '';
 
             function escapeHtml(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-            function renderMeta(info) {
-                // Single-row header: Zone, Station, Date
+            function renderMeta(info, started, updated) {
+                // Multi-row header: Zone, Station, Date, Started, Updated
                 metaArea.innerHTML = `
                     <table class="meta-table-4col">
                         <tr>
@@ -206,6 +242,12 @@
                             <td>${escapeHtml(info.station || '--')}</td>
                             <td class="label">Date</td>
                             <td>${escapeHtml(info.date || '--')}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Report Started</td>
+                            <td>${escapeHtml(started || '--')}</td>
+                            <td class="label">Last Updated</td>
+                            <td colspan="3">${escapeHtml(updated || '--')}</td>
                         </tr>
                     </table>
                 `;
@@ -232,10 +274,9 @@
                 });
 
                 // ----- Summary: Total Points & Closed Points (similar to RIU) -----
-                const totalPoints = observations.length;
-                // Consider a point "closed" if there is any observed_value or remarks
+                const totalPoints = fullObservations.length;
                 let closedPoints = 0;
-                observations.forEach(o => {
+                fullObservations.forEach(o => {
                     const hasObserved = (o.observed_value || '').toString().trim() !== '';
                     const hasRemarks = (o.remarks || '').toString().trim() !== '';
                     if (hasObserved || hasRemarks) closedPoints++;
@@ -347,20 +388,50 @@
                         };
                     }
 
+                    // Pre-filter to check if this module has ANY valid entries to display
+                    const moduleNameRaw = groups[name][0]?.module || name;
+                    const validObs = fullObservations.filter(obs => obs.module === moduleNameRaw).filter(obs => {
+                        const hasObs = (obs.observed_value || '').toString().trim() !== '';
+                        const hasRem = (obs.remarks || '').toString().trim() !== '';
+                        const hasName = (obs.name_number || '').toString().trim() !== '';
+
+                        if (!hasObs && !hasRem) {
+                            const modKey = (obs.module || name || '').toLowerCase();
+                            const isCheckAll = modKey === 'quarterly_check';
+                            if (!isCheckAll || !hasName) return false;
+                        }
+                        return true;
+                    });
+
+                    // Skip the module completely if no valid rows exist!
+                    if (validObs.length === 0) return;
+
                     tableHtml += `<div class="module-section">
                         <div class="module-title">${escapeHtml(name)}</div>
                         <div style="overflow-x:auto;">
                             <table class="obs-table">
                                 <thead>
                                     <tr>
-                                        ${headers.map(h => `<th style="width:${h === 'S.No' ? '5%' : h === 'Images' ? '10%' : '12%'}">${escapeHtml(h)}</th>`).join('')}
+                                        ${headers.map(h => `<th style="width:${h === 'S.No' ? '5%' : h === 'Images' ? '18%' : '13%'}">${escapeHtml(h)}</th>`).join('')}
                                     </tr>
                                 </thead>
                                 <tbody>`;
 
-                    groups[name].forEach(obs => {
-                        const images = Array.isArray(obs.image_paths) ? obs.image_paths.filter(Boolean)
-                                   : (obs.image_path ? [obs.image_path] : []);
+                    validObs.forEach(obs => {
+                        let images = [];
+                        if (Array.isArray(obs.image_paths)) {
+                            images = obs.image_paths;
+                        } else if (obs.image_path && (obs.image_path.startsWith('[') || obs.image_path.startsWith('{'))) {
+                            try {
+                                images = JSON.parse(obs.image_path);
+                            } catch(e) {
+                                images = [obs.image_path];
+                            }
+                        } else if (obs.image_path) {
+                            images = [obs.image_path];
+                        }
+                        images = images.filter(Boolean);
+
                         const imgHtml = images.length
                             ? images.map(p => `<img src="${escapeHtml(p)}" class="img-thumb" onclick="openImageModal('${escapeHtml(p)}')">`).join('')
                             : 'N/A';
@@ -381,9 +452,9 @@
                 });
 
                 obsArea.innerHTML = tableHtml + `
-                    <div id="imageModal">
+                    <div id="imageModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; z-index:10000;">
                         <div style="position:relative;background:white;padding:14px;border-radius:8px;">
-                            <span onclick="closeImageModal()" style="position:absolute;top:8px;right:12px;cursor:pointer;">×</span>
+                            <span onclick="closeImageModal()" style="position:absolute;top:8px;right:12px;cursor:pointer;font-size:24px;">×</span>
                             <img id="modalImage" src="" style="max-width:95vw;max-height:90vh;">
                         </div>
                     </div>`;
@@ -416,9 +487,13 @@
                 })
                     .then(r => r.json())
                     .then(json => {
-                        if (json.station_info) renderMeta(json.station_info);
-                        else renderMeta({ zone, station, date });
-                        renderObservations(json.observations || []);
+                        startedAtDate = json.started_at || '';
+                        updatedAtDate = json.updated_at || '';
+
+                        if (json.station_info) renderMeta(json.station_info, startedAtDate, updatedAtDate);
+                        else renderMeta({ zone, station, date }, startedAtDate, updatedAtDate);
+                        fullObservations = json.observations || [];
+                        renderObservations(fullObservations);
                     })
                     .catch(err => {
                         console.error(err);
@@ -469,12 +544,12 @@
 
                 // Work out completion status for file name (similar criteria as summary)
                 let closedPoints = 0;
-                observations.forEach(o => {
+                fullObservations.forEach(o => {
                     const hasObs = (o.observed_value || '').toString().trim() !== '';
                     const hasRem = (o.remarks || '').toString().trim() !== '';
                     if (hasObs || hasRem) closedPoints++;
                 });
-                const totalPoints = observations.length;
+                const totalPoints = fullObservations.length;
                 const openPoints = Math.max(0, totalPoints - closedPoints);
                 const statusForName = (openPoints === 0 && totalPoints > 0) ? 'Completed' : 'NotCompleted';
 
@@ -486,15 +561,107 @@
                 // Station Info Table
                 doc.autoTable({
                     startY: 50,
-                    head: [['Zone', 'Station', 'Date']],
-                    body: [[zone || '--', station || '--', date || '--']],
+                    head: [['Zone', 'Station', 'Date', 'Report Started', 'Last Updated']],
+                    body: [[zone || '--', station || '--', date || '--', startedAtDate || '--', updatedAtDate || '--']],
                     theme: 'grid',
-                    styles: { fontSize: 13, cellPadding: 10, lineColor: [0,0,0], lineWidth: 1.2 },
-                    headStyles: { fillColor: [30,60,120], textColor: 255, fontStyle: 'bold', fontSize: 13 },
+                    styles: { fontSize: 11, cellPadding: 8, lineColor: [0,0,0], lineWidth: 1.5 },
+                    headStyles: { fillColor: [30,60,120], textColor: 255, fontStyle: 'bold', fontSize: 11, lineColor: [0,0,0], lineWidth: 1.5 },
                     margin: { left: startX, right: startX }
                 });
 
                 let currentY = doc.lastAutoTable.finalY + 25;
+
+                // === Module Summary Table ===
+                const CLEAN_NAME_PDF = {
+                    'quarterly_check': 'SCHEDULE CHECK – QUARTERLY',
+                    'daily_monthly': 'MAINTENANCE SCHEDULE – DAILY & MONTHLY',
+                    'quarterly_half': 'MAINTENANCE SCHEDULE – QUARTERLY & HALF YEARLY'
+                };
+                const expectedModulesPdf = ['SCHEDULE CHECK – QUARTERLY', 'MAINTENANCE SCHEDULE – DAILY & MONTHLY', 'MAINTENANCE SCHEDULE – QUARTERLY & HALF YEARLY'];
+                const summaryRowsPdf = [];
+
+                expectedModulesPdf.forEach(moduleName => {
+                    const rows = fullObservations.filter(o => {
+                        const raw = (o.module || '').toString().trim().toLowerCase();
+                        return (CLEAN_NAME_PDF[raw] === moduleName) || (raw.toUpperCase() === moduleName.toUpperCase());
+                    });
+
+                    if (rows.length === 0) {
+                        summaryRowsPdf.push([moduleName, 'Not yet started']);
+                        return;
+                    }
+
+                    const openPoints = rows.filter(o => {
+                        const hasObs = (o.observed_value || '').toString().trim() !== '';
+                        const hasRem = (o.remarks || '').toString().trim() !== '';
+                        return !hasObs && !hasRem;
+                    });
+
+                    if (openPoints.length === 0) {
+                        summaryRowsPdf.push([moduleName, 'Completed']);
+                    } else {
+                        summaryRowsPdf.push([moduleName, `Open points: ${openPoints.length}`]);
+                    }
+                });
+
+                doc.autoTable({
+                    startY: currentY,
+                    head: [['Module', 'Status']],
+                    body: summaryRowsPdf,
+                    theme: 'grid',
+                    styles: { fontSize: 12, cellPadding: 8, lineColor: [0,0,0], lineWidth: 1.5 },
+                    headStyles: { fillColor: [241, 245, 249], textColor: [11, 58, 102], fontStyle: 'bold', fontSize: 12, lineColor: [0,0,0], lineWidth: 1.5 },
+                    columnStyles: { 0: { cellWidth: 200 }, 1: { cellWidth: 320 } },
+                    margin: { left: startX, right: startX }
+                });
+
+                currentY = doc.lastAutoTable.finalY + 15;
+
+                // === 3-Column Status Table for PDF (True Checkboxes) ===
+                const isCompleted = (openPoints === 0 && totalPoints > 0);
+                const h = 40;
+                
+                // Reset Line Width and Color
+                doc.setDrawColor(0, 0, 0);
+                doc.setLineWidth(1.5);
+                
+                // Col 1: Maintenance Status
+                doc.setFillColor(240, 240, 240);
+                doc.rect(startX, currentY, 200, h, 'FD'); // Fill Gray & Draw Border
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(13);
+                doc.setTextColor(0, 0, 0);
+                doc.text('MAINTENANCE STATUS', startX + 15, currentY + 25);
+                
+                // Col 2: Completed
+                doc.rect(startX + 200, currentY, 160, h, 'S'); // Draw Border
+                doc.setTextColor(isCompleted ? 46 : 100, isCompleted ? 125 : 100, isCompleted ? 50 : 100);
+                doc.rect(startX + 230, currentY + 14, 12, 12); // Real Checkbox square
+                if (isCompleted) {
+                    doc.setDrawColor(46, 125, 50); // Green tick
+                    doc.setLineWidth(2);
+                    doc.line(startX + 233, currentY + 20, startX + 235, currentY + 23); // tick down
+                    doc.line(startX + 235, currentY + 23, startX + 241, currentY + 15); // tick up
+                    doc.setDrawColor(0, 0, 0);
+                    doc.setLineWidth(1.5);
+                }
+                doc.text('Completed', startX + 255, currentY + 25);
+                
+                // Col 3: Not Completed
+                doc.rect(startX + 360, currentY, 160, h, 'S'); // Draw Border
+                doc.setTextColor(!isCompleted ? 198 : 100, !isCompleted ? 40 : 100, !isCompleted ? 40 : 100);
+                doc.rect(startX + 375, currentY + 14, 12, 12); // Real Checkbox square
+                if (!isCompleted) {
+                    doc.setDrawColor(198, 40, 40); // Red cross
+                    doc.setLineWidth(2);
+                    doc.line(startX + 377, currentY + 16, startX + 385, currentY + 24); // cross stroke 1
+                    doc.line(startX + 385, currentY + 16, startX + 377, currentY + 24); // cross stroke 2
+                    doc.setDrawColor(0, 0, 0);
+                    doc.setLineWidth(1.5);
+                }
+                doc.text('Not Completed', startX + 395, currentY + 25);
+
+                currentY += h + 25;
 
                 // Render each module table exactly as on screen
                 document.querySelectorAll('.module-section').forEach(section => {
@@ -504,6 +671,7 @@
 
                     doc.setFont('helvetica', 'bold');
                     doc.setFontSize(15);
+                    doc.setTextColor(0, 0, 0); // Reset to Black
                     doc.text(moduleTitle, startX, currentY);
                     currentY += 15;
 
@@ -511,72 +679,113 @@
                     const headers = Array.from(headerRow?.cells || []).map(th => th.innerText.trim());
 
                     const tableBody = [];
-                    const trs = table.querySelectorAll('tbody tr');
-                    for (let tr of trs) {
-                        const cells = tr.cells;
-                        const imgs = Array.from(cells[7]?.querySelectorAll('img') || []);
+                    const CLEAN_NAME_PDF = {
+                        'quarterly_check': 'SCHEDULE CHECK – QUARTERLY',
+                        'daily_monthly': 'MAINTENANCE SCHEDULE – DAILY & MONTHLY',
+                        'quarterly_half': 'MAINTENANCE SCHEDULE – QUARTERLY & HALF YEARLY'
+                    };
+
+                    fullObservations.forEach(obs => {
+                        const raw = (obs.module || '').toString().trim().toLowerCase();
+                        const moduleName = CLEAN_NAME_PDF[raw] || raw.toUpperCase();
+                        if (moduleName !== moduleTitle) return;
+
+                        // REFINED FILTER FOR PDF
+                        const hasObs = (obs.observed_value || '').toString().trim() !== '';
+                        const hasRem = (obs.remarks || '').toString().trim() !== '';
+                        const hasName = (obs.name_number || '').toString().trim() !== '';
+                        if (!hasObs && !hasRem) {
+                            const modKey = (obs.module || raw || '').toLowerCase();
+                            const isCheckAll = modKey === 'quarterly_check';
+                            if (!isCheckAll || !hasName) return;
+                        }
+
+                        let cm = {};
+                        if (moduleName === 'SCHEDULE CHECK – QUARTERLY') {
+                            cm = { s_no:'s_no', c1:'details', c2:'name_number', c3:'date_commission', c4:'required_value', c5:'observed_value', c6:'remarks' };
+                        } else {
+                            cm = { s_no:'s_no', c1:'name_number', c2:'details', c3:'required_value', c4:'date_commission', c5:'observed_value', c6:'remarks' };
+                        }
+
+                        // Fetch b64 images from the visible HTML table
                         const b64List = [];
-                        
-                        imgs.forEach(img => {
-                            try {
-                                if (img.src && (img.complete || img.naturalWidth > 0)) {
-                                    const canvas = document.createElement('canvas');
-                                    canvas.width = img.naturalWidth || img.width;
-                                    canvas.height = img.naturalHeight || img.height;
-                                    if (canvas.width > 0 && canvas.height > 0) {
+                        const matchingHtmlRow = Array.from(table.querySelectorAll('tbody tr')).find(tr => tr.cells[0]?.innerText.trim() === String(obs[cm.s_no]));
+                        if (matchingHtmlRow) {
+                            const imgs = matchingHtmlRow.querySelectorAll('img');
+                            imgs.forEach(img => {
+                                try {
+                                    if (img.src && (img.complete || img.naturalWidth > 0)) {
+                                        const canvas = document.createElement('canvas');
+                                        canvas.width = img.naturalWidth || img.width;
+                                        canvas.height = img.naturalHeight || img.height;
                                         const ctx = canvas.getContext('2d');
                                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                                         b64List.push(canvas.toDataURL('image/jpeg', 0.8));
                                     }
-                                }
-                            } catch(err) { console.warn("Image capture failed for PDF", err); }
-                        });
+                                } catch (e) {}
+                            });
+                        }
 
                         tableBody.push([
-                            cells[0]?.innerText || '',
-                            cells[1]?.innerText || '',
-                            cells[2]?.innerText || '',
-                            cells[3]?.innerText || '',
-                            cells[4]?.innerText || '',
-                            cells[5]?.innerText || '',
-                            cells[6]?.innerText || '',
+                            obs[cm.s_no] || '',
+                            obs[cm.c1] || '',
+                            obs[cm.c2] || '',
+                            obs[cm.c3] || '',
+                            obs[cm.c4] || '',
+                            obs[cm.c5] || '',
+                            obs[cm.c6] || '',
                             b64List
                         ]);
-                    }
+                    });
 
                     doc.autoTable({
                         startY: currentY,
                         head: [headers],
                         body: tableBody,
                         theme: 'grid',
-                        styles: { fontSize: 8, cellPadding: 4, lineColor: [0,0,0], lineWidth: 0.8, valign: 'middle' },
-                        headStyles: { fillColor: [30,60,120], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+                        styles: { fontSize: 9, cellPadding: 3, lineColor: [0,0,0], lineWidth: 1.2, valign: 'middle' },
+                        headStyles: { 
+                            fillColor: [30,60,120], 
+                            textColor: 255, 
+                            fontStyle: 'bold', 
+                            fontSize: 8.5, 
+                            lineColor: [0,0,0], 
+                            lineWidth: 1.2,
+                            halign: 'center' 
+                        },
                         margin: { left: startX, right: startX },
                         tableWidth: contentWidth,
                         columnStyles: {
-                            7: { cellWidth: 80 } 
+                            0: { cellWidth: 25 }, // S.No
+                            1: { cellWidth: 'auto' },
+                            2: { cellWidth: 'auto' },
+                            3: { cellWidth: 70 }, // Date of Commissioning
+                            4: { cellWidth: 'auto' },
+                            5: { cellWidth: 'auto' },
+                            6: { cellWidth: 'auto' },
+                            7: { cellWidth: 110 } // Images (increased)
                         },
                         didParseCell: function(data) {
                             if (data.column.index === 7 && data.section === 'body') {
-                                data.cell.text = ''; 
-                                if (Array.isArray(data.cell.raw) && data.cell.raw.length > 0) {
-                                    data.cell.styles.minCellHeight = 60; 
+                                data.cell.text = ''; // Clear raw paths/text
+                                const b64s = data.cell.raw;
+                                if (Array.isArray(b64s) && b64s.length > 0) {
+                                    const requiredHeight = (b64s.length * 75) + 12;
+                                    if (requiredHeight > data.row.height) {
+                                        data.row.height = requiredHeight;
+                                    }
                                 }
                             }
                         },
                         didDrawCell: function(data) {
                             if (data.column.index === 7 && data.section === 'body' && Array.isArray(data.cell.raw)) {
                                 const b64s = data.cell.raw;
-                                let x = data.cell.x + 2;
-                                let y = data.cell.y + 2;
-                                b64s.forEach(b64 => {
-                                    if (x + 35 > data.cell.x + data.cell.width) {
-                                        x = data.cell.x + 2;
-                                        y += 28;
-                                    }
+                                b64s.forEach((b64, idx) => {
+                                    const imgX = data.cell.x + 5;
+                                    const imgY = data.cell.y + 6 + (idx * 75);
                                     try {
-                                        doc.addImage(b64, 'JPEG', x, y, 35, 25);
-                                        x += 38;
+                                        // Draw at 100x70 pts
+                                        doc.addImage(b64, 'JPEG', imgX, imgY, 100, 70);
                                     } catch(e) {}
                                 });
                             }

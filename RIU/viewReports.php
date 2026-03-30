@@ -115,7 +115,7 @@ th{ background:#00457C; color:#fff; }
 </header>
 
 <div class="container">
-  <a href="STCAS_index.html" class="btn back-btn">Back to Home</a>
+  <a href="RIU_index.html" class="btn back-btn">Back to Home</a>
 
   <div class="search-row">
     <h2>Your Uploaded Reports<?php echo $filterZone ? ' — ' . htmlspecialchars($filterZone) : ''; ?></h2>

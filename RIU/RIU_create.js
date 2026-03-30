@@ -340,6 +340,7 @@ function attachMetadataToRows(moduleId) {
 // === Image Handling (multi-image support) ===
 const activeCellCameras = {};
 const cameraCellMap = {};
+let currentCamera = "environment"; // Default to back camera
 
 function buildImageCellMarkup() {
   return `
@@ -448,8 +449,7 @@ function openImageOptions(btn) {
   if (!actions) return;
   actions.innerHTML = `
     <div class="image-options">
-      <button type="button" onclick="openCameraInCell(this, 'user')">Front Camera</button>
-      <button type="button" onclick="openCameraInCell(this, 'environment')">Back Camera</button>
+      <button type="button" onclick="openCameraInCell(this)">Camera</button>
       <button type="button" onclick="uploadInCell(this)">Upload from Device</button>
       <button type="button" class="cancel-btn" onclick="closeImageOptions(this)">Cancel</button>
     </div>
@@ -461,7 +461,7 @@ function closeImageOptions(button) {
   resetImageActions(td);
 }
 
-function openCameraInCell(button, facingMode) {
+function openCameraInCell(button) {
   const td = button.closest('td');
   if (!td) return;
   initializeBlankImageCell(td);
@@ -474,26 +474,43 @@ function openCameraInCell(button, facingMode) {
       <video id="camera-${rowId}" autoplay playsinline style="width:100%;border:1px solid #333;border-radius:6px;"></video>
       <div class="camera-controls">
         <button type="button" onclick="captureImageInCell(${rowId})">Capture</button>
+        <button type="button" onclick="switchCameraInCell(${rowId})">🔄 Switch</button>
         <button type="button" onclick="stopCameraInCell(${rowId})">Close</button>
       </div>
     </div>
   `;
 
-  startCameraInCell(rowId, facingMode, td);
+  startCameraInCell(rowId, td);
 }
 
-async function startCameraInCell(rowId, facingMode, td) {
+function switchCameraInCell(rowId) {
+  currentCamera = currentCamera === "environment" ? "user" : "environment";
+  const td = cameraCellMap[rowId];
+  startCameraInCell(rowId, td);
+}
+
+async function startCameraInCell(rowId, td) {
   const video = document.getElementById(`camera-${rowId}`);
   if (!video) return;
 
+  // Stop current active streams
+  Object.values(activeCellCameras).forEach(s => {
+    if (s && s.getTracks) s.getTracks().forEach(track => track.stop());
+  });
+
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: facingMode } },
+      video: {
+        facingMode: { ideal: currentCamera },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
       audio: false
-    }).catch(() => {
-        // Fallback to any camera
-        return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    }).catch(async () => {
+        // Simple fallback
+        return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
     });
+
     video.srcObject = stream;
     activeCellCameras[rowId] = stream;
     cameraCellMap[rowId] = td;

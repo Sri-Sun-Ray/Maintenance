@@ -115,6 +115,7 @@ html, body {
   cursor: pointer;
   transition: background-color 0.2s ease;
   float: right;
+  margin-bottom: 10px;
 }
 
 .btn-save:hover {
@@ -131,7 +132,8 @@ html, body {
   font-size: 15px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  margin-left: 10px;
+  float: right;
+  margin-bottom: 10px;
 }
 
 .btn-update:hover {
@@ -141,63 +143,76 @@ html, body {
 /* Main Container Layout */
 .main-container {
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  width: 100%;
-  margin-top: 20px;
+  flex-direction: column; /* Stack vertically! */
+  align-items: center;
+  justify-content: flex-start;
+  width: 98%;
+  margin: 10px auto;
 }
 
-/* Sidebar */
+/* Sidebar (Now Top Menu) */
 .sidebar {
-  width: 250px;
-  background-color: #f5f7fa;
-  border-right: 2px solid #ccc;
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 20px 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
 }
 
 .sidebar h3 {
   text-align: center;
-  font-size: 18px;
-  margin-bottom: 20px;
-  color: #333;
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #555;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .sidebar ul {
+  display: flex;
   list-style: none;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
   padding: 0;
   margin: 0;
 }
 
 .sidebar ul li {
-  padding: 12px 15px;
-  margin-bottom: 10px;
-  background-color: #ffffff;
-  border-radius: 6px;
+  padding: 10px 20px;
+  margin-bottom: 0px; 
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: center;
   font-weight: 500;
+  flex: 1;
+  min-width: 200px;
+  max-width: 350px;
 }
 
 .sidebar ul li:hover {
   background-color: #007bff;
   color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 /* Content Area */
 .content-area {
-  flex: 1;
+  flex: none;
+  width: 100%;
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 30px;
-  margin-left: 20px;
+  padding: 20px;
+  margin-left: 0;
   min-height: 300px;
-  overflow-x: auto; /* ADDED: enable horizontal scrolling so Image column is reachable */
+  overflow-x: auto;
 }
 
 table {
@@ -395,7 +410,17 @@ button:hover {
 
 .camera-controls {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.camera-controls button {
+  width: 100%;
+  font-size: 11px;
+  padding: 8px 4px;
+  margin: 0;
 }
 
 .image-preview-modal {

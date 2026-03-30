@@ -41,6 +41,7 @@ CREATE TABLE `comm` (
   KEY `sl_no` (`sl_no`),
   CONSTRAINT `comm_ibfk_1` FOREIGN KEY (`riu_info_id`) REFERENCES `riu_info` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -524,6 +525,7 @@ INSERT INTO `station_info` VALUES (1,'ER','Howarh D','2025-12-04','2025-12-09 12
 UNLOCK TABLES;
 
 --
+
 -- Table structure for table `station_reports`
 --
 

@@ -91,7 +91,7 @@ try {
 
     $observations = [];
     foreach (getModuleTableMap() as $moduleKey => $tableName) {
-        $stmt = $conn->prepare("SELECT sl_no, module, description, action_taken, observation, remarks, image_path 
+        $stmt = $conn->prepare("SELECT sl_no, module, description, action_taken, observation, remarks, image_path, created_at, updated_at 
                             FROM {$tableName}
                             WHERE riu_info_id = ? ORDER BY CAST(sl_no AS SIGNED)");
         if (!$stmt) {
@@ -117,12 +117,26 @@ try {
 
     $conn->close();
 
+    $startedAt = null;
+    $updatedAt = null;
+    foreach ($observations as $obs) {
+        if (!empty($obs['created_at']) && $obs['created_at'] !== '0000-00-00 00:00:00') {
+            if (!$startedAt || $obs['created_at'] < $startedAt) $startedAt = $obs['created_at'];
+            if (!$updatedAt || $obs['created_at'] > $updatedAt) $updatedAt = $obs['updated_at'];
+        }
+        if (!empty($obs['updated_at']) && $obs['updated_at'] !== '0000-00-00 00:00:00') {
+            if (!$updatedAt || $obs['updated_at'] > $updatedAt) $updatedAt = $obs['updated_at'];
+        }
+    }
+
     // Return response
     ob_end_clean();
     echo json_encode([
-        'success' => count($observations) > 0,
-        'riu_info' => $riuInfo,
-        'observations' => $observations
+        'success' => true, 
+        'riu_info' => $riuInfo, 
+        'observations' => $observations,
+        'started_at' => $startedAt,
+        'updated_at' => $updatedAt
     ]);
 
 } catch (Exception $e) {

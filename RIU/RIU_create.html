@@ -12,7 +12,7 @@
   <script src="libs/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@latest/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js"></script>
-  
+
 </head>
 <body>
 
@@ -81,7 +81,7 @@
 
     <!-- Content Area -->
     <div class="content-area" id="contentArea">
-      <p>Select a module from the sidebar to view details.</p>
+    
 
       <!-- NMS Module -->
       <div id="nms" class="module-table">
@@ -145,9 +145,9 @@
           </tbody>
         </table>
         </div>
-        <div style="margin-top: 15px; gap: 10px;">
+        <div style="margin-top: 15px; gap: 10px; text-align: right;">
           <button class="btn btn-save" id="btn-save-nms" onclick="saveModuleData('nms')">Save NMS Data</button>
-          <button class="btn btn-update" id="btn-update-nms" onclick="updateModuleData('nms')" style="display: none; float: right;">Update NMS Data</button>
+          <button class="btn btn-update" id="btn-update-nms" onclick="updateModuleData('nms')" style="display: none;">Update NMS Data</button>
         </div>
       </div>
 
@@ -263,7 +263,7 @@
           </tbody>
         </table>
         </div>
-        <div style="text-align: center; margin-top: 15px; gap: 10px;">
+        <div style="text-align: right; margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" id="btn-save-power" onclick="saveModuleData('power')">Save Power Supply Data</button>
           <button class="btn btn-update" id="btn-update-power" onclick="updateModuleData('power')" style="display: none;">Update Power Supply Data</button>
         </div>
@@ -360,7 +360,7 @@
           </tbody>
         </table>
         </div>
-        <div style="text-align: center; margin-top: 15px; gap: 10px;">
+        <div style="text-align: right; margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" id="btn-save-riu_equip" onclick="saveModuleData('riu_equip')">Save RIU Equipment Data</button>
           <button class="btn btn-update" id="btn-update-riu_equip" onclick="updateModuleData('riu_equip')" style="display: none;">Update RIU Equipment Data</button>
         </div>
@@ -420,7 +420,7 @@
           </tbody>
         </table>
         </div>
-        <div style="text-align: center; margin-top: 15px; gap: 10px;">
+        <div style="text-align: right; margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" id="btn-save-comm" onclick="saveModuleData('comm')">Save Communication Module</button>
           <button class="btn btn-update" id="btn-update-comm" onclick="updateModuleData('comm')" style="display: none;">Update Communication Module</button>
         </div>
@@ -467,7 +467,7 @@
             </tr>
           </tbody>
         </table>
-        <div style="text-align: center; margin-top: 15px; gap: 10px;">
+        <div style="text-align: right; margin-top: 15px; gap: 10px;">
           <button class="btn btn-save" id="btn-save-earthing" onclick="saveModuleData('earthing')">Save Earthing</button>
           <button class="btn btn-update" id="btn-update-earthing" onclick="updateModuleData('earthing')" style="display: none;">Update Earthing</button>
         </div>

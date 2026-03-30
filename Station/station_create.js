@@ -134,6 +134,7 @@ function parseJSONSafe(response) {
 /* ---------------- Image / Camera UI (RIU-like) ---------------- */
 const activeCellCameras = {};
 const cameraCellMap = {};
+let currentCamera = "environment"; // Default to back camera
 
 function buildImageCellMarkup() {
   return `
@@ -162,28 +163,45 @@ function renderImageList(td) {
   initializeBlankImageCell(td);
   td.existingImages = td.existingImages || [];
   td.newImages = td.newImages || [];
+  td.removedExistingImages = td.removedExistingImages || [];
 
   const list = td.querySelector('.image-list');
   if (!list) return;
   list.innerHTML = '';
 
-  if ((td.existingImages.length === 0) && (td.newImages.length === 0)) {
+  const existing = td.existingImages;
+  const newcomers = td.newImages;
+  if ((!existing || existing.length === 0) && (!newcomers || newcomers.length === 0)) {
     list.innerHTML = '<div class="image-empty">No images yet</div>';
     return;
   }
 
-  td.existingImages.forEach((p, idx) => {
-    const div = document.createElement('div'); div.className = 'image-box';
-    div.innerHTML = `<img src="${p}" alt="Existing"><button type="button" class="remove-btn" data-type="existing" data-index="${idx}" onclick="removeImage(this)">✖</button>`;
+  existing.forEach((path, idx) => {
+    const div = document.createElement('div');
+    div.className = 'image-box';
+    div.innerHTML = `
+      <img src="${path}" alt="Uploaded" class="uploaded-image">
+      <button type="button" class="remove-btn" data-type="existing" data-index="${idx}" onclick="removeImage(this)">✖</button>
+    `;
     list.appendChild(div);
-    div.querySelector('img').addEventListener('click', () => openImagePreview(p));
+    const imgEl = div.querySelector('img');
+    if (imgEl) {
+      imgEl.addEventListener('click', () => openImagePreview(path));
+    }
   });
 
-  td.newImages.forEach((obj, idx) => {
-    const div = document.createElement('div'); div.className = 'image-box';
-    div.innerHTML = `<img src="${obj.preview}" alt="New"><button type="button" class="remove-btn" data-type="new" data-index="${idx}" onclick="removeImage(this)">✖</button>`;
+  newcomers.forEach((imgObj, idx) => {
+    const div = document.createElement('div');
+    div.className = 'image-box';
+    div.innerHTML = `
+      <img src="${imgObj.preview}" alt="Uploaded" class="uploaded-image">
+      <button type="button" class="remove-btn" data-type="new" data-index="${idx}" onclick="removeImage(this)">✖</button>
+    `;
     list.appendChild(div);
-    div.querySelector('img').addEventListener('click', () => openImagePreview(obj.preview));
+    const imgEl = div.querySelector('img');
+    if (imgEl) {
+      imgEl.addEventListener('click', () => openImagePreview(imgObj.preview));
+    }
   });
 }
 
@@ -194,8 +212,7 @@ function openImageOptions(btn) {
   const actions = td.querySelector('.image-actions');
   actions.innerHTML = `
     <div class="image-options">
-      <button type="button" onclick="openCameraInCell(this,'user')">Front Camera</button>
-      <button type="button" onclick="openCameraInCell(this,'environment')">Back Camera</button>
+      <button type="button" onclick="openCameraInCell(this)">Camera</button>
       <button type="button" onclick="uploadInCell(this)">Upload from Device</button>
       <button type="button" class="cancel-btn" onclick="closeImageOptions(this)">Cancel</button>
     </div>
@@ -232,34 +249,54 @@ function uploadInCell(button) {
   input.click();
 }
 
-function openCameraInCell(button, facingMode) {
+function openCameraInCell(button) {
   const td = button.closest('td');
   if (!td) return;
   initializeBlankImageCell(td);
   const actions = td.querySelector('.image-actions');
+  if (!actions) return;
+
   const rowId = Date.now();
   actions.innerHTML = `
     <div class="camera-container" data-camera-id="${rowId}">
-      <video id="camera-${rowId}" autoplay playsinline style="width:160px;height:120px;border:1px solid #333;border-radius:6px;"></video>
+      <video id="camera-${rowId}" autoplay playsinline style="width:100%;border:1px solid #333;border-radius:6px;"></video>
       <div class="camera-controls">
         <button type="button" onclick="captureImageInCell(${rowId})">Capture</button>
+        <button type="button" onclick="switchCameraInCell(${rowId})">🔄 Switch</button>
         <button type="button" onclick="stopCameraInCell(${rowId})">Close</button>
       </div>
     </div>
   `;
-  startCameraInCell(rowId, facingMode, td);
+
+  startCameraInCell(rowId, td);
 }
 
-async function startCameraInCell(rowId, facingMode, td) {
+function switchCameraInCell(rowId) {
+  currentCamera = currentCamera === "environment" ? "user" : "environment";
+  const td = cameraCellMap[rowId];
+  startCameraInCell(rowId, td);
+}
+
+async function startCameraInCell(rowId, td) {
   const video = document.getElementById(`camera-${rowId}`);
   if (!video) return;
+
+  // Stop any other active streams to free the hardware
+  Object.values(activeCellCameras).forEach(s => {
+    if (s && s.getTracks) s.getTracks().forEach(t => t.stop());
+  });
+
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: facingMode } },
+      video: {
+        facingMode: { ideal: currentCamera },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
       audio: false
-    }).catch(() => {
-        // Fallback to any camera
-        return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    }).catch(async () => {
+        // Simple fallback
+        return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
     });
 
     video.srcObject = stream;
