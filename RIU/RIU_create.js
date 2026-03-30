@@ -498,18 +498,48 @@ async function startCameraInCell(rowId, td) {
     if (s && s.getTracks) s.getTracks().forEach(track => track.stop());
   });
 
+  // --- DEBUG: List all available cameras ---
+  const allDevices = await navigator.mediaDevices.enumerateDevices();
+  const videoDevs = allDevices.filter(d => d.kind === 'videoinput');
+  console.log("🎥 [DEBUG] Video devices detected:", videoDevs.map(d => ({ label: d.label, id: d.deviceId })));
+
+  let currentCameraVal = currentCamera; // use global currentCamera
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: { ideal: currentCamera },
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
-      },
-      audio: false
-    }).catch(async () => {
-        // Simple fallback
-        return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-    });
+    let stream;
+    try {
+      if (currentCameraVal === 'environment') {
+        console.log("🎥 [INFO] Attempting EXACT environment mode...");
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { exact: "environment" } },
+          audio: false
+        });
+        console.log("✅ [SUCCESS] Camera started with exact environment mode.");
+      }
+    } catch (e) {
+      console.warn("⚠️ [WARN] Exact environment mode FAILED. Falling back...", e);
+    }
+
+    if (!stream) {
+      try {
+        console.log(`🎥 [INFO] Attempting IDEAL mode: ${currentCameraVal}...`);
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: currentCameraVal } },
+          audio: false
+        });
+        console.log(`✅ [SUCCESS] Camera started (Ideal Fallback: ${currentCameraVal})`);
+      } catch (e2) {
+        console.warn("⚠️ [WARN] Ideal mode FAILED. Final fallback: ANY video.", e2);
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        console.log("✅ [SUCCESS] Camera started with generic video fallback.");
+      }
+    }
+
+    if (stream) {
+      const tracks = stream.getVideoTracks();
+      if (tracks.length > 0) {
+        console.log("🎥 [DEBUG] Active camera track:", tracks[0].label, tracks[0].getSettings());
+      }
+    }
 
     video.srcObject = stream;
     activeCellCameras[rowId] = stream;
