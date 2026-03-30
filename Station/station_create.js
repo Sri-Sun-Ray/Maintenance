@@ -287,17 +287,32 @@ async function startCameraInCell(rowId, td) {
   });
 
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
+    const constraints = {
       video: {
-        facingMode: { ideal: currentCamera },
+        facingMode: { exact: currentCamera },
         width: { ideal: 1280 },
         height: { ideal: 720 }
       },
       audio: false
-    }).catch(async () => {
-        // Simple fallback
-        return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-    });
+    };
+
+    let stream;
+    try {
+      // Try exact mode first (standard for rear camera)
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (e) {
+      // Fallback to ideal mode
+      console.warn("Exact facingMode failed, falling back to ideal.");
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: currentCamera } },
+          audio: false
+        });
+      } catch (e2) {
+        // Final fallback: any video
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      }
+    }
 
     video.srcObject = stream;
     activeCellCameras[rowId] = stream;
