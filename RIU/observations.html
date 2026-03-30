@@ -125,10 +125,20 @@
         }
 
         /* IMAGE */
+        .image-cell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+
         .img-thumb {
-            max-width: 90px;
-            max-height: 70px;
-            border: 1px solid black;
+            width: 70px;
+            height: 60px;
+            object-fit: cover;
+            border: 1px solid #333;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
         /* Summary table (top block) - separate from observation tables so PDF builder skips it */
@@ -686,9 +696,21 @@
 
                         const images = Array.isArray(obs.image_paths) ? obs.image_paths.filter(Boolean)
                             : (obs.image_path ? [obs.image_path] : []);
-                        const imgHtml = images.length
-                            ? images.map(p => `<img src="${escapeHtml(p)}" class="img-thumb" onclick="openImageModal('${escapeHtml(p)}')">`).join('')
-                            : 'N/A';
+
+                        let imgHtml = 'N/A';
+                        if (images.length > 0) {
+                            const maxImages = 3;
+                            const visible = images.slice(0, maxImages);
+
+                            imgHtml = `<div class="image-cell">
+                                ${visible.map(p => `<img src="${escapeHtml(p)}" class="img-thumb" onclick="openImageModal('${escapeHtml(p)}')">`).join('')}
+                            `;
+
+                            if (images.length > maxImages) {
+                                imgHtml += `<span style="align-self:center; font-weight:bold; color:#666; font-size:12px;">+${images.length - maxImages}</span>`;
+                            }
+                            imgHtml += `</div>`;
+                        }
 
                         tableHtml += `<tr>
                 <td>${escapeHtml(obs.sl_no || '')}</td>
@@ -1056,7 +1078,29 @@ Ashutosh Chaubey  SSE/Signal`;
                     margin: { left: marginX, right: marginX }
                 });
 
-                currentY = doc.lastAutoTable.finalY + 25;   // Only one declaration
+                currentY = doc.lastAutoTable.finalY + 25;
+
+                // --- Point Calculation for Summary ---
+                const RIU_TOT = 29;
+                const _entries = fullObservations.length;
+                const _missing = Math.max(0, RIU_TOT - _entries);
+                let _openCount = 0;
+                fullObservations.forEach(obs => { if (!obs.observation || String(obs.observation).trim() === '') _openCount++; });
+                const _finalOpen = _openCount + _missing;
+                const _finalClosed = Math.max(0, RIU_TOT - _finalOpen);
+
+                // --- Points Summary Table ---
+                doc.autoTable({
+                    startY: currentY,
+                    head: [['Total Points', 'Closed Points', 'Open Points']],
+                    body: [[RIU_TOT, _finalClosed, _finalOpen]],
+                    theme: 'grid',
+                    styles: { fontSize: 11, cellPadding: 8, lineColor: [0,0,0], lineWidth: 1.2, halign: 'center' },
+                    headStyles: { fillColor: [30,60,120], textColor: 255, fontStyle: 'bold', fontSize: 11, lineColor: [0,0,0], lineWidth: 1.2, halign: 'center' },
+                    margin: { left: marginX, right: marginX }
+                });
+
+                currentY = doc.lastAutoTable.finalY + 25;
 
                 // === GROUP DATA FROM fullObservations (ensures summary is accurate) ===
                 const moduleGroups = {};
@@ -1107,7 +1151,7 @@ Ashutosh Chaubey  SSE/Signal`;
                     });
                 });
 
-                // === PDF Summary Table (Cleaned to avoid duplicates) ===
+                // Standard Summary
                 const cleanOrder = ['NMS', 'POWER SUPPLY', 'RIU EQUIPMENT', 'COMMUNICATION MODULE', 'EARTHING & SPD'];
                 const summaryRows = [];
 
@@ -1139,56 +1183,10 @@ Ashutosh Chaubey  SSE/Signal`;
                         margin: { left: marginX, right: marginX },
                         tableWidth: contentWidth
                     });
-                    currentY = doc.lastAutoTable.finalY + 18;
+                    currentY = doc.lastAutoTable.finalY + 25;
                 }
-                // === Overall completion checkboxes ===
-                const TOTAL_POINTS_PDF = 29;
-                const missingEntriesPdf = Math.max(0, TOTAL_POINTS_PDF - observations.length);
-                // count open points from moduleGroups
-                let openCountPdf = 0;
-                Object.values(moduleGroups).forEach(rows => {
-                    openCountPdf += rows.filter(r => !r.observation || String(r.observation).trim() === '').length;
-                });
-                const totalOpenPdf = openCountPdf + missingEntriesPdf;
 
-                // Draw Maintenance Status Box using geometric lines (Parity with Station)
                 const h = 40;
-                doc.setDrawColor(0, 0, 0);
-                doc.setLineWidth(1.5);
-                
-                // Col 1: Maintenance Status Label
-                doc.setFillColor(240, 240, 240);
-                doc.rect(marginX, currentY, 200, h, 'FD'); 
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(13);
-                doc.setTextColor(0, 0, 0);
-                doc.text('MAINTENANCE STATUS', marginX + 15, currentY + 25);
-                
-                // Col 2: Completed Checkbox
-                const isCompleted = (totalOpenPdf === 0);
-                doc.rect(marginX + 200, currentY, 160, h, 'S'); 
-                doc.setTextColor(isCompleted ? 46 : 100, isCompleted ? 125 : 100, isCompleted ? 50 : 100);
-                doc.rect(marginX + 230, currentY + 14, 12, 12); 
-                if (isCompleted) {
-                    doc.setDrawColor(46, 125, 50); doc.setLineWidth(2);
-                    doc.line(marginX + 233, currentY + 20, marginX + 235, currentY + 23); 
-                    doc.line(marginX + 235, currentY + 23, marginX + 241, currentY + 15); 
-                    doc.setDrawColor(0, 0, 0); doc.setLineWidth(1.5);
-                }
-                doc.text('Completed', marginX + 255, currentY + 25);
-                
-                // Col 3: Not Completed Checkbox
-                doc.rect(marginX + 360, currentY, 160, h, 'S'); 
-                doc.setTextColor(!isCompleted ? 198 : 100, !isCompleted ? 40 : 100, !isCompleted ? 40 : 100);
-                doc.rect(marginX + 375, currentY + 14, 12, 12); 
-                if (!isCompleted) {
-                    doc.setDrawColor(198, 40, 40); doc.setLineWidth(2);
-                    doc.line(marginX + 377, currentY + 16, marginX + 385, currentY + 24); 
-                    doc.line(marginX + 385, currentY + 16, marginX + 377, currentY + 24); 
-                    doc.setDrawColor(0, 0, 0); doc.setLineWidth(1.5);
-                }
-                doc.text('Not Completed', marginX + 395, currentY + 25);
-
                 currentY += h + 25;
 
                 const IMAGE_COL_INDEX = 5;
@@ -1223,7 +1221,7 @@ Ashutosh Chaubey  SSE/Signal`;
                             row.action_taken,
                             row.observation,
                             row.remarks,
-                            (row.image_urls && row.image_urls.length) ? { images: row.image_urls } : ''
+                            (row.image_urls && Array.isArray(row.image_urls)) ? row.image_urls : []
                         ];
                     });
 
@@ -1253,58 +1251,57 @@ Ashutosh Chaubey  SSE/Signal`;
                         margin: { left: marginX, right: marginX },
                         tableWidth: contentWidth,
                         didParseCell: function (data) {
-                            if (data.section !== 'body' || data.column.index !== IMAGE_COL_INDEX) return;
-                            const payload = data.cell.raw;
-                            if (!payload || !Array.isArray(payload.images) || payload.images.length === 0) return;
-                            data.cell.text = '';
-                            const cellWidth = data.cell.width || 100;
-                            const usableWidth = Math.max(cellWidth - 14, 60);
-                            const thumbWidth = (usableWidth - (MAX_IMAGES_PER_ROW - 1) * THUMB_GAP) / MAX_IMAGES_PER_ROW;
-                            const thumbHeight = thumbWidth * 0.75;
-                            const rowsNeeded = Math.ceil(payload.images.length / MAX_IMAGES_PER_ROW);
-                            const requiredHeight = rowsNeeded * thumbHeight + Math.max(0, rowsNeeded - 1) * THUMB_GAP + 16;
-                            if (requiredHeight > data.row.height) {
-                                data.row.height = requiredHeight;
-                            }
-                            data.cell._imageMeta = {
-                                thumbWidth,
-                                thumbHeight
-                            };
-                        },
-                        didDrawCell: function (data) {
-                            if (data.section !== 'body' || data.column.index !== IMAGE_COL_INDEX) return;
-                            const payload = data.cell.raw;
-                            if (!payload || !Array.isArray(payload.images) || payload.images.length === 0) return;
-
-                            const images = payload.images;
-                            const rowsNeeded = Math.ceil(images.length / MAX_IMAGES_PER_ROW);
-                            let imgIndex = 0;
-                            const meta = data.cell._imageMeta || {};
-                            const thumbWidth = meta.thumbWidth || Math.min(100, data.cell.width - 12);
-                            const thumbHeight = meta.thumbHeight || thumbWidth * 0.75;
-
-                            for (let rowIdx = 0; rowIdx < rowsNeeded; rowIdx++) {
-                                const itemsThisRow = Math.min(MAX_IMAGES_PER_ROW, images.length - imgIndex);
-                                const rowWidth = itemsThisRow * thumbWidth + (itemsThisRow - 1) * THUMB_GAP;
-                                let xPointer = data.cell.x + (data.cell.width - rowWidth) / 2;
-                                const yPointer = data.cell.y + 6 + rowIdx * (thumbHeight + THUMB_GAP);
-
-                                for (let colIdx = 0; colIdx < itemsThisRow; colIdx++) {
-                                    const imgUrl = images[imgIndex++];
-                                    if (!imgUrl) {
-                                        xPointer += thumbWidth + THUMB_GAP;
-                                        continue;
+                            if (data.row.section === 'body' && data.column.index === 5) {
+                                const images = data.cell.raw;
+                                if (Array.isArray(images) && images.length > 0) {
+                                    // Grid layout: 2 images horizontally per row
+                                    const rowsOfImages = Math.ceil(images.length / 2);
+                                    // 60 height per image row + 10 spacing + 15 cell padding
+                                    const requiredHeight = (rowsOfImages * 70) + 15;
+                                    data.cell.styles.minCellHeight = requiredHeight; 
+                                    if (requiredHeight > data.row.height) {
+                                        data.row.height = requiredHeight;
                                     }
-                                    try {
-                                        const format = detectImageFormat(imgUrl);
-                                        doc.addImage(imgUrl, format, xPointer, yPointer, thumbWidth, thumbHeight);
-                                    } catch (err) {
-                                        // ignore failed image draw
-                                    }
-                                    xPointer += thumbWidth + THUMB_GAP;
+
+                                    // ULTIMATE FAIL-SAFE for jsPDF-autotable!
+                                    // Calculate exact number of text lines needed to push border (fontSize 12 = ~14pt line height)
+                                    let padContent = "";
+                                    const linesRequired = Math.ceil(requiredHeight / 14);
+                                    for(let i=0; i < linesRequired; i++) padContent += "\n";
+                                    data.cell.text = [padContent];
+                                    data.cell.styles.fontSize = 12; 
+                                } else {
+                                    data.cell.text = '';
                                 }
                             }
+                        },
+                        didDrawCell: function (data) {
+                            if (data.row.section === 'body' && data.column.index === 5) {
+                                const images = data.cell.raw;
+                                if (Array.isArray(images) && images.length > 0) {
+                                    const individualWidth = 75;
+                                    const individualHeight = 60;
+                                    const gap = 5;
 
+                                    images.forEach((imgUrl, idx) => {
+                                        if (imgUrl) {
+                                            const col = idx % 2; // 0 (left) or 1 (right)
+                                            const row = Math.floor(idx / 2); // 0 (top row), 1 (second row), etc.
+
+                                            // Cell is 160 wide. 2 images (75*2)+5 = 155. So 2.5 padding left.
+                                            const imgX = data.cell.x + 2.5 + (col * (individualWidth + gap));
+                                            const imgY = data.cell.y + 10 + (row * (individualHeight + gap));
+
+                                            try {
+                                                const format = detectImageFormat(imgUrl);
+                                                doc.addImage(imgUrl, format, imgX, imgY, individualWidth, individualHeight);
+                                            } catch (err) {
+                                                console.warn("PDF Img Draw Error for idx:", idx);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
                         }
                     });
 

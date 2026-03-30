@@ -117,12 +117,19 @@
             font-weight: 600;
         }
 
+        .image-cell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+
         .img-thumb {
-            max-width: 150px;
-            max-height: 120px;
+            width: 70px;
+            height: 60px;
+            object-fit: cover;
             border: 1px solid #333;
             cursor: pointer;
-            margin: 2px;
             border-radius: 4px;
         }
 
@@ -432,9 +439,20 @@
                         }
                         images = images.filter(Boolean);
 
-                        const imgHtml = images.length
-                            ? images.map(p => `<img src="${escapeHtml(p)}" class="img-thumb" onclick="openImageModal('${escapeHtml(p)}')">`).join('')
-                            : 'N/A';
+                        let imgHtml = 'N/A';
+                        if (images.length > 0) {
+                            const maxImages = 3;
+                            const visible = images.slice(0, maxImages);
+
+                            imgHtml = `<div class="image-cell">
+                                ${visible.map(p => `<img src="${escapeHtml(p)}" class="img-thumb" onclick="openImageModal('${escapeHtml(p)}')">`).join('')}
+                            `;
+
+                            if (images.length > maxImages) {
+                                imgHtml += `<span style="align-self:center; font-weight:bold; color:#666; font-size:12px;">+${images.length - maxImages}</span>`;
+                            }
+                            imgHtml += `</div>`;
+                        }
 
                         tableHtml += `<tr>
                             <td>${escapeHtml(obs[cellMapping.s_no] || '')}</td>
@@ -570,6 +588,19 @@
                 });
 
                 let currentY = doc.lastAutoTable.finalY + 25;
+
+                // === Points Summary Table (New) ===
+                doc.autoTable({
+                    startY: currentY,
+                    head: [['Total Points', 'Closed Points', 'Open Points']],
+                    body: [[totalPoints, closedPoints, openPoints]],
+                    theme: 'grid',
+                    styles: { fontSize: 11, cellPadding: 8, lineColor: [0,0,0], lineWidth: 1.5, halign: 'center' },
+                    headStyles: { fillColor: [30,60,120], textColor: 255, fontStyle: 'bold', fontSize: 11, lineColor: [0,0,0], lineWidth: 1.5, halign: 'center' },
+                    margin: { left: startX, right: startX }
+                });
+
+                currentY = doc.lastAutoTable.finalY + 25;
 
                 // === Module Summary Table ===
                 const CLEAN_NAME_PDF = {
@@ -763,31 +794,56 @@
                             4: { cellWidth: 'auto' },
                             5: { cellWidth: 'auto' },
                             6: { cellWidth: 'auto' },
-                            7: { cellWidth: 110 } // Images (increased)
+                            7: { cellWidth: 120 } // Images exactly sized for 2x2 Grid
                         },
                         didParseCell: function(data) {
                             if (data.column.index === 7 && data.section === 'body') {
-                                data.cell.text = ''; // Clear raw paths/text
-                                const b64s = data.cell.raw;
-                                if (Array.isArray(b64s) && b64s.length > 0) {
-                                    const requiredHeight = (b64s.length * 75) + 12;
+                                const images = data.cell.raw;
+                                if (Array.isArray(images) && images.length > 0) {
+                                    // Grid layout: 2 images horizontally per row
+                                    const rowsOfImages = Math.ceil(images.length / 2);
+                                    // 42 height per image + 6 gap + 10 padding
+                                    const requiredHeight = (rowsOfImages * 48) + 12;
+                                    data.cell.styles.minCellHeight = requiredHeight;
                                     if (requiredHeight > data.row.height) {
                                         data.row.height = requiredHeight;
                                     }
+
+                                    // ULTIMATE FAIL-SAFE for jsPDF-autotable
+                                    // Inject text line breaks to physically force engine layout
+                                    let padContent = "";
+                                    const linesRequired = Math.ceil(requiredHeight / 11); // fontSize 9 is ~11pt height
+                                    for(let i=0; i < linesRequired; i++) padContent += "\n";
+                                    data.cell.text = [padContent];
+                                    data.cell.styles.fontSize = 9;
+                                } else {
+                                    data.cell.text = ''; // Clear text completely if no images
                                 }
                             }
                         },
                         didDrawCell: function(data) {
-                            if (data.column.index === 7 && data.section === 'body' && Array.isArray(data.cell.raw)) {
-                                const b64s = data.cell.raw;
-                                b64s.forEach((b64, idx) => {
-                                    const imgX = data.cell.x + 5;
-                                    const imgY = data.cell.y + 6 + (idx * 75);
-                                    try {
-                                        // Draw at 100x70 pts
-                                        doc.addImage(b64, 'JPEG', imgX, imgY, 100, 70);
-                                    } catch(e) {}
-                                });
+                            if (data.column.index === 7 && data.section === 'body') {
+                                const images = data.cell.raw;
+                                if (Array.isArray(images) && images.length > 0) {
+                                    const individualWidth = 55;
+                                    const individualHeight = 42; // Maintains wide aspect ratio
+                                    const gap = 5;
+
+                                    images.forEach((imgUrl, idx) => {
+                                        if (imgUrl) {
+                                            const col = idx % 2; // 0 or 1
+                                            const row = Math.floor(idx / 2); // 0, 1...
+
+                                            // Center images: 120 width cell. (55*2)+5 = 115. Leaves 2.5 padding left.
+                                            const imgX = data.cell.x + 2.5 + (col * (individualWidth + gap));
+                                            const imgY = data.cell.y + 6 + (row * (individualHeight + gap));
+
+                                            try {
+                                                doc.addImage(imgUrl, 'JPEG', imgX, imgY, individualWidth, individualHeight);
+                                            } catch(e) {}
+                                        }
+                                    });
+                                }
                             }
                         }
                     });

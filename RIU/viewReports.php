@@ -109,7 +109,7 @@ th{ background:#00457C; color:#fff; }
   <img src="./hbl logo.jpg" alt="HBL Logo">
   <div>
     <h1>HBL Engineering Ltd.</h1>
-    <h3 style="margin:0; font-weight:400;">Electronics Group</h3>
+    <h3 style="margin:0; font-weight:400;">Rail Signaling Division</h3>
   </div>
   <div class="profile">User: <?php echo htmlspecialchars($username); ?> | <?php echo htmlspecialchars($employee_name); ?></div>
 </header>
