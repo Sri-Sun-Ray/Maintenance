@@ -7,7 +7,7 @@ const zoneStation = {
   "NFR": ["Malda"],
   "SER": ["Tatanagar"],
   "ECR": ["DDUD", "DDUE", "Gomoh", "Patratu"],
-  "WCR": ["Itarsi", "Tuglakabadh"],
+  "WCR": ["BH-265", "Murthel Ramapur", "BH1-C-258", "Bishampura", "BH-247", "Bhindhpur in", "BH-242", "SEWAR", "BH-JCU", "LC-232", "BH-229", "2.5 KM from KEV", "Kela Devi", "BH-224", "Chetra Jn", "LC-219", "LC-217", "BH-216", "Jinturva", "BH-215", "Itarsi/Buhura", "BH-212 link", "Hinduan City", "LC-199", "BLI-198", "Ish Ateralog", "BLI-197", "Pioda", "Citro/Ode", "8-375 KM from", "GGG", "LC-196", "Gargopur City", "4 KM from", "BH1-C-173", "Manjargpur/Pitawara", "Nimot", "7.5 KM from MLZ", "Malaprn", "BH-MDL", "LC-193", "Makhon", "BH-190", "Bar Rambher", "5.10 KM from SWM", "Sawau/Madbpur Jn", "LC-188", "Kut Risia", "BH RWU", "2.0 KM from RWU", "Rawerya D'Gpur", "3.5 KM from Amdi", "Amdi", "BH-140", "Helpgarh/Sumerganj", "Marua", "BH-LKE", "Laskara", "LC-136W", "Laban", "Kapreri", "LC-129", "Pipra", "Andrtha", "LC-126", "Biha", "BH-110", "Lucknow", "2.75 KM from GQH", "Daman", "KOTA C", "Kota", "Kota south", "Kota New Ganj", "Dushdevi", "BH1-DDV-A168", "Arava", "BH D BHANKASAI", "Bhankasai", "Dara", "8.0 KM from KW", "Delhi Jn", "6.5 KM from KW", "5.7 KM from SWU", "5.3 KM from KWJ", "4.5 KM from SWU", "Jhansi", "3.15 KM from DAKUA", "Rati Kalas", "Dalbumph", "Morak", "BH RRA-MMC", "Kunhigairpark", "BH-73", "Barwa", "Uthan/Dwi", "BH-68", "Bihawara Marela", "LC-60", "Nayaganj", "7.5 KM from GOH", "Gurvahi", "BH-48", "Shamgarh", "BH-40", "Nallk/Kheri", "4.5 KM from CMU", "Chhui Almira", "Halla", "LC-37", "BH-27", "BH-23", "Wariagurh KA", "BH-20", "Luna/Rchi", "BH-18", "Itarsi"],
   "NCR": ["Jhansi D", "Jhansi E"],
   "NR": ["Lucknow(Alambagh)", "Ludhiana"]
 };
