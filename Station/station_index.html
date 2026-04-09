@@ -113,6 +113,14 @@
     box-shadow: 0 12px 30px rgba(0,0,0,0.2);
   }
 
+.card-button.disabled {
+    background: #e0e0e0;
+    color: #999;
+    cursor: not-allowed;
+    box-shadow: none;
+    pointer-events: none;
+  }
+
   @media(max-width: 900px){
     .sidebar { display: none; }
     .main-content { width: 100%; padding: 20px; }
@@ -136,12 +144,21 @@
     <div id="reminderBox"></div>
 
     <div class="button-cards">
-      <div class="card-button" onclick="createNewReport()">Create Report</div>
+      <div id="createBtn" class="card-button" onclick="createNewReport()">Create Report</div>
       <div class="card-button" onclick="viewReport()">View/Edit Report</div>
     </div>
   </div>
 
 <script>
+document.addEventListener("DOMContentLoaded", function() {
+  const station = localStorage.getItem("selectedStation");
+  if (!station) {
+    const btn = document.getElementById("createBtn");
+    btn.classList.add("disabled");
+    btn.title = "Please select a station from the main dashboard first.";
+  }
+});
+
 function createNewReport(){
   window.location.href = 'station_create.html';
 }

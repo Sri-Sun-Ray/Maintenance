@@ -112,6 +112,15 @@ body {
   text-align: center;
 }
 
+.report-image-thumb {
+  max-width: 80px;
+  max-height: 50px;
+  display: inline-block;
+  margin: 2px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
 .print-actions {
   margin: 20px 0;
   text-align: right;

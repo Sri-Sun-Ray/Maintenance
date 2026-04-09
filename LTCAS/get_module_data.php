@@ -12,6 +12,37 @@ $db = "maintainance";
 
 $conn = new mysqli($host, $user, $password, $db);
 
+function tableHasColumn($conn, $table, $column) {
+  $result = $conn->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
+  return $result && $result->num_rows > 0;
+}
+
+function decodeImagePaths($value) {
+  if ($value === null || $value === '') {
+    return [];
+  }
+
+  if (is_array($value)) {
+    return array_values(array_filter($value, function ($item) {
+      return $item !== null && $item !== '';
+    }));
+  }
+
+  $trimmed = trim((string)$value);
+  if ($trimmed === '') {
+    return [];
+  }
+
+  $decoded = json_decode($trimmed, true);
+  if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+    return array_values(array_filter($decoded, function ($item) {
+      return $item !== null && $item !== '';
+    }));
+  }
+
+  return [$trimmed];
+}
+
 if ($conn->connect_error) {
     echo json_encode(["success" => false, "message" => "DB connection failed"]);
     exit;
@@ -42,7 +73,9 @@ if (!in_array($table, $allowedTables)) {
     exit;
 }
 
-$sql = "SELECT sno, cab1, cab2, remarks, trip, ia_ib, ic, toh_aoh, ioh_poh
+$imageSelect = tableHasColumn($conn, $table, 'image_path') ? ", image_path" : "";
+
+$sql = "SELECT sno, cab1, cab2, remarks, trip, ia_ib, ic, toh_aoh, ioh_poh{$imageSelect}
         FROM $table
         WHERE loco = ? AND station = ?
         ORDER BY sno ASC";
@@ -55,6 +88,11 @@ $res = $stmt->get_result();
 
 $rows = [];
 while ($row = $res->fetch_assoc()) {
+  if (isset($row['image_path'])) {
+    $row['image_paths'] = decodeImagePaths($row['image_path']);
+  } else {
+    $row['image_paths'] = [];
+  }
   $rows[] = $row;
 }
 

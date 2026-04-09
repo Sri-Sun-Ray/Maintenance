@@ -455,6 +455,11 @@ function saveStationInfo() {
       localStorage.setItem('date', date);
       document.getElementById('btn-get') && (document.getElementById('btn-get').style.display = 'inline-block');
       document.querySelector('.sidebar') && (document.querySelector('.sidebar').style.pointerEvents = 'auto');
+      const genBtn = document.getElementById("generateReportBtn");
+      if (genBtn) {
+        genBtn.disabled = false;
+        genBtn.title = "";
+      }
     } else {
       alert('Save failed: ' + (result.message || JSON.stringify(result)));
     }
@@ -990,5 +995,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  const genBtn = document.getElementById("generateReportBtn");
+  if (genBtn) {
+    if ((storedZone && storedStation && storedDate) || (sZone && sStation && sDate)) {
+      genBtn.disabled = false;
+      genBtn.title = "";
+    }
+    genBtn.addEventListener("click", generateReport);
+  }
+
   document.querySelectorAll('.module-table').forEach(m => m.style.display = 'none');
 });
+
+function generateReport() {
+  const zone = document.getElementById('zone').value;
+  const station = document.getElementById('station').value;
+  const date = document.getElementById('date').value;
+
+  if (!zone || !station || station === "-" || !date) {
+    alert('Please fill and save all required fields (Zone, Station, Date) before generating report.');
+    return;
+  }
+
+  sessionStorage.setItem('zone', zone);
+  sessionStorage.setItem('station', station);
+  sessionStorage.setItem('date', date);
+
+  window.location.href = 'observations.html';
+}

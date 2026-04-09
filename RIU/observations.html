@@ -537,6 +537,7 @@
             const station = sessionStorage.getItem('station') || '';
             const riu_no = sessionStorage.getItem('riuNo') || '';
             const equip_no = sessionStorage.getItem('equipNo') || '';
+            const employeeName = sessionStorage.getItem('employee_name') || localStorage.getItem('employee_name') || '';
 
             const metaArea = document.getElementById('metaArea');
             const obsArea = document.getElementById('obsArea');
@@ -1067,9 +1068,14 @@ Ashutosh Chaubey  SSE/Signal`;
                 doc.setFontSize(18);
                 doc.text('Monthly Maintenance Report — RIU', pageWidth / 2, 30, { align: 'center' });
 
+                // Employee Name
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.text(`Employee Name: ${employeeName || '--'}`, marginX, 45);
+
                 // === RIU INFO TABLE (6-column) ===
                 doc.autoTable({
-                    startY: 50,
+                    startY: 55,
                     head: [['Zone', 'Station', 'RIU No', 'Equip No', 'Started', 'Updated']],
                     body: [[zone || '--', station || '--', riu_no || '--', equip_no || '--', startedAtDate || '--', updatedAtDate || '--']],
                     theme: 'grid',
@@ -1256,12 +1262,9 @@ Ashutosh Chaubey  SSE/Signal`;
                                 if (Array.isArray(images) && images.length > 0) {
                                     // Grid layout: 2 images horizontally per row
                                     const rowsOfImages = Math.ceil(images.length / 2);
-                                    // 60 height per image row + 10 spacing + 15 cell padding
-                                    const requiredHeight = (rowsOfImages * 70) + 15;
-                                    data.cell.styles.minCellHeight = requiredHeight; 
-                                    if (requiredHeight > data.row.height) {
-                                        data.row.height = requiredHeight;
-                                    }
+                                    // 68 height per image row + 15 padding
+                                    const requiredHeight = (rowsOfImages * 68) + 15;
+                                    data.row.height = requiredHeight;
 
                                     // ULTIMATE FAIL-SAFE for jsPDF-autotable!
                                     // Calculate exact number of text lines needed to push border (fontSize 12 = ~14pt line height)
@@ -1279,18 +1282,18 @@ Ashutosh Chaubey  SSE/Signal`;
                             if (data.row.section === 'body' && data.column.index === 5) {
                                 const images = data.cell.raw;
                                 if (Array.isArray(images) && images.length > 0) {
-                                    const individualWidth = 75;
+                                    const individualWidth = 80;
                                     const individualHeight = 60;
-                                    const gap = 5;
+                                    const gap = 6;
 
                                     images.forEach((imgUrl, idx) => {
                                         if (imgUrl) {
                                             const col = idx % 2; // 0 (left) or 1 (right)
                                             const row = Math.floor(idx / 2); // 0 (top row), 1 (second row), etc.
 
-                                            // Cell is 160 wide. 2 images (75*2)+5 = 155. So 2.5 padding left.
-                                            const imgX = data.cell.x + 2.5 + (col * (individualWidth + gap));
-                                            const imgY = data.cell.y + 10 + (row * (individualHeight + gap));
+                                            // Cell is 160 wide. 2 images (80*2)+6 = 166. So ~-3 padding. But OK for tight fit
+                                            const imgX = data.cell.x + 0 + (col * (individualWidth + gap));
+                                            const imgY = data.cell.y + 8 + (row * (individualHeight + gap));
 
                                             try {
                                                 const format = detectImageFormat(imgUrl);

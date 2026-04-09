@@ -254,3 +254,134 @@ button:hover {
 .module-container {
   display: none;
 }
+
+.image-collection-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-collection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 60px;
+}
+
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.image-box {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.image-box img.uploaded-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.image-box .remove-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 16px;
+  text-align: center;
+  padding: 0;
+}
+
+.image-actions,
+.image-options {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.image-actions button,
+.image-options button {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.camera-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.camera-controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.camera-controls button {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.camera-controls button:hover {
+  background: #f0f0f0;
+}
+
+.image-empty {
+  color: #666;
+  font-size: 12px;
+  text-align: center;
+}
+
+.image-preview-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.image-preview-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.image-preview-content img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 6px;
+  display: block;
+}
+
+.image-preview-close {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background: #fff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  text-align: center;
+  line-height: 28px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+}

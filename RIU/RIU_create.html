@@ -476,8 +476,10 @@
   </div>
 
   <!-- Generate Report Button -->
- <button
+  <button
   id="generateReportBtn"
+  disabled
+  title="Please save RIU details first."
   style="
     bottom: 20px;
     right: 20px;
@@ -511,8 +513,8 @@
       const equipNo = document.getElementById('equipNo').value;
 
       // Validate that required fields are filled
-      if (!zone || !station || !riu || !equipNo) {
-        alert('Please fill all required fields (Zone, Station, RIU, Equipment No) before generating report.');
+      if (!zone || !station || station === "-" || !riu || !equipNo) {
+        alert('Please fill and save all required fields (Zone, Station, RIU, Equipment No) before generating report.');
         return;
       }
 

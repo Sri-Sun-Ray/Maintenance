@@ -32,6 +32,10 @@
       <span class="value" id="totalPoints">0</span>
     </div>
     <div class="summary-item">
+      <span class="label">Closed Points</span>
+      <span class="value closed" id="closedPoints">0</span>
+    </div>
+    <div class="summary-item">
       <span class="label">Open Points</span>
       <span class="value open" id="openPoints">0</span>
     </div>
@@ -51,7 +55,8 @@
 
   <div class="print-actions">
     <button onclick="window.location.href='../LTCAS_create.html'">Back</button>
-    <button onclick="createPDF()">Create PDF</button>
+    <button id="createPdfBtn" onclick="createPDF()">Create PDF</button>
+    <button id="viewReportsBtn" onclick="window.location.href='../viewReports.php'" style="display:none;" disabled>View Reports</button>
   </div>
 
   <!-- =========================
@@ -104,6 +109,7 @@
           <th rowspan="2">Parameter for quality check</th>
           <th colspan="2">Details of work done</th>
           <th rowspan="2">Remarks</th>
+          <th rowspan="2">Images</th>
           <th rowspan="2">Trip</th>
           <th rowspan="2">IA/IB</th>
           <th rowspan="2">IC</th>

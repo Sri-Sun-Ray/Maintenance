@@ -36,24 +36,41 @@ $totalPoints = array_sum($modules);
 $totalOpenPoints = 0;
 
 foreach ($modules as $module => $fixedTotal) {
+  $tables[] = $module;
+}
 
-  /* 0️⃣ Check if table exists */
+/* 🔹 Get overall report dates (min of all created_at, max of all updated_at) */
+$reportCreatedAt = "-";
+$reportUpdatedAt = "-";
+$allCreated = [];
+$allUpdated = [];
+
+$escStation = $conn->real_escape_string($station);
+$escLoco    = $conn->real_escape_string($loco);
+
+foreach ($tables as $t) {
+    if ($conn->query("SHOW TABLES LIKE '$t'")->num_rows > 0) {
+        $dateRes = $conn->query("SELECT MIN(created_at) as c, MAX(updated_at) as u FROM `$t` WHERE station='$escStation' AND loco='$escLoco'");
+        if ($dateRes && $dRow = $dateRes->fetch_assoc()) {
+            if ($dRow['c']) $allCreated[] = strtotime($dRow['c']);
+            if ($dRow['u']) $allUpdated[] = strtotime($dRow['u']);
+        }
+    }
+}
+
+if (!empty($allCreated)) $reportCreatedAt = date("d-m-Y", min($allCreated));
+if (!empty($allUpdated)) $reportUpdatedAt = date("d-m-Y", max($allUpdated));
+
+$responseModules = [];
+$totalOpenPoints = 0;
+
+foreach ($modules as $module => $fixedTotal) {
   $tableExistsResult = $conn->query("SHOW TABLES LIKE '$module'");
   $tableExists = $tableExistsResult->num_rows > 0;
 
   $closedPoints = 0;
   if ($tableExists) {
-    /* 1️⃣ Count CLOSED points (any schedule checked) */
-    $stmtClosed = $conn->prepare("
-      SELECT COUNT(*) AS closed_points
-      FROM $module
-      WHERE station = ?
-        AND loco = ?
-        AND (
-          trip = 1 OR ia_ib = 1 OR ic = 1 OR
-          toh_aoh = 1 OR ioh_poh = 1
-        )
-    ");
+    $stmtClosed = $conn->prepare("SELECT COUNT(*) AS closed_points FROM $module WHERE station = ? AND loco = ? AND (trip = 1 OR ia_ib = 1 OR ic = 1 OR toh_aoh = 1 OR ioh_poh = 1)");
     if ($stmtClosed) {
       $stmtClosed->bind_param("ss", $station, $loco);
       $stmtClosed->execute();
@@ -63,28 +80,29 @@ foreach ($modules as $module => $fixedTotal) {
     }
   }
 
-  /* 2️⃣ OPEN points = fixed total − closed points */
   $openPoints = $fixedTotal - $closedPoints;
   if ($openPoints < 0) $openPoints = 0;
-
   $totalOpenPoints += $openPoints;
-
-  /* 3️⃣ Module status */
   $moduleStatus = ($openPoints > 0) ? "Open" : "Closed";
 
   $responseModules[] = [
     "module" => ucfirst(str_replace("_", " ", $module)),
     "status" => $moduleStatus,
-    "openPoints" => $openPoints
+    "totalPoints" => $fixedTotal,
+    "closedPoints" => $closedPoints,
+    "openPoints" => $openPoints,
+    "createdAt" => $reportCreatedAt,
+    "updatedAt" => $reportUpdatedAt
   ];
 }
 
 $conn->close();
 
-/* 4️⃣ Final response */
 echo json_encode([
   "success" => true,
   "totalPoints" => $totalPoints,
   "openPoints" => $totalOpenPoints,
-  "modules" => $responseModules
+  "modules" => $responseModules,
+  "reportCreated" => $reportCreatedAt,
+  "reportUpdated" => $reportUpdatedAt
 ]);

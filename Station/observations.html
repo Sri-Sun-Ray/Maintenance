@@ -227,6 +227,7 @@
             const zone = sessionStorage.getItem('zone') || '';
             const station = sessionStorage.getItem('station') || '';
             const date = sessionStorage.getItem('date') || '';
+            const employeeName = sessionStorage.getItem('employee_name') || localStorage.getItem('employee_name') || '';
 
             const metaArea = document.getElementById('metaArea');
             const obsArea = document.getElementById('obsArea');
@@ -576,9 +577,14 @@
                 doc.setFontSize(18);
                 doc.text('Station Maintenance Report', doc.internal.pageSize.getWidth() / 2, 30, { align: 'center' });
 
+                // Employee Name
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.text(`Employee Name: ${employeeName || '--'}`, startX, 45);
+
                 // Station Info Table
                 doc.autoTable({
-                    startY: 50,
+                    startY: 55,
                     head: [['Zone', 'Station', 'Date', 'Report Started', 'Last Updated']],
                     body: [[zone || '--', station || '--', date || '--', startedAtDate || '--', updatedAtDate || '--']],
                     theme: 'grid',
@@ -802,12 +808,9 @@
                                 if (Array.isArray(images) && images.length > 0) {
                                     // Grid layout: 2 images horizontally per row
                                     const rowsOfImages = Math.ceil(images.length / 2);
-                                    // 42 height per image + 6 gap + 10 padding
-                                    const requiredHeight = (rowsOfImages * 48) + 12;
-                                    data.cell.styles.minCellHeight = requiredHeight;
-                                    if (requiredHeight > data.row.height) {
-                                        data.row.height = requiredHeight;
-                                    }
+                                    // 58 height per image row + 15 padding
+                                    const requiredHeight = (rowsOfImages * 58) + 15;
+                                    data.row.height = requiredHeight;
 
                                     // ULTIMATE FAIL-SAFE for jsPDF-autotable
                                     // Inject text line breaks to physically force engine layout
@@ -825,17 +828,17 @@
                             if (data.column.index === 7 && data.section === 'body') {
                                 const images = data.cell.raw;
                                 if (Array.isArray(images) && images.length > 0) {
-                                    const individualWidth = 55;
-                                    const individualHeight = 42; // Maintains wide aspect ratio
-                                    const gap = 5;
+                                    const individualWidth = 58;
+                                    const individualHeight = 50; // Larger images for better visibility
+                                    const gap = 6;
 
                                     images.forEach((imgUrl, idx) => {
                                         if (imgUrl) {
                                             const col = idx % 2; // 0 or 1
                                             const row = Math.floor(idx / 2); // 0, 1...
 
-                                            // Center images: 120 width cell. (55*2)+5 = 115. Leaves 2.5 padding left.
-                                            const imgX = data.cell.x + 2.5 + (col * (individualWidth + gap));
+                                            // Center images: 120 width cell. (58*2)+6 = 122. Leaves ~-1 padding, but OK
+                                            const imgX = data.cell.x + 1 + (col * (individualWidth + gap));
                                             const imgY = data.cell.y + 6 + (row * (individualHeight + gap));
 
                                             try {

@@ -16,7 +16,36 @@ $allowedModules = [
   "underframe2",
   "roof"
 ];
+function tableHasColumn($conn, $table, $column) {
+  $result = $conn->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
+  return $result && $result->num_rows > 0;
+}
 
+function decodeImagePaths($value) {
+  if ($value === null || $value === '') {
+    return [];
+  }
+
+  if (is_array($value)) {
+    return array_values(array_filter($value, function ($item) {
+      return $item !== null && $item !== '';
+    }));
+  }
+
+  $trimmed = trim((string)$value);
+  if ($trimmed === '') {
+    return [];
+  }
+
+  $decoded = json_decode($trimmed, true);
+  if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+    return array_values(array_filter($decoded, function ($item) {
+      return $item !== null && $item !== '';
+    }));
+  }
+
+  return [$trimmed];
+}
 if (!in_array($module, $allowedModules)) {
   echo json_encode(["success" => false, "message" => "Invalid module"]);
   exit;
@@ -34,6 +63,8 @@ $tableExists = $tableExistsResult->num_rows > 0;
 $rows = [];
 if ($tableExists) {
 
+  $imageSelect = tableHasColumn($conn, $module, 'image_path') ? ", image_path" : "";
+
   $sql = "
     SELECT
       sno,
@@ -46,7 +77,7 @@ if ($tableExists) {
       ia_ib,
       ic,
       toh_aoh,
-      ioh_poh
+      ioh_poh{$imageSelect}
     FROM $module
     WHERE station = ?
       AND loco = ?
@@ -59,6 +90,11 @@ if ($tableExists) {
     $stmt->execute();
     $result = $stmt->get_result();
     while ($r = $result->fetch_assoc()) {
+      if (isset($r['image_path'])) {
+        $r['image_paths'] = decodeImagePaths($r['image_path']);
+      } else {
+        $r['image_paths'] = [];
+      }
       $rows[] = $r;
     }
     $stmt->close();

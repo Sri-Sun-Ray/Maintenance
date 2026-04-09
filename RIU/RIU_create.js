@@ -72,6 +72,11 @@ function saveInfo() {
 
       alert(`✅ Data Saved Successfully!`);
       document.querySelector('.sidebar').style.pointerEvents = 'auto';
+      const genBtn = document.getElementById("generateReportBtn");
+      if (genBtn) {
+        genBtn.disabled = false;
+        genBtn.title = "";
+      }
     }
     else if(result.message=== 'Record already exists')
       {
@@ -80,6 +85,11 @@ function saveInfo() {
       document.getElementById('btn-save').style.display = 'none';
       document.getElementById('btn-get_details').style.display = 'block';
       document.querySelector('.sidebar').style.pointerEvents = 'auto';
+      const genBtn = document.getElementById("generateReportBtn");
+      if (genBtn) {
+        genBtn.disabled = false;
+        genBtn.title = "";
+      }
       }
       else {
       alert("❌ Error saving data: " + result.message);
@@ -167,6 +177,11 @@ window.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById('btn-save').style.display = 'none';
     document.getElementById('btn-get_details').style.display = 'block';
+    const genBtn = document.getElementById("generateReportBtn");
+    if (genBtn) {
+      genBtn.disabled = false;
+      genBtn.title = "";
+    }
   }
   // If only zone/station in localStorage, show Save button
   else if (storedZone && storedStation) {
